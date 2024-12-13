@@ -523,9 +523,13 @@ def main():
         # Step 1: Load and preprocess data
         if os.path.exists(checkpoints["preprocessed_data"]):
             logger.info("Loading preprocessed data from checkpoint.")
-            df_train_processed, df_val_processed, df_test_processed, df_val_original = (
-                joblib.load(checkpoints["preprocessed_data"])
-            )
+            (
+                df_train_processed,
+                df_val_processed,
+                df_test_processed,
+                df_val_original,
+                df_test_original,
+            ) = joblib.load(checkpoints["preprocessed_data"])
         else:
             logger.info("Loading and preprocessing data.")
             combined_df = load_data(args.data_path)
@@ -543,14 +547,16 @@ def main():
 
             with log_step(logger, "Preprocessing testing data"):
                 df_test_processed = preprocess_data(df_test)
+                df_test_original = df_test.copy()  # Preserve original df_test
 
-            # Save preprocessed data along with original df_val
+            # Save preprocessed data along with original df_val and df_test
             joblib.dump(
                 (
                     df_train_processed,
                     df_val_processed,
                     df_test_processed,
                     df_val_original,
+                    df_test_original,
                 ),
                 checkpoints["preprocessed_data"],
             )
@@ -1218,129 +1224,134 @@ def main():
                 trials_df.to_csv(trials_csv_path, index=False)
                 logger.info(f"Saved trial data to {trials_csv_path}")
 
-        # Step 4: Final Evaluation on Test Set
-        if best_model_name:
-            try:
-                logger.info(
-                    f"\nPerforming final evaluation with best model: {best_model_name}"
-                )
-                best_model_pipeline = models[best_model_name]["model"]
-
-                # Use the pipeline directly for predictions
-                if hasattr(best_model_pipeline, "predict_proba"):
-                    final_predictions_proba = best_model_pipeline.predict_proba(
-                        df_test_processed.drop("SepsisLabel", axis=1)
-                    )[:, 1]
-                    final_predictions = (final_predictions_proba > 0.5).astype(int)
-                    logger.info(f"Predictions made with {best_model_name} on test set.")
-                else:
-                    final_predictions = best_model_pipeline.predict(
-                        df_test_processed.drop("SepsisLabel", axis=1)
+            # Step 4: Final Evaluation on Test Set
+            if best_model_name:
+                try:
+                    logger.info(
+                        f"\nPerforming final evaluation with best model: {best_model_name}"
                     )
-                    final_predictions_proba = None
-                    logger.info(f"Predictions made with {best_model_name} on test set.")
+                    best_model_pipeline = models[best_model_name]["model"]
 
-                # Convert predictions to pandas.Series
-                final_predictions = pd.Series(
-                    final_predictions, index=df_test_processed.index, name="Predicted"
-                )
-                final_predictions_proba = (
-                    pd.Series(
-                        final_predictions_proba,
+                    # Use the pipeline directly for predictions
+                    if hasattr(best_model_pipeline, "predict_proba"):
+                        final_predictions_proba = best_model_pipeline.predict_proba(
+                            df_test_processed.drop("SepsisLabel", axis=1)
+                        )[:, 1]
+                        final_predictions = (final_predictions_proba > 0.5).astype(int)
+                        logger.info(
+                            f"Predictions made with {best_model_name} on test set."
+                        )
+                    else:
+                        final_predictions = best_model_pipeline.predict(
+                            df_test_processed.drop("SepsisLabel", axis=1)
+                        )
+                        final_predictions_proba = None
+                        logger.info(
+                            f"Predictions made with {best_model_name} on test set."
+                        )
+
+                    # Convert predictions to pandas.Series
+                    final_predictions = pd.Series(
+                        final_predictions,
                         index=df_test_processed.index,
-                        name="Predicted_Prob",
+                        name="Predicted",
                     )
-                    if final_predictions_proba is not None
-                    else None
-                )
-
-                # Merge Patient_ID back for final evaluation
-                df_test_with_predictions = df_test.copy()  # Use original df_test
-                df_test_with_predictions[final_predictions.name] = final_predictions
-                if final_predictions_proba is not None:
-                    df_test_with_predictions[final_predictions_proba.name] = (
-                        final_predictions_proba
+                    final_predictions_proba = (
+                        pd.Series(
+                            final_predictions_proba,
+                            index=df_test_processed.index,
+                            name="Predicted_Prob",
+                        )
+                        if final_predictions_proba is not None
+                        else None
                     )
 
-                # Evaluate the best model on the test set
-                metrics = evaluate_model(
-                    y_true=df_test_processed["SepsisLabel"],
-                    y_pred=final_predictions,
-                    data=df_test_with_predictions,  # Use df_test_with_predictions
-                    model_name=f"Final_{best_model_name.replace(' ', '_').lower()}",
-                    y_pred_proba=final_predictions_proba,
-                    model=best_model_pipeline,  # Use the pipeline directly
-                    report_dir=unique_report_dir,
-                    logger=logger,
+                    # Merge Patient_ID back for final evaluation
+                    df_test_with_predictions = (
+                        df_test_original.copy()
+                    )  # Use original df_test
+                    df_test_with_predictions[final_predictions.name] = final_predictions
+                    if final_predictions_proba is not None:
+                        df_test_with_predictions[final_predictions_proba.name] = (
+                            final_predictions_proba
+                        )
+
+                    # Evaluate the best model on the test set
+                    metrics = evaluate_model(
+                        y_true=df_test_processed["SepsisLabel"],
+                        y_pred=final_predictions,
+                        data=df_test_with_predictions,  # Use df_test_with_predictions
+                        model_name=f"Final_{best_model_name.replace(' ', '_').lower()}",
+                        y_pred_proba=final_predictions_proba,
+                        model=best_model_pipeline,  # Use the pipeline directly
+                        report_dir=unique_report_dir,
+                        logger=logger,
+                    )
+                    logger.info(f"Final evaluation completed for {best_model_name}.")
+
+                    # Generate model card
+                    generate_model_card(
+                        model=best_model_pipeline,
+                        model_name=best_model_name,
+                        metrics=metrics,
+                        train_data=df_train_processed,
+                        val_data=df_val_processed,
+                        test_data=df_test_processed,
+                        report_dir=unique_report_dir,
+                        run_id=run_id,
+                        logger=logger,
+                    )
+
+                    # Save the best model using ModelRegistry
+                    logger.info(f"Saving the best model ({best_model_name})")
+                    model_registry.save_model(
+                        model=best_model_pipeline,  # Save the entire pipeline
+                        name=best_model_name,
+                        params=best_model_pipeline.get_params(),
+                        metrics=metrics,
+                        artifacts={
+                            "confusion_matrix": os.path.join(
+                                unique_report_dir,
+                                f"{best_model_name}_confusion_matrix.png",
+                            ),
+                            "roc_curve": os.path.join(
+                                unique_report_dir, f"{best_model_name}_roc_curve.png"
+                            ),
+                            "precision_recall_curve": os.path.join(
+                                unique_report_dir,
+                                f"{best_model_name}_precision_recall_curve.png",
+                            ),
+                            "feature_importance": os.path.join(
+                                unique_report_dir,
+                                f"{best_model_name}_feature_importance.png",
+                            ),
+                            "missing_values_heatmap": os.path.join(
+                                unique_report_dir,
+                                f"{best_model_name}_missing_values_heatmap.png",
+                            ),
+                        },
+                        tags=["tuned"],
+                    )
+                    logger.info(f"Model ({best_model_name}) saved successfully.")
+
+                    # Clean up
+                    del best_model_pipeline, final_predictions, final_predictions_proba
+                    gc.collect()
+
+                    logger.info("Sepsis Prediction Pipeline completed successfully.")
+
+                except Exception as e:
+                    logger.error(
+                        f"An error occurred during final evaluation: {str(e)}",
+                        exc_info=True,
+                    )
+                    raise
+
+            else:
+                logger.warning(
+                    "No models were trained. Pipeline did not complete successfully."
                 )
-                logger.info(f"Final evaluation completed for {best_model_name}.")
-
-                # Generate model card
-                generate_model_card(
-                    model=best_model_pipeline,
-                    model_name=best_model_name,
-                    metrics=metrics,
-                    train_data=df_train_processed,
-                    val_data=df_val_processed,
-                    test_data=df_test_processed,
-                    report_dir=unique_report_dir,
-                    run_id=run_id,
-                    logger=logger,
-                )
-
-                # Save the best model using ModelRegistry
-                logger.info(f"Saving the best model ({best_model_name})")
-                model_registry.save_model(
-                    model=best_model_pipeline,  # Save the entire pipeline
-                    name=best_model_name,
-                    params=best_model_pipeline.get_params(),
-                    metrics=metrics,
-                    artifacts={
-                        "confusion_matrix": os.path.join(
-                            unique_report_dir, f"{best_model_name}_confusion_matrix.png"
-                        ),
-                        "roc_curve": os.path.join(
-                            unique_report_dir, f"{best_model_name}_roc_curve.png"
-                        ),
-                        "precision_recall_curve": os.path.join(
-                            unique_report_dir,
-                            f"{best_model_name}_precision_recall_curve.png",
-                        ),
-                        "feature_importance": os.path.join(
-                            unique_report_dir,
-                            f"{best_model_name}_feature_importance.png",
-                        ),
-                        "missing_values_heatmap": os.path.join(
-                            unique_report_dir,
-                            f"{best_model_name}_missing_values_heatmap.png",
-                        ),
-                    },
-                    tags=["tuned"],
-                )
-                logger.info(f"Model ({best_model_name}) saved successfully.")
-
-                # Clean up
-                del best_model_pipeline, final_predictions, final_predictions_proba
-                gc.collect()
-
-                logger.info("Sepsis Prediction Pipeline completed successfully.")
-
-            except Exception as e:
-                logger.error(
-                    f"An error occurred during final evaluation: {str(e)}",
-                    exc_info=True,
-                )
-                raise
-
-        else:
-            logger.warning(
-                "No models were trained. Pipeline did not complete successfully."
-            )
 
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}", exc_info=True)
         raise
-
-
-if __name__ == "__main__":
-    main()

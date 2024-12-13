@@ -402,3 +402,150 @@ ERROR fixed
 12-13 18:34 - Random Forest - Pruned trials: 0
 12-13 18:34 - Random Forest - Failed trials: 0
 12-13 18:34 - Training Random Forest (Tuned)...
+12-13 18:37 - Training completed for Random Forest (Tuned).
+12-13 18:37 - Predictions made for Random Forest (Tuned).
+12-13 18:37 - Extracted model for evaluation: <class 'sklearn.ensemble._forest.RandomForestClassifier'>
+12-13 18:37 - 
+Random Forest (Tuned) Evaluation:
+12-13 18:37 -   Accuracy                  : 0.9711
+12-13 18:37 -   Precision                 : 0.2907
+12-13 18:37 -   Recall                    : 0.5330
+12-13 18:37 -   F1 Score                  : 0.3762
+12-13 18:37 -   Mean Absolute Error       : 0.0289
+12-13 18:37 -   Root Mean Squared Error   : 0.1700
+12-13 18:37 -   AUC-ROC                   : 0.9534
+12-13 18:37 -   Specificity               : 0.9784
+12-13 18:37 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
+12-13 18:37 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_roc_curve.png
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_precision_recall_curve.png
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_calibration.png
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_feature_importance.png
+12-13 18:37 - Random Forest (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 18:37 - Missing values heatmap saved to reports/evaluations/run_20241213_182951/Random Forest (Tuned)_missing_values_heatmap.png
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_temporal_patient_103365.png
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_temporal_patient_119022.png
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_temporal_patient_2720.png
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_temporal_patient_19437.png
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_temporal_patient_105885.png
+12-13 18:37 - Saved temporal progression plots for 5 patients
+12-13 18:37 - Saved plot: Random_Forest_(Tuned)_error_analysis.png
+12-13 18:37 - Saved error analysis plots to reports/evaluations/run_20241213_182951
+12-13 18:38 - Saved feature interaction plots for top 5 pairs
+12-13 18:38 - No sepsis patients have predictions for timeline plots.
+12-13 18:38 - Saved evaluation metrics to reports/evaluations/run_20241213_182951/Random Forest (Tuned)_metrics.json
+
+12-13 18:38 - Evaluation completed for Random Forest (Tuned).
+12-13 18:38 - New best model: Random Forest (Tuned) with F1 Score: 0.3762
+12-13 18:38 - Saved hyperparameters to reports/evaluations/run_20241213_182951/random_forest_tuned_params.json
+12-13 18:38 - Optimizing Logistic Regression hyperparameters with Optuna.
+12-13 18:38 - Best Logistic Regression parameters: {'penalty': 'elasticnet', 'C': 0.21956410310260677, 'max_iter': 520, 'tol': 0.00017962160461897637, 'l1_ratio': 0.46663841712083964}
+12-13 18:38 - Logistic Regression - Total trials: 8
+12-13 18:38 - Logistic Regression - Completed trials: 8
+12-13 18:38 - Logistic Regression - Pruned trials: 0
+12-13 18:38 - Logistic Regression - Failed trials: 0
+12-13 18:38 - Training Logistic Regression (Tuned)...
+12-13 18:39 - Training completed for Logistic Regression (Tuned).
+12-13 18:39 - Predictions made for Logistic Regression (Tuned).
+12-13 18:39 - Extracted model for evaluation: <class 'sklearn.linear_model._logistic.LogisticRegression'>
+12-13 18:39 - 
+Logistic Regression (Tuned) Evaluation:
+12-13 18:39 -   Accuracy                  : 0.9462
+12-13 18:39 -   Precision                 : 0.1906
+12-13 18:39 -   Recall                    : 0.7050
+12-13 18:39 -   F1 Score                  : 0.3001
+12-13 18:39 -   Mean Absolute Error       : 0.0538
+12-13 18:39 -   Root Mean Squared Error   : 0.2319
+12-13 18:39 -   AUC-ROC                   : 0.8967
+12-13 18:39 -   Specificity               : 0.9502
+12-13 18:39 - Saved plot: Logistic Regression (Tuned)_confusion_matrix.png
+12-13 18:39 - Saved plot: Logistic Regression (Tuned)_confusion_matrix_normalized.png
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_roc_curve.png
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_precision_recall_curve.png
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_calibration.png
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_feature_importance.png
+12-13 18:39 - Logistic Regression (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 18:39 - Missing values heatmap saved to reports/evaluations/run_20241213_182951/Logistic Regression (Tuned)_missing_values_heatmap.png
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_103265.png
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_114260.png
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_19970.png
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_8710.png
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_1245.png
+12-13 18:39 - Saved temporal progression plots for 5 patients
+12-13 18:39 - Saved plot: Logistic_Regression_(Tuned)_error_analysis.png
+12-13 18:39 - Saved error analysis plots to reports/evaluations/run_20241213_182951
+12-13 18:39 - Saved feature interaction plots for top 5 pairs
+12-13 18:39 - No sepsis patients have predictions for timeline plots.
+12-13 18:39 - Saved evaluation metrics to reports/evaluations/run_20241213_182951/Logistic Regression (Tuned)_metrics.json
+
+12-13 18:39 - Evaluation completed for Logistic Regression (Tuned).
+12-13 18:39 - Saved hyperparameters to reports/evaluations/run_20241213_182951/logistic_regression_tuned_params.json
+12-13 18:39 - Optimizing XGBoost hyperparameters with Optuna.
+12-13 18:40 - Best XGBoost parameters: {'n_estimators': 360, 'max_depth': 6, 'learning_rate': 0.119527718013466, 'subsample': 0.8562833575504147, 'colsample_bytree': 0.5953210534503394, 'gamma': 3.775219533080583, 'reg_alpha': 0.9682079285262276, 'reg_lambda': 0.7909075717648127}
+12-13 18:40 - XGBoost - Total trials: 7
+12-13 18:40 - XGBoost - Completed trials: 6
+12-13 18:40 - XGBoost - Pruned trials: 0
+12-13 18:40 - XGBoost - Failed trials: 1
+12-13 18:40 - Training XGBoost (Tuned)...
+12-13 18:40 - Training completed for XGBoost (Tuned).
+12-13 18:40 - Predictions made for XGBoost (Tuned).
+12-13 18:40 - Extracted model for evaluation: <class 'xgboost.sklearn.XGBClassifier'>
+12-13 18:40 - 
+XGBoost (Tuned) Evaluation:
+12-13 18:40 -   Accuracy                  : 0.9262
+12-13 18:40 -   Precision                 : 0.1546
+12-13 18:40 -   Recall                    : 0.7865
+12-13 18:40 -   F1 Score                  : 0.2584
+12-13 18:40 -   Mean Absolute Error       : 0.0738
+12-13 18:40 -   Root Mean Squared Error   : 0.2717
+12-13 18:40 -   AUC-ROC                   : 0.9407
+12-13 18:40 -   Specificity               : 0.9285
+12-13 18:40 - Saved plot: XGBoost (Tuned)_confusion_matrix.png
+12-13 18:40 - Saved plot: XGBoost (Tuned)_confusion_matrix_normalized.png
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_roc_curve.png
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_precision_recall_curve.png
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_calibration.png
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_feature_importance.png
+12-13 18:40 - XGBoost (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 18:40 - Missing values heatmap saved to reports/evaluations/run_20241213_182951/XGBoost (Tuned)_missing_values_heatmap.png
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_temporal_patient_2220.png
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_temporal_patient_5191.png
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_temporal_patient_12970.png
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_temporal_patient_614.png
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_temporal_patient_108217.png
+12-13 18:40 - Saved temporal progression plots for 5 patients
+12-13 18:40 - Saved plot: XGBoost_(Tuned)_error_analysis.png
+12-13 18:40 - Saved error analysis plots to reports/evaluations/run_20241213_182951
+12-13 18:40 - Saved feature interaction plots for top 5 pairs
+12-13 18:40 - No sepsis patients have predictions for timeline plots.
+12-13 18:40 - Saved evaluation metrics to reports/evaluations/run_20241213_182951/XGBoost (Tuned)_metrics.json
+
+12-13 18:40 - Evaluation completed for XGBoost (Tuned).
+12-13 18:40 - Saved hyperparameters to reports/evaluations/run_20241213_182951/xgboost_tuned_params.json
+12-13 18:40 - Saved trained models to checkpoints/trained_models.pkl
+12-13 18:40 - Saved updated Optuna studies to checkpoints/optuna_studies.pkl
+12-13 18:40 - Saved trial data to reports/evaluations/run_20241213_182951/random_forest_optimization_optimization_trials.csv
+12-13 18:40 - Saved trial data to reports/evaluations/run_20241213_182951/logistic_regression_optimization_optimization_trials.csv
+12-13 18:40 - Saved trial data to reports/evaluations/run_20241213_182951/xgboost_optimization_optimization_trials.csv
+12-13 18:40 - 
+Performing final evaluation with best model: Random Forest (Tuned)
+12-13 18:40 - Predictions made with Random Forest (Tuned) on test set.
+12-13 18:40 - An error occurred during final evaluation: local variable 'df_test' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 1258, in main
+    df_test_with_predictions = df_test.copy()  # Use original df_test
+UnboundLocalError: local variable 'df_test' referenced before assignment
+12-13 18:40 - An error occurred: local variable 'df_test' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 1258, in main
+    df_test_with_predictions = df_test.copy()  # Use original df_test
+UnboundLocalError: local variable 'df_test' referenced before assignment
+12-13 18:40 - Phase Failed: Main
+12-13 18:40 - Error: local variable 'df_test' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/logger_utils.py", line 42, in wrapper
+    result = func(*args, **kwargs)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 1258, in main
+    df_test_with_predictions = df_test.copy()  # Use original df_test
+UnboundLocalError: local variable 'df_test' referenced before assignment
+12-13 18:40 - ================================================================================
