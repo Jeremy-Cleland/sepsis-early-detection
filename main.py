@@ -523,8 +523,8 @@ def main():
         # Step 1: Load and preprocess data
         if os.path.exists(checkpoints["preprocessed_data"]):
             logger.info("Loading preprocessed data from checkpoint.")
-            df_train_processed, df_val_processed, df_test_processed = joblib.load(
-                checkpoints["preprocessed_data"]
+            df_train_processed, df_val_processed, df_test_processed, df_val_original = (
+                joblib.load(checkpoints["preprocessed_data"])
             )
         else:
             logger.info("Loading and preprocessing data.")
@@ -539,13 +539,19 @@ def main():
 
             with log_step(logger, "Preprocessing validation data"):
                 df_val_processed = preprocess_data(df_val)
+                df_val_original = df_val.copy()  # Preserve original df_val
 
             with log_step(logger, "Preprocessing testing data"):
                 df_test_processed = preprocess_data(df_test)
 
-            # Save preprocessed data
+            # Save preprocessed data along with original df_val
             joblib.dump(
-                (df_train_processed, df_val_processed, df_test_processed),
+                (
+                    df_train_processed,
+                    df_val_processed,
+                    df_test_processed,
+                    df_val_original,
+                ),
                 checkpoints["preprocessed_data"],
             )
             logger.info(
@@ -563,7 +569,7 @@ def main():
             smote_enn = SMOTEENN(
                 smote=SMOTE(sampling_strategy=0.5, random_state=42, k_neighbors=6),
                 enn=EditedNearestNeighbours(
-                    n_jobs=10,
+                    n_jobs=-1,
                     n_neighbors=3,
                 ),
                 random_state=42,
@@ -660,7 +666,7 @@ def main():
                                 random_state=42,
                                 use_label_encoder=False,
                                 eval_metric="logloss",
-                                n_jobs=10,
+                                n_jobs=-1,
                                 **param,
                             ),
                         ),
@@ -681,7 +687,7 @@ def main():
                     y_train_resampled,
                     cv=3,
                     scoring=scoring,
-                    n_jobs=10,
+                    n_jobs=-1,
                 )
 
                 # Store all metrics
@@ -721,7 +727,7 @@ def main():
                             RandomForestClassifier(
                                 random_state=42,
                                 class_weight="balanced",
-                                n_jobs=10,
+                                n_jobs=-1,
                                 **param,
                             ),
                         ),
@@ -742,7 +748,7 @@ def main():
                     y_train_resampled,
                     cv=3,  # Number of folds
                     scoring=scoring,
-                    n_jobs=10,
+                    n_jobs=-1,
                 )
                 # Store all metrics
                 trial.set_user_attr("accuracy", cv_results["test_accuracy"].mean())
@@ -807,7 +813,7 @@ def main():
                     y_train_resampled,
                     cv=3,
                     scoring=scoring,
-                    n_jobs=10,
+                    n_jobs=-1,
                 )
                 # Store all metrics
                 trial.set_user_attr("accuracy", cv_results["test_accuracy"].mean())
@@ -891,7 +897,7 @@ def main():
                             RandomForestClassifier(
                                 random_state=42,
                                 class_weight="balanced",
-                                n_jobs=10,
+                                n_jobs=-1,
                                 **best_rf_params,
                             ),
                         ),
@@ -906,7 +912,7 @@ def main():
                     y_train=y_train_resampled,
                     X_val=df_val_processed.drop("SepsisLabel", axis=1),
                     y_val=df_val_processed["SepsisLabel"],
-                    df_val_original=df_val,  # Pass df_val here
+                    df_val_original=df_val_original,
                     unique_report_dir=unique_report_dir,
                     logger=logger,
                 )
@@ -1015,7 +1021,7 @@ def main():
                         (
                             "logistic_regression",
                             LogisticRegression(
-                                random_state=42, n_jobs=10, **best_lr_params
+                                random_state=42, n_jobs=-1, **best_lr_params
                             ),
                         ),
                     ]
@@ -1029,7 +1035,7 @@ def main():
                     y_train=y_train_resampled,
                     X_val=df_val_processed.drop("SepsisLabel", axis=1),
                     y_val=df_val_processed["SepsisLabel"],
-                    df_val_original=df_val,  # Pass df_val here
+                    df_val_original=df_val_original,
                     unique_report_dir=unique_report_dir,
                     logger=logger,
                 )
@@ -1122,7 +1128,7 @@ def main():
                                 random_state=42,
                                 use_label_encoder=False,
                                 eval_metric="logloss",
-                                n_jobs=10,
+                                n_jobs=-1,
                                 **best_xgb_params,
                             ),
                         ),
@@ -1137,7 +1143,7 @@ def main():
                     y_train=y_train_resampled,
                     X_val=df_val_processed.drop("SepsisLabel", axis=1),
                     y_val=df_val_processed["SepsisLabel"],
-                    df_val_original=df_val,  # Pass df_val here
+                    df_val_original=df_val_original,
                     unique_report_dir=unique_report_dir,
                     logger=logger,
                 )

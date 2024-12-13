@@ -107,25 +107,25 @@ def parse_arguments():
     parser.add_argument(
         "--optuna-n-jobs",
         type=int,
-        default=10,
+        default=1,
         help="Number of parallel jobs for Optuna hyperparameter tuning (default: 10)",
     )
     parser.add_argument(
         "--rf-trials",
         type=int,
-        default=3,
+        default=1,
         help="Number of trials for Random Forest optimization (default: 20)",
     )
     parser.add_argument(
         "--lr-trials",
         type=int,
-        default=3,
+        default=1,
         help="Number of trials for Logistic Regression optimization (default: 20)",
     )
     parser.add_argument(
         "--xgb-trials",
         type=int,
-        default=3,
+        default=1,
         help="Number of trials for XGBoost optimization (default: 20)",
     )
     parser.add_argument(
@@ -593,8 +593,8 @@ def main():
         # Step 1: Load and preprocess data
         if os.path.exists(checkpoints["preprocessed_data"]):
             logger.info("Loading preprocessed data from checkpoint.")
-            df_train_processed, df_val_processed, df_test_processed = joblib.load(
-                checkpoints["preprocessed_data"]
+            df_train_processed, df_val_processed, df_test_processed, df_val_original = (
+                joblib.load(checkpoints["preprocessed_data"])
             )
         else:
             logger.info("Loading and preprocessing data.")
@@ -609,13 +609,19 @@ def main():
 
             with log_step(logger, "Preprocessing validation data"):
                 df_val_processed = preprocess_data(df_val)
+                df_val_original = df_val.copy()  # Preserve original df_val
 
             with log_step(logger, "Preprocessing testing data"):
                 df_test_processed = preprocess_data(df_test)
 
-            # Save preprocessed data
+            # Save preprocessed data along with original df_val
             joblib.dump(
-                (df_train_processed, df_val_processed, df_test_processed),
+                (
+                    df_train_processed,
+                    df_val_processed,
+                    df_test_processed,
+                    df_val_original,
+                ),
                 checkpoints["preprocessed_data"],
             )
             logger.info(
@@ -633,7 +639,7 @@ def main():
             smote_enn = SMOTEENN(
                 smote=SMOTE(sampling_strategy=0.5, random_state=42, k_neighbors=6),
                 enn=EditedNearestNeighbours(
-                    n_jobs=10,
+                    n_jobs=-1,
                     n_neighbors=3,
                 ),
                 random_state=42,
@@ -730,7 +736,7 @@ def main():
                                 random_state=42,
                                 use_label_encoder=False,
                                 eval_metric="logloss",
-                                n_jobs=10,
+                                n_jobs=-1,
                                 **param,
                             ),
                         ),
@@ -751,7 +757,7 @@ def main():
                     y_train_resampled,
                     cv=3,
                     scoring=scoring,
-                    n_jobs=10,
+                    n_jobs=-1,
                 )
 
                 # Store all metrics
@@ -791,7 +797,7 @@ def main():
                             RandomForestClassifier(
                                 random_state=42,
                                 class_weight="balanced",
-                                n_jobs=10,
+                                n_jobs=-1,
                                 **param,
                             ),
                         ),
@@ -812,7 +818,7 @@ def main():
                     y_train_resampled,
                     cv=3,  # Number of folds
                     scoring=scoring,
-                    n_jobs=10,
+                    n_jobs=-1,
                 )
                 # Store all metrics
                 trial.set_user_attr("accuracy", cv_results["test_accuracy"].mean())
@@ -877,7 +883,7 @@ def main():
                     y_train_resampled,
                     cv=3,
                     scoring=scoring,
-                    n_jobs=10,
+                    n_jobs=-1,
                 )
                 # Store all metrics
                 trial.set_user_attr("accuracy", cv_results["test_accuracy"].mean())
@@ -961,7 +967,7 @@ def main():
                             RandomForestClassifier(
                                 random_state=42,
                                 class_weight="balanced",
-                                n_jobs=10,
+                                n_jobs=-1,
                                 **best_rf_params,
                             ),
                         ),
@@ -976,7 +982,7 @@ def main():
                     y_train=y_train_resampled,
                     X_val=df_val_processed.drop("SepsisLabel", axis=1),
                     y_val=df_val_processed["SepsisLabel"],
-                    df_val_original=df_val,  # Pass df_val here
+                    df_val_original=df_val_original,
                     unique_report_dir=unique_report_dir,
                     logger=logger,
                 )
@@ -1085,7 +1091,7 @@ def main():
                         (
                             "logistic_regression",
                             LogisticRegression(
-                                random_state=42, n_jobs=10, **best_lr_params
+                                random_state=42, n_jobs=-1, **best_lr_params
                             ),
                         ),
                     ]
@@ -1192,7 +1198,7 @@ def main():
                                 random_state=42,
                                 use_label_encoder=False,
                                 eval_metric="logloss",
-                                n_jobs=10,
+                                n_jobs=-1,
                                 **best_xgb_params,
                             ),
                         ),
@@ -1207,7 +1213,7 @@ def main():
                     y_train=y_train_resampled,
                     X_val=df_val_processed.drop("SepsisLabel", axis=1),
                     y_val=df_val_processed["SepsisLabel"],
-                    df_val_original=df_val,  # Pass df_val here
+                    df_val_original=df_val_original,
                     unique_report_dir=unique_report_dir,
                     logger=logger,
                 )
@@ -1453,14 +1459,7 @@ from .evaluation import (
     plot_feature_interactions,
 )
 from .feature_engineering import preprocess_data
-from .models import (
-    predict_xgboost,
-    train_knn,
-    train_logistic_regression,
-    train_naive_bayes,
-    train_random_forest,
-    train_xgboost,
-)
+
 from .utils import (
     log_message,
     log_metrics,
@@ -1484,13 +1483,6 @@ __all__ = [
     "load_processed_data",
     "split_data",
     "preprocess_data",
-    # Models
-    "train_random_forest",
-    "train_naive_bayes",
-    "train_knn",
-    "train_logistic_regression",
-    "train_xgboost",
-    "predict_xgboost",
     # Evaluation and Plotting
     "evaluate_model",
     "generate_evaluation_plots",
@@ -1518,12 +1510,6 @@ __all__ = [
     "get_logger",
     "disable_duplicate_logging",
     "ModelRegistry",
-    # Remove unused functions
-    # "corr_matrix",
-    # "diagnostic_plots",
-    # "try_gaussian",
-    # "setup_logger" (duplicate),
-    # "save_model",
 ]
 ```
 
@@ -1881,7 +1867,7 @@ def evaluate_model(
         generate_evaluation_plots(
             y_true=y_true,
             y_pred=y_pred,
-            data=data,  # Add this parameter
+            data=data,  # Pass the entire DataFrame
             y_pred_proba=y_pred_proba,
             model=model,
             model_name=model_name,
