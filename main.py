@@ -37,19 +37,19 @@ def parse_arguments():
     parser.add_argument(
         "--optuna-n-jobs",
         type=int,
-        default=2,
+        default=1,
         help="Number of parallel jobs for Optuna hyperparameter tuning (default: 10)",
     )
     parser.add_argument(
         "--rf-trials",
         type=int,
-        default=2,
+        default=1,
         help="Number of trials for Random Forest optimization (default: 20)",
     )
     parser.add_argument(
         "--lr-trials",
         type=int,
-        default=2,
+        default=1,
         help="Number of trials for Logistic Regression optimization (default: 20)",
     )
     parser.add_argument(
@@ -157,9 +157,9 @@ def train_and_evaluate_model(
     df_val_original: pd.DataFrame,
     unique_report_dir: str,
     logger: logging.Logger,
-) -> Tuple[Dict[str, float], Any]:
+) -> Tuple[Dict[str, float], ImbPipeline]:
     """
-    Trains and evaluates a model. Handles potential errors in evaluation by re-raising exceptions.
+    Trains and evaluates a model. Returns the entire pipeline instead of just the estimator.
 
     Args:
         model_name: Name of the model (e.g., "Random Forest (Tuned)")
@@ -175,7 +175,7 @@ def train_and_evaluate_model(
     Returns:
         A tuple containing:
             - metrics: Dictionary of evaluation metrics
-            - model: Trained model object
+            - pipeline: The entire trained pipeline object
     """
     logger.info(f"Training {model_name}...")
 
@@ -264,7 +264,7 @@ def train_and_evaluate_model(
             )
             raise
 
-        return metrics, model
+        return metrics, pipeline  # Return the entire pipeline instead of just the model
 
     except Exception as e:
         logger.error(
@@ -1224,28 +1224,20 @@ def main():
                 logger.info(
                     f"\nPerforming final evaluation with best model: {best_model_name}"
                 )
-                best_model = models[best_model_name]["model"]
+                best_model_pipeline = models[best_model_name]["model"]
 
-                # Make predictions on the test set
-                if "xgb_classifier" in best_model.named_steps:
-                    # Handle XGBoost predictions within the pipeline
-                    final_predictions_proba = best_model.predict_proba(
+                # Use the pipeline directly for predictions
+                if hasattr(best_model_pipeline, "predict_proba"):
+                    final_predictions_proba = best_model_pipeline.predict_proba(
                         df_test_processed.drop("SepsisLabel", axis=1)
                     )[:, 1]
                     final_predictions = (final_predictions_proba > 0.5).astype(int)
                     logger.info(f"Predictions made with {best_model_name} on test set.")
                 else:
-                    # Handle other models
-                    final_predictions = best_model.predict(
+                    final_predictions = best_model_pipeline.predict(
                         df_test_processed.drop("SepsisLabel", axis=1)
                     )
-                    final_predictions_proba = (
-                        best_model.predict_proba(
-                            df_test_processed.drop("SepsisLabel", axis=1)
-                        )[:, 1]
-                        if hasattr(best_model, "predict_proba")
-                        else None
-                    )
+                    final_predictions_proba = None
                     logger.info(f"Predictions made with {best_model_name} on test set.")
 
                 # Convert predictions to pandas.Series
@@ -1277,7 +1269,7 @@ def main():
                     data=df_test_with_predictions,  # Use df_test_with_predictions
                     model_name=f"Final_{best_model_name.replace(' ', '_').lower()}",
                     y_pred_proba=final_predictions_proba,
-                    model=best_model,
+                    model=best_model_pipeline,  # Use the pipeline directly
                     report_dir=unique_report_dir,
                     logger=logger,
                 )
@@ -1285,11 +1277,9 @@ def main():
 
                 # Generate model card
                 generate_model_card(
-                    model=best_model,
+                    model=best_model_pipeline,
                     model_name=best_model_name,
-                    metrics=metrics
-                    if "metrics" in locals()
-                    else metrics_xgb,  # Use appropriate metrics
+                    metrics=metrics,
                     train_data=df_train_processed,
                     val_data=df_val_processed,
                     test_data=df_test_processed,
@@ -1298,19 +1288,13 @@ def main():
                     logger=logger,
                 )
 
-                # Step 5: Save the best model using ModelRegistry
+                # Save the best model using ModelRegistry
                 logger.info(f"Saving the best model ({best_model_name})")
-                # Extract the estimator's parameters for saving
-                estimator_step = best_model_name.lower().replace(" ", "_")
-                best_model_params = best_model.named_steps.get(
-                    estimator_step
-                ).get_params()
-
                 model_registry.save_model(
-                    model=best_model,
+                    model=best_model_pipeline,  # Save the entire pipeline
                     name=best_model_name,
-                    params=best_model_params,
-                    metrics=metrics if "metrics" in locals() else metrics_xgb,
+                    params=best_model_pipeline.get_params(),
+                    metrics=metrics,
                     artifacts={
                         "confusion_matrix": os.path.join(
                             unique_report_dir, f"{best_model_name}_confusion_matrix.png"
@@ -1336,7 +1320,7 @@ def main():
                 logger.info(f"Model ({best_model_name}) saved successfully.")
 
                 # Clean up
-                del best_model, final_predictions, final_predictions_proba
+                del best_model_pipeline, final_predictions, final_predictions_proba
                 gc.collect()
 
                 logger.info("Sepsis Prediction Pipeline completed successfully.")

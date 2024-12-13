@@ -1,70 +1,5 @@
 # Combined Python Code
 
-## combine.py
-
-```python
-import os
-from pathlib import Path
-
-
-def combine_python_files(directory: str, output_file: str = "combined_code.md"):
-    """
-    Find all Python files in the given directory and its subdirectories,
-    and combine their contents into a single Markdown file.
-
-    Args:
-        directory (str): Root directory to search for Python files
-        output_file (str): Name of the output Markdown file
-    """
-    # Convert directory to Path object
-    root_dir = Path(directory)
-
-    # Find all Python files
-    python_files = list(root_dir.rglob("*.py"))
-
-    # Sort files for consistent output
-    python_files.sort()
-
-    # Create or overwrite the output file
-    with open(output_file, "w", encoding="utf-8") as outfile:
-        outfile.write("# Combined Python Code\n\n")
-
-        # Process each Python file
-        for file_path in python_files:
-            # Get relative path from root directory
-            try:
-                relative_path = file_path.relative_to(root_dir)
-            except ValueError:
-                relative_path = file_path
-
-            # Write file header
-            outfile.write(f"## {relative_path}\n\n")
-            outfile.write("```python\n")
-
-            # Read and write file contents
-            try:
-                with open(file_path, "r", encoding="utf-8") as infile:
-                    content = infile.read()
-                    outfile.write(content)
-
-                    # Ensure there's a newline at the end
-                    if not content.endswith("\n"):
-                        outfile.write("\n")
-            except Exception as e:
-                outfile.write(f"# Error reading file: {str(e)}\n")
-
-            outfile.write("```\n\n")
-
-
-if __name__ == "__main__":
-    # Get the current working directory
-    current_dir = os.getcwd()
-
-    print(f"Searching for Python files in: {current_dir}")
-    combine_python_files(current_dir)
-    print("Done! Check combined_code.md for the output.")
-```
-
 ## main.py
 
 ```python
@@ -107,19 +42,19 @@ def parse_arguments():
     parser.add_argument(
         "--optuna-n-jobs",
         type=int,
-        default=1,
+        default=2,
         help="Number of parallel jobs for Optuna hyperparameter tuning (default: 10)",
     )
     parser.add_argument(
         "--rf-trials",
         type=int,
-        default=1,
+        default=2,
         help="Number of trials for Random Forest optimization (default: 20)",
     )
     parser.add_argument(
         "--lr-trials",
         type=int,
-        default=1,
+        default=2,
         help="Number of trials for Logistic Regression optimization (default: 20)",
     )
     parser.add_argument(
@@ -1105,7 +1040,7 @@ def main():
                     y_train=y_train_resampled,
                     X_val=df_val_processed.drop("SepsisLabel", axis=1),
                     y_val=df_val_processed["SepsisLabel"],
-                    df_val_original=df_val,  # Pass df_val here
+                    df_val_original=df_val_original,
                     unique_report_dir=unique_report_dir,
                     logger=logger,
                 )
@@ -1430,87 +1365,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
-
-## src/__init__.py
-
-```python
-# src/__init__.py
-
-from .data_processing import (
-    load_data,
-    load_processed_data,
-    split_data,
-)
-from .evaluation import (
-    evaluate_model,
-    plot_class_distribution,
-    plot_confusion_matrix,
-    plot_feature_correlation_heatmap,
-    plot_feature_importance,
-    plot_precision_recall_curve,
-    plot_roc_curve,
-    generate_evaluation_plots,
-    plot_missing_values,
-    plot_temporal_progression,
-    plot_error_analysis,
-    plot_calibration,
-    plot_prediction_timeline,
-    plot_feature_interactions,
-)
-from .feature_engineering import preprocess_data
-
-from .utils import (
-    log_message,
-    log_metrics,
-    save_metrics_to_json,
-)
-
-from .logger_utils import (
-    log_phase,
-    log_memory,
-    log_dataframe_info,
-    log_step,
-    log_function,
-)
-from .logger_config import get_logger, disable_duplicate_logging
-
-from .model_registry import ModelRegistry
-
-__all__ = [
-    # Data Processing
-    "load_data",
-    "load_processed_data",
-    "split_data",
-    "preprocess_data",
-    # Evaluation and Plotting
-    "evaluate_model",
-    "generate_evaluation_plots",
-    "plot_confusion_matrix",
-    "plot_roc_curve",
-    "plot_precision_recall_curve",
-    "plot_feature_importance",
-    "plot_class_distribution",
-    "plot_feature_correlation_heatmap",
-    "plot_missing_values",  # New
-    "plot_temporal_progression",  # New
-    "plot_error_analysis",  # New
-    "plot_calibration",  # New
-    "plot_prediction_timeline",  # New
-    "plot_feature_interactions",  # New
-    # Logging and Utilities
-    "log_message",
-    "log_metrics",
-    "save_metrics_to_json",
-    "log_phase",
-    "log_memory",
-    "log_dataframe_info",
-    "log_step",
-    "log_function",
-    "get_logger",
-    "disable_duplicate_logging",
-    "ModelRegistry",
-]
 ```
 
 ## src/data_processing.py
@@ -3938,4 +3792,3 @@ def save_metrics_to_json(
         else:
             print(f"Failed to save metrics to JSON: {e}")
 ```
-
