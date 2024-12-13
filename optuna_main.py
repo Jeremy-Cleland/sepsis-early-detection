@@ -150,6 +150,7 @@ def train_and_evaluate_model(
         metrics = evaluate_model(
             y_true=y_val,
             y_pred=y_pred,
+            # ! data=df_val_processed,  # Add this parameter
             model_name=model_name,
             y_pred_proba=y_pred_proba,
             model=model,
@@ -910,3 +911,111 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+#     # In optuna_main.py
+# metrics = evaluate_model(
+#     y_true=y_val,
+#     y_pred=y_pred,
+#     data=df_val_processed,  # Add this parameter
+#     model_name=model_name,
+#     y_pred_proba=y_pred_proba,
+#     model=model,
+#     report_dir=unique_report_dir,
+#     logger=logger,
+# )
+
+# def generate_evaluation_plots(
+#     y_true: np.ndarray,
+#     y_pred: np.ndarray,
+#     data: pd.DataFrame,  # Add original data as parameter
+#     y_pred_proba: Optional[np.ndarray],
+#     model: Any,
+#     model_name: str,
+#     report_dir: str,
+#     logger: Optional[logging.Logger] = None
+# ) -> None:
+#     """Generate comprehensive evaluation plots."""
+#     try:
+#         # Existing base plots
+#         plot_confusion_matrix(
+#             y_true, y_pred, model_name, report_dir, normalize=False, logger=logger
+#         )
+#         plot_confusion_matrix(
+#             y_true, y_pred, model_name, report_dir, normalize=True, logger=logger
+#         )
+
+#         # ROC and Precision-Recall if probabilities available
+#         if y_pred_proba is not None:
+#             plot_roc_curve(y_true, y_pred_proba, model_name, report_dir, logger=logger)
+#             plot_precision_recall_curve(
+#                 y_true, y_pred_proba, model_name, report_dir, logger=logger)
+#             plot_calibration(y_true, y_pred_proba, report_dir, model_name, logger=logger)
+
+#         # Feature importance if available
+#         if model is not None:
+#             plot_feature_importance(model, model_name, report_dir, logger=logger)
+
+#         # Data quality plots
+#         plot_missing_values(data, report_dir, model_name=model_name, logger=logger)
+
+#         # Temporal analysis plots
+#         vital_features = ['HR', 'O2Sat', 'Temp', 'MAP', 'Resp']
+#         plot_temporal_progression(
+#             data,
+#             vital_features,
+#             report_dir,
+#             model_name=model_name,
+#             max_patients=5,  # Adjust as needed
+#             logger=logger
+#         )
+
+#         # Define patient groups for error analysis
+#         patient_groups = {}
+#         if 'Age' in data.columns:
+#             patient_groups.update({
+#                 'Young': data['Age'] < 50,
+#                 'Elderly': data['Age'] >= 50
+#             })
+#         if 'Gender_1' in data.columns:  # Assuming one-hot encoded
+#             patient_groups.update({
+#                 'Male': data['Gender_1'] == 1,
+#                 'Female': data['Gender_1'] == 0
+#             })
+
+#         plot_error_analysis(
+#             y_true,
+#             y_pred,
+#             patient_groups,
+#             report_dir,
+#             model_name=model_name,
+#             logger=logger
+#         )
+
+#         # Feature interactions
+#         numeric_features = data.select_dtypes(include=[np.number]).columns.tolist()
+#         plot_feature_interactions(
+#             data,
+#             numeric_features,
+#             report_dir,
+#             model_name=model_name,
+#             top_n=5,  # Top 5 most correlated pairs
+#             logger=logger
+#         )
+
+#         # Prediction timeline
+#         plot_prediction_timeline(
+#             data,
+#             y_pred,
+#             report_dir,
+#             model_name=model_name,
+#             max_patients=5,
+#             logger=logger
+#         )
+
+#     except Exception as e:
+#         if logger:
+#             logger.error(f"Error generating evaluation plots: {str(e)}", exc_info=True)
+#         raise
+#     finally:
+#         plt.close('all')

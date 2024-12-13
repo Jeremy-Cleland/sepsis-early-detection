@@ -54,6 +54,7 @@ def evaluate_model(
     y_true: np.ndarray,
     y_pred: np.ndarray,
     model_name: str,
+    # data: pd.DataFrame,  # Add this parameter
     report_dir: str = "reports/evaluations",
     y_pred_proba: Optional[np.ndarray] = None,
     model: Optional[Any] = None,
@@ -90,6 +91,7 @@ def evaluate_model(
         # Generate and save essential plots
         generate_evaluation_plots(
             y_true=y_true,
+            #! data=data,  # Add this parameter
             y_pred=y_pred,
             y_pred_proba=y_pred_proba,
             model=model,
