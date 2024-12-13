@@ -1,0 +1,43 @@
+name: predictsepsis
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - black
+  - flake8
+  - isort
+  - pip
+  - typer
+  - loguru
+  - tqdm
+  - ipython
+  - jupyterlab
+  - matplotlib
+  - notebook
+  - numpy
+  - pandas
+  - scikit-learn
+  - seaborn
+  - statsmodels
+  - imbalanced-learn
+  - shap
+  - pytest
+  - pytest-cov
+  - joblib
+  - coverage
+  - lightgbm
+  - xgboost
+  - optuna
+  - tabulate
+  - scikit-plot
+  - plotly
+  - ipywidgets
+  - ydata-profiling
+  # Added missing required packages
+  - colorlog
+  - psutil
+  - python-json-logger
+  - pip:
+      - python-dotenv
+      - optuna-dashboard

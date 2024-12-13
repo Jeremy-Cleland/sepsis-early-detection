@@ -1,0 +1,32 @@
+__pycache__/
+*.pyc
+.DS_Store
+.env
+venv/
+# *.log
+
+lastrun.md
+record.md
+old_evaluation.py
+
+data
+models*.pkl
+*.csv
+models/best_model_random forest.pkl
+data/processed/data_part1.csv
+data/processed/data_part2.csv
+data/processed/val_data.csv
+data/processed/test_data.csv
+models/best_model_xgboost.pkl
+data/processed/val_data.csv
+data/processed/test_data.csv
+models/best_model_xgboost.pkl
+checkpoints
+
+models/best_model_random forest(tuned).pkl
+models/best_model_naive bayes.pkl
+
+models/best_model_random forest (tuned).pkl
+models/transformers/scaler.pkl
+models/transformers/categories.pkl
+12_dec_optimization.db

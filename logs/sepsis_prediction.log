@@ -1,0 +1,257 @@
+12-13 03:23 - Starting Phase: Main
+12-13 03:23 - --------------------------------------------------------------------------------
+12-13 03:23 - Initial Memory Usage: 217.31 MB
+12-13 03:23 - Starting Sepsis Prediction Pipeline
+12-13 03:23 - Reports and metrics will be saved to: reports/evaluations/run_20241213_032314
+12-13 03:23 - Loading and preprocessing data.
+12-13 03:23 - Splitting data into training, validation, and testing sets
+12-13 03:23 - Starting step: Preprocessing training data
+12-13 03:27 - Completed step: Preprocessing training data (Duration: 215.03s)
+12-13 03:27 - Starting step: Preprocessing validation data
+12-13 03:27 - Completed step: Preprocessing validation data (Duration: 7.12s)
+12-13 03:27 - Starting step: Preprocessing testing data
+12-13 03:27 - Completed step: Preprocessing testing data (Duration: 7.34s)
+12-13 03:27 - Saved preprocessed data to checkpoints/preprocessed_data.pkl
+12-13 03:27 - Applying SMOTEENN to training data.
+12-13 03:30 - Saved plot: Resampled Training Data_class_distribution__after_resampling.png
+12-13 03:30 - Saved resampled data to checkpoints/resampled_data.pkl
+12-13 03:30 - Initializing Optuna studies.
+12-13 03:30 - Saved Optuna studies to checkpoints/optuna_studies.pkl
+12-13 03:30 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
+12-13 03:30 - Starting Optuna hyperparameter tuning for Random Forest
+12-13 03:33 - ================================================================================
+12-13 03:33 - Starting Phase: Main
+12-13 03:33 - --------------------------------------------------------------------------------
+12-13 03:33 - Initial Memory Usage: 216.72 MB
+12-13 03:33 - Starting Sepsis Prediction Pipeline
+12-13 03:33 - Reports and metrics will be saved to: reports/evaluations/run_20241213_033340
+12-13 03:33 - Loading preprocessed data from checkpoint.
+12-13 03:33 - Loading resampled data from checkpoint.
+12-13 03:33 - Loading Optuna studies from checkpoint.
+12-13 03:33 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
+12-13 03:33 - Starting Optuna hyperparameter tuning for Random Forest
+12-13 03:34 - Total trials: 2
+12-13 03:34 - Completed trials: 1
+12-13 03:34 - Pruned trials: 0
+12-13 03:34 - Failed trials: 0
+12-13 03:34 - Training Random Forest (Tuned)...
+12-13 03:35 - ================================================================================
+12-13 03:35 - Starting Phase: Main
+12-13 03:35 - --------------------------------------------------------------------------------
+12-13 03:35 - Initial Memory Usage: 216.72 MB
+12-13 03:35 - Starting Sepsis Prediction Pipeline
+12-13 03:35 - Reports and metrics will be saved to: reports/evaluations/run_20241213_033512
+12-13 03:35 - Loading preprocessed data from checkpoint.
+12-13 03:35 - Loading resampled data from checkpoint.
+12-13 03:35 - Loading Optuna studies from checkpoint.
+12-13 03:35 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
+12-13 03:35 - Starting Optuna hyperparameter tuning for Random Forest
+12-13 03:36 - ================================================================================
+12-13 03:36 - Starting Phase: Main
+12-13 03:36 - --------------------------------------------------------------------------------
+12-13 03:36 - Initial Memory Usage: 218.08 MB
+12-13 03:36 - Starting Sepsis Prediction Pipeline
+12-13 03:36 - Reports and metrics will be saved to: reports/evaluations/run_20241213_033618
+12-13 03:36 - Loading preprocessed data from checkpoint.
+12-13 03:36 - Loading resampled data from checkpoint.
+12-13 03:36 - Loading Optuna studies from checkpoint.
+12-13 03:36 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
+12-13 03:36 - Starting Optuna hyperparameter tuning for Random Forest
+12-13 03:37 - Total trials: 4
+12-13 03:37 - Completed trials: 2
+12-13 03:37 - Pruned trials: 0
+12-13 03:37 - Failed trials: 0
+12-13 03:37 - Training Random Forest (Tuned)...
+12-13 03:38 - 
+Random Forest (Tuned) Evaluation:
+12-13 03:38 -   Accuracy                  : 0.9711
+12-13 03:38 -   Precision                 : 0.3003
+12-13 03:38 -   Recall                    : 0.5752
+12-13 03:38 -   F1 Score                  : 0.3946
+12-13 03:38 -   Mean Absolute Error       : 0.0289
+12-13 03:38 -   Root Mean Squared Error   : 0.1699
+12-13 03:38 -   AUC-ROC                   : 0.9530
+12-13 03:38 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
+12-13 03:38 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
+12-13 03:38 - Saved plot: Random Forest (Tuned)_roc_curve.png
+12-13 03:38 - Saved plot: Random Forest (Tuned)_precision_recall_curve.png
+12-13 03:38 - Saved plot: Random Forest (Tuned)_feature_importance.png
+12-13 03:38 - Saved evaluation metrics to reports/evaluations/Random Forest (Tuned)_metrics.json
+
+12-13 03:38 - Saved hyperparameters to reports/evaluations/run_20241213_033618/random_forest_tuned_params.json
+12-13 03:38 - Starting Optuna hyperparameter tuning for Logistic Regression
+12-13 03:39 - Best LR parameters: {'penalty': 'elasticnet', 'C': 0.00487103058511874, 'max_iter': 724, 'tol': 0.0007813924003060163, 'l1_ratio': 0.4962965250777419}
+12-13 03:39 - Best LR F1 score: 0.8733
+12-13 03:39 - Training Logistic Regression (Tuned)...
+12-13 03:39 - Error training Logistic Regression (Tuned): Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 121, in train_and_evaluate_model
+    pipeline.fit(X_train, y_train)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
+    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
+    solver = _check_solver(self.solver, self.penalty, self.dual)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
+    raise ValueError(
+ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+12-13 03:39 - An error occurred: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 645, in main
+    metrics_lr, best_lr_model = train_and_evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 121, in train_and_evaluate_model
+    pipeline.fit(X_train, y_train)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
+    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
+    solver = _check_solver(self.solver, self.penalty, self.dual)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
+    raise ValueError(
+ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+12-13 03:39 - Phase Failed: Main
+12-13 03:39 - Error: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/logger_utils.py", line 42, in wrapper
+    result = func(*args, **kwargs)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 645, in main
+    metrics_lr, best_lr_model = train_and_evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 121, in train_and_evaluate_model
+    pipeline.fit(X_train, y_train)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
+    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
+    solver = _check_solver(self.solver, self.penalty, self.dual)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
+    raise ValueError(
+ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+12-13 03:39 - ================================================================================
+12-13 03:45 - ================================================================================
+12-13 03:45 - Starting Phase: Main
+12-13 03:45 - --------------------------------------------------------------------------------
+12-13 03:45 - Initial Memory Usage: 213.88 MB
+12-13 03:45 - Starting Sepsis Prediction Pipeline
+12-13 03:45 - Reports and metrics will be saved to: reports/evaluations/run_20241213_034503
+12-13 03:45 - Loading and preprocessing data.
+12-13 03:45 - Splitting data into training, validation, and testing sets
+12-13 03:45 - Starting step: Preprocessing training data
+12-13 03:46 - ================================================================================
+12-13 03:46 - Starting Phase: Main
+12-13 03:46 - --------------------------------------------------------------------------------
+12-13 03:46 - Initial Memory Usage: 212.28 MB
+12-13 03:46 - Starting Sepsis Prediction Pipeline
+12-13 03:46 - Reports and metrics will be saved to: reports/evaluations/run_20241213_034627
+12-13 03:46 - Loading and preprocessing data.
+12-13 03:46 - Splitting data into training, validation, and testing sets
+12-13 03:46 - Starting step: Preprocessing training data
+12-13 03:52 - ================================================================================
+12-13 03:52 - Starting Phase: Main
+12-13 03:52 - --------------------------------------------------------------------------------
+12-13 03:52 - Initial Memory Usage: 212.97 MB
+12-13 03:52 - Starting Sepsis Prediction Pipeline
+12-13 03:52 - Reports and metrics will be saved to: reports/evaluations/run_20241213_035220
+12-13 03:52 - Loading and preprocessing data.
+12-13 03:52 - Splitting data into training, validation, and testing sets
+12-13 03:52 - Starting step: Preprocessing training data
+12-13 03:56 - Completed step: Preprocessing training data (Duration: 214.44s)
+12-13 03:56 - Starting step: Preprocessing validation data
+12-13 03:56 - Completed step: Preprocessing validation data (Duration: 7.01s)
+12-13 03:56 - Starting step: Preprocessing testing data
+12-13 03:56 - Completed step: Preprocessing testing data (Duration: 7.20s)
+12-13 03:56 - Saved preprocessed data to checkpoints/preprocessed_data.pkl
+12-13 03:56 - Applying SMOTEENN to training data.
+12-13 03:59 - Saved plot: Resampled Training Data_class_distribution__after_resampling.png
+12-13 03:59 - Saved resampled data to checkpoints/resampled_data.pkl
+12-13 03:59 - Initializing Optuna studies.
+12-13 03:59 - Saved Optuna studies to checkpoints/optuna_studies.pkl
+12-13 03:59 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
+12-13 03:59 - Starting Optuna hyperparameter tuning for Random Forest
+12-13 08:48 - Total trials: 50
+12-13 08:48 - Completed trials: 50
+12-13 08:48 - Pruned trials: 0
+12-13 08:48 - Failed trials: 0
+12-13 08:48 - Training Random Forest (Tuned)...
+12-13 08:49 - 
+Random Forest (Tuned) Evaluation:
+12-13 08:49 -   Accuracy                  : 0.9718
+12-13 08:49 -   Precision                 : 0.3068
+12-13 08:49 -   Recall                    : 0.5748
+12-13 08:49 -   F1 Score                  : 0.4001
+12-13 08:49 -   Mean Absolute Error       : 0.0282
+12-13 08:49 -   Root Mean Squared Error   : 0.1679
+12-13 08:49 -   AUC-ROC                   : 0.9559
+12-13 08:49 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
+12-13 08:49 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
+12-13 08:49 - Saved plot: Random Forest (Tuned)_roc_curve.png
+12-13 08:49 - Saved plot: Random Forest (Tuned)_precision_recall_curve.png
+12-13 08:49 - Saved plot: Random Forest (Tuned)_feature_importance.png
+12-13 08:49 - Saved evaluation metrics to reports/evaluations/Random Forest (Tuned)_metrics.json
+
+12-13 08:49 - Saved hyperparameters to reports/evaluations/run_20241213_035220/random_forest_tuned_params.json
+12-13 08:49 - Starting Optuna hyperparameter tuning for Logistic Regression
+12-13 09:08 - Best LR parameters: {'penalty': 'elasticnet', 'C': 0.014068950335106915, 'max_iter': 562, 'tol': 0.00038665457963334924, 'l1_ratio': 0.7321200498691196}
+12-13 09:08 - Best LR F1 score: 0.8740
+12-13 09:08 - Training Logistic Regression (Tuned)...
+12-13 09:08 - Error training Logistic Regression (Tuned): Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 116, in train_and_evaluate_model
+    pipeline.fit(X_train, y_train)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
+    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
+    solver = _check_solver(self.solver, self.penalty, self.dual)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
+    raise ValueError(
+ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+12-13 09:08 - An error occurred: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 722, in main
+    metrics_lr, best_lr_model = train_and_evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 116, in train_and_evaluate_model
+    pipeline.fit(X_train, y_train)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
+    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
+    solver = _check_solver(self.solver, self.penalty, self.dual)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
+    raise ValueError(
+ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+12-13 09:08 - Phase Failed: Main
+12-13 09:08 - Error: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/logger_utils.py", line 42, in wrapper
+    result = func(*args, **kwargs)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 722, in main
+    metrics_lr, best_lr_model = train_and_evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 116, in train_and_evaluate_model
+    pipeline.fit(X_train, y_train)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
+    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
+    solver = _check_solver(self.solver, self.penalty, self.dual)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
+    raise ValueError(
+ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+12-13 09:08 - ================================================================================
