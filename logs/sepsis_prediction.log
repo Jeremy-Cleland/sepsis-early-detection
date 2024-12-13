@@ -1049,3 +1049,31 @@ ValueError: x and y must have same first dimension, but have shapes (17,) and (0
 12-13 16:31 - Final Memory Usage: 575.62 MB
 12-13 16:31 - Memory Change: +359.67 MB
 12-13 16:31 - ================================================================================
+12-13 16:33 - ================================================================================
+12-13 16:33 - Starting Phase: Main
+12-13 16:33 - --------------------------------------------------------------------------------
+12-13 16:33 - Initial Memory Usage: 216.19 MB
+12-13 16:33 - Starting Sepsis Prediction Pipeline
+12-13 16:33 - Reports and metrics will be saved to: reports/evaluations/run_20241213_163338
+12-13 16:33 - Loading preprocessed data from checkpoint.
+12-13 16:33 - Loading resampled data from checkpoint.
+12-13 16:33 - Loading trained models from checkpoint.
+12-13 16:33 - Best model so far: None with F1 Score: 0.0000
+12-13 16:33 - No models were trained. Pipeline did not complete successfully.
+12-13 16:33 - --------------------------------------------------------------------------------
+12-13 16:33 - Phase Complete: Main
+12-13 16:33 - Duration: 0.16 seconds
+12-13 16:33 - Final Memory Usage: 579.31 MB
+12-13 16:33 - Memory Change: +363.12 MB
+12-13 16:33 - ================================================================================
+12-13 16:37 - ================================================================================
+12-13 16:37 - Starting Phase: Main
+12-13 16:37 - --------------------------------------------------------------------------------
+12-13 16:37 - Initial Memory Usage: 215.48 MB
+12-13 16:37 - Starting Sepsis Prediction Pipeline
+12-13 16:37 - Reports and metrics will be saved to: reports/evaluations/run_20241213_163758
+12-13 16:37 - Loading preprocessed data from checkpoint.
+12-13 16:37 - Loading resampled data from checkpoint.
+12-13 16:37 - Loading Optuna studies from checkpoint.
+12-13 16:37 - Starting Optuna hyperparameter tuning with 1 parallel jobs.
+12-13 16:37 - Optimizing Random Forest hyperparameters with Optuna.
