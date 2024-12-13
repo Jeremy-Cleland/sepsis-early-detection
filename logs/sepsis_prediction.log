@@ -1218,3 +1218,20 @@ XGBoost (Tuned) Evaluation:
 12-13 17:14 - Saved temporal progression plots for 5 patients
 12-13 17:14 - Saved plot: XGBoost_(Tuned)_error_analysis.png
 12-13 17:14 - Saved error analysis plots to reports/evaluations/run_20241213_170447
+12-13 17:18 - ================================================================================
+12-13 17:18 - Starting Phase: Main
+12-13 17:18 - --------------------------------------------------------------------------------
+12-13 17:18 - Initial Memory Usage: 215.80 MB
+12-13 17:18 - Starting Sepsis Prediction Pipeline
+12-13 17:18 - Reports and metrics will be saved to: reports/evaluations/run_20241213_171807
+12-13 17:18 - Loading preprocessed data from checkpoint.
+12-13 17:18 - Loading resampled data from checkpoint.
+12-13 17:18 - Loading Optuna studies from checkpoint.
+12-13 17:18 - Starting Optuna hyperparameter tuning with 2 parallel jobs.
+12-13 17:18 - Optimizing Random Forest hyperparameters with Optuna.
+12-13 17:27 - Best Random Forest parameters: {'n_estimators': 437, 'max_depth': 30, 'min_samples_split': 11, 'min_samples_leaf': 3, 'max_features': 'log2'}
+12-13 17:27 - Random Forest - Total trials: 7
+12-13 17:27 - Random Forest - Completed trials: 7
+12-13 17:27 - Random Forest - Pruned trials: 0
+12-13 17:27 - Random Forest - Failed trials: 0
+12-13 17:27 - Training Random Forest (Tuned)...

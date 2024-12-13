@@ -1,7 +1,0 @@
-{
-    "naive_bayes__var_smoothing": 5.722367659350221e-10,
-    "naive_bayes__priors": [
-        0.5,
-        0.5
-    ]
-}

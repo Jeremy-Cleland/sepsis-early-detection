@@ -37,19 +37,19 @@ def parse_arguments():
     parser.add_argument(
         "--optuna-n-jobs",
         type=int,
-        default=1,
+        default=2,
         help="Number of parallel jobs for Optuna hyperparameter tuning (default: 10)",
     )
     parser.add_argument(
         "--rf-trials",
         type=int,
-        default=1,
+        default=2,
         help="Number of trials for Random Forest optimization (default: 20)",
     )
     parser.add_argument(
         "--lr-trials",
         type=int,
-        default=1,
+        default=2,
         help="Number of trials for Logistic Regression optimization (default: 20)",
     )
     parser.add_argument(
