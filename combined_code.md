@@ -2,72 +2,11 @@
 
 ## combine.py
 
-```python
-import os
-from pathlib import Path
-
-
-def combine_python_files(directory: str, output_file: str = "combined_code.md"):
-    """
-    Find all Python files in the given directory and its subdirectories,
-    and combine their contents into a single Markdown file.
-
-    Args:
-        directory (str): Root directory to search for Python files
-        output_file (str): Name of the output Markdown file
-    """
-    # Convert directory to Path object
-    root_dir = Path(directory)
-
-    # Find all Python files
-    python_files = list(root_dir.rglob("*.py"))
-
-    # Sort files for consistent output
-    python_files.sort()
-
-    # Create or overwrite the output file
-    with open(output_file, "w", encoding="utf-8") as outfile:
-        outfile.write("# Combined Python Code\n\n")
-
-        # Process each Python file
-        for file_path in python_files:
-            # Get relative path from root directory
-            try:
-                relative_path = file_path.relative_to(root_dir)
-            except ValueError:
-                relative_path = file_path
-
-            # Write file header
-            outfile.write(f"## {relative_path}\n\n")
-            outfile.write("```python\n")
-
-            # Read and write file contents
-            try:
-                with open(file_path, "r", encoding="utf-8") as infile:
-                    content = infile.read()
-                    outfile.write(content)
-
-                    # Ensure there's a newline at the end
-                    if not content.endswith("\n"):
-                        outfile.write("\n")
-            except Exception as e:
-                outfile.write(f"# Error reading file: {str(e)}\n")
-
-            outfile.write("```\n\n")
-
-
-if __name__ == "__main__":
-    # Get the current working directory
-    current_dir = os.getcwd()
-
-    print(f"Searching for Python files in: {current_dir}")
-    combine_python_files(current_dir)
-    print("Done! Check combined_code.md for the output.")
-```
-
 ## optuna_main.py
 
 ```python
+# optuna_main.py
+
 # optuna_main.py
 
 # optuna_main.py
@@ -118,19 +57,19 @@ def parse_arguments():
     parser.add_argument(
         "--rf-trials",
         type=int,
-        default=50,
+        default=20,
         help="Number of trials for Random Forest optimization (default: 50)",
     )
     parser.add_argument(
         "--lr-trials",
         type=int,
-        default=30,
+        default=20,
         help="Number of trials for Logistic Regression optimization (default: 30)",
     )
     parser.add_argument(
         "--xgb-trials",
         type=int,
-        default=50,
+        default=20,
         help="Number of trials for XGBoost optimization (default: 50)",
     )
     parser.add_argument(
@@ -220,6 +159,7 @@ def train_and_evaluate_model(
         metrics = evaluate_model(
             y_true=y_val,
             y_pred=y_pred,
+            # ! data=df_val_processed,  # Add this parameter
             model_name=model_name,
             y_pred_proba=y_pred_proba,
             model=model,
@@ -980,6 +920,115 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# To add later
+#     # In optuna_main.py
+# metrics = evaluate_model(
+#     y_true=y_val,
+#     y_pred=y_pred,
+#     data=df_val_processed,  # Add this parameter
+#     model_name=model_name,
+#     y_pred_proba=y_pred_proba,
+#     model=model,
+#     report_dir=unique_report_dir,
+#     logger=logger,
+# )
+
+# def generate_evaluation_plots(
+#     y_true: np.ndarray,
+#     y_pred: np.ndarray,
+#     data: pd.DataFrame,  # Add original data as parameter
+#     y_pred_proba: Optional[np.ndarray],
+#     model: Any,
+#     model_name: str,
+#     report_dir: str,
+#     logger: Optional[logging.Logger] = None
+# ) -> None:
+#     """Generate comprehensive evaluation plots."""
+#     try:
+#         # Existing base plots
+#         plot_confusion_matrix(
+#             y_true, y_pred, model_name, report_dir, normalize=False, logger=logger
+#         )
+#         plot_confusion_matrix(
+#             y_true, y_pred, model_name, report_dir, normalize=True, logger=logger
+#         )
+
+#         # ROC and Precision-Recall if probabilities available
+#         if y_pred_proba is not None:
+#             plot_roc_curve(y_true, y_pred_proba, model_name, report_dir, logger=logger)
+#             plot_precision_recall_curve(
+#                 y_true, y_pred_proba, model_name, report_dir, logger=logger)
+#             plot_calibration(y_true, y_pred_proba, report_dir, model_name, logger=logger)
+
+#         # Feature importance if available
+#         if model is not None:
+#             plot_feature_importance(model, model_name, report_dir, logger=logger)
+
+#         # Data quality plots
+#         plot_missing_values(data, report_dir, model_name=model_name, logger=logger)
+
+#         # Temporal analysis plots
+#         vital_features = ['HR', 'O2Sat', 'Temp', 'MAP', 'Resp']
+#         plot_temporal_progression(
+#             data,
+#             vital_features,
+#             report_dir,
+#             model_name=model_name,
+#             max_patients=5,  # Adjust as needed
+#             logger=logger
+#         )
+
+#         # Define patient groups for error analysis
+#         patient_groups = {}
+#         if 'Age' in data.columns:
+#             patient_groups.update({
+#                 'Young': data['Age'] < 50,
+#                 'Elderly': data['Age'] >= 50
+#             })
+#         if 'Gender_1' in data.columns:  # Assuming one-hot encoded
+#             patient_groups.update({
+#                 'Male': data['Gender_1'] == 1,
+#                 'Female': data['Gender_1'] == 0
+#             })
+
+#         plot_error_analysis(
+#             y_true,
+#             y_pred,
+#             patient_groups,
+#             report_dir,
+#             model_name=model_name,
+#             logger=logger
+#         )
+
+#         # Feature interactions
+#         numeric_features = data.select_dtypes(include=[np.number]).columns.tolist()
+#         plot_feature_interactions(
+#             data,
+#             numeric_features,
+#             report_dir,
+#             model_name=model_name,
+#             top_n=5,  # Top 5 most correlated pairs
+#             logger=logger
+#         )
+
+#         # Prediction timeline
+#         plot_prediction_timeline(
+#             data,
+#             y_pred,
+#             report_dir,
+#             model_name=model_name,
+#             max_patients=5,
+#             logger=logger
+#         )
+
+#     except Exception as e:
+#         if logger:
+#             logger.error(f"Error generating evaluation plots: {str(e)}", exc_info=True)
+#         raise
+#     finally:
+#         plt.close('all')
+
 ```
 
 ## src/__init__.py
@@ -1354,6 +1403,7 @@ def evaluate_model(
     y_true: np.ndarray,
     y_pred: np.ndarray,
     model_name: str,
+    # data: pd.DataFrame,  # Add this parameter
     report_dir: str = "reports/evaluations",
     y_pred_proba: Optional[np.ndarray] = None,
     model: Optional[Any] = None,
@@ -1390,6 +1440,7 @@ def evaluate_model(
         # Generate and save essential plots
         generate_evaluation_plots(
             y_true=y_true,
+            #! data=data,  # Add this parameter
             y_pred=y_pred,
             y_pred_proba=y_pred_proba,
             model=model,
@@ -1733,6 +1784,7 @@ def save_metrics_to_json(
         if logger:
             logger.error(f"Failed to save metrics to JSON: {e}")
         raise
+
 ```
 
 ## src/feature_engineering.py
@@ -2790,260 +2842,6 @@ class ModelRegistry:
         )
 ```
 
-## src/models.py
-
-```python
-# src/models.py
-
-import logging
-
-import xgboost as xgb
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
-
-
-def train_random_forest(
-    X_train, y_train, n_estimators=300, max_depth=20, random_state=42
-):
-    """
-    Train a Random Forest classifier with improved parameters.
-    """
-    model = RandomForestClassifier(
-        n_estimators=n_estimators,
-        max_depth=max_depth,
-        random_state=random_state,
-        class_weight="balanced",
-        n_jobs=-1,  # Use all available cores
-        max_features="sqrt",  # Standard RF practice
-        min_samples_split=5,  # Prevent overfitting
-        min_samples_leaf=2,  # Prevent overfitting
-    )
-    model.fit(X_train, y_train)
-    return model
-
-
-def train_naive_bayes(X_train, y_train):
-    """
-    Train a Gaussian Naive Bayes classifier with default parameters.
-    """
-    model = GaussianNB(
-        var_smoothing=1e-9  # Default parameter
-    )
-    model.fit(X_train, y_train)
-    return model
-
-
-def train_knn(X_train, y_train, n_neighbors=5):
-    """
-    Train a K-Nearest Neighbors classifier with improved parameters.
-    """
-    model = KNeighborsClassifier(
-        n_neighbors=n_neighbors,
-        weights="distance",  # Weight points by distance
-        algorithm="auto",  # Automatically choose best algorithm
-        leaf_size=30,  # Default leaf size
-        p=2,  # Euclidean distance
-        n_jobs=-1,  # Use all available cores
-        metric="minkowski",  # Standard distance metric
-    )
-    model.fit(X_train, y_train)
-    return model
-
-
-def train_logistic_regression(X_train, y_train):
-    """
-    Train a Logistic Regression classifier with improved parameters.
-    """
-    model = LogisticRegression(
-        max_iter=1000,
-        C=1.0,  # Inverse of regularization strength
-        penalty="l2",  # Ridge regularization
-        solver="lbfgs",  # Efficient solver
-        tol=1e-4,  # Tolerance for stopping criteria
-        random_state=42,
-        n_jobs=-1,  # Use all available cores
-        class_weight="balanced",  # Handle class imbalance
-    )
-    model.fit(X_train, y_train)
-    return model
-
-
-def train_xgboost(X_train, y_train, params=None, num_round=100, eval_set=None):
-    """
-    Train XGBoost model with early stopping if evaluation set is provided.
-
-    Parameters:
-    -----------
-    X_train : array-like
-        Training features
-    y_train : array-like
-        Training labels
-    params : dict, optional
-        XGBoost parameters
-    num_round : int, default=100
-        Number of boosting rounds
-    eval_set : list of (X, y) tuples, optional
-        Validation set for early stopping
-
-    Returns:
-    --------
-    xgb.Booster
-        Trained XGBoost model
-    """
-    try:
-        # Convert pandas DataFrame/Series to numpy arrays if necessary
-        if hasattr(X_train, "values"):
-            X_train = X_train.values
-        if hasattr(y_train, "values"):
-            y_train = y_train.values
-
-        if params is None:
-            params = {
-                "max_depth": 6,
-                "min_child_weight": 1,
-                "eta": 0.1,
-                "subsample": 0.8,
-                "colsample_bytree": 0.8,
-                "objective": "binary:logistic",
-                "eval_metric": ["auc", "error"],
-                "alpha": 1,
-                "lambda": 1,
-                "tree_method": "hist",
-                "random_state": 42,
-            }
-
-        # Create DMatrix
-        dtrain = xgb.DMatrix(X_train, label=y_train)
-
-        # Prepare evaluation set if provided
-        evals = []
-        if eval_set is not None:
-            for i, (X_eval, y_eval) in enumerate(eval_set):
-                if hasattr(X_eval, "values"):
-                    X_eval = X_eval.values
-                if hasattr(y_eval, "values"):
-                    y_eval = y_eval.values
-                deval = xgb.DMatrix(X_eval, label=y_eval)
-                evals.append((deval, f"eval_{i}"))
-
-        # Training parameters
-        training_params = {
-            "params": params,
-            "dtrain": dtrain,
-            "num_boost_round": num_round,
-            "verbose_eval": 10,
-        }
-
-        # Add early stopping if evaluation set is provided
-        if evals:
-            training_params.update(
-                {
-                    "evals": evals,
-                    "early_stopping_rounds": 10,
-                }
-            )
-
-        # Train the model
-        bst = xgb.train(**training_params)
-        return bst
-
-    except Exception as e:
-        logging.error(f"Error in XGBoost training: {str(e)}")
-        raise
-
-
-def predict_xgboost(bst, X_test):
-    """
-    Make predictions using trained XGBoost model.
-
-    Parameters:
-    -----------
-    bst : xgb.Booster
-        Trained XGBoost model
-    X_test : array-like
-        Test features
-
-    Returns:
-    --------
-    numpy.ndarray
-        Binary predictions (0 or 1)
-    """
-    try:
-        # Convert to numpy array if necessary
-        if hasattr(X_test, "values"):
-            X_test = X_test.values
-
-        # Create DMatrix
-        dtest = xgb.DMatrix(X_test)
-
-        # Make predictions
-        preds = bst.predict(dtest)
-        return (preds >= 0.5).astype(int)
-
-    except Exception as e:
-        logging.error(f"Error in XGBoost prediction: {str(e)}")
-        raise
-```
-
-## src/resampling.py
-
-```python
-from sklearn.utils import validate_data
-from imblearn.combine import SMOTEENN
-from imblearn.over_sampling import SMOTE
-from imblearn.under_sampling import EditedNearestNeighbours
-from sklearn.base import BaseEstimator, TransformerMixin
-
-class ModernSMOTEENN(BaseEstimator, TransformerMixin):
-    def __init__(self, sampling_strategy=0.5, k_neighbors=6, n_neighbors=3, random_state=None):
-        self.sampling_strategy = sampling_strategy
-        self.k_neighbors = k_neighbors
-        self.n_neighbors = n_neighbors
-        self.random_state = random_state
-        
-    def __sklearn_tags__(self):
-        """Implement sklearn tags for future compatibility."""
-        return {
-            'allow_nan': False,
-            'binary_only': True,
-            'multilabel': False,
-            'multioutput': False,
-            'multioutput_only': False,
-            'no_validation': False,
-            'non_deterministic': False,
-            'pairwise': False,
-            'preserves_dtype': True,
-            'requires_fit': True,
-            'requires_positive_X': False,
-            'requires_y': True,
-            'sparse_output': False,
-            'stateless': False,
-            'X_types': ['2darray']
-        }
-        
-    def fit_resample(self, X, y):
-        """Apply SMOTEENN resampling."""
-        X, y = validate_data(X, y, ensure_2d=True, allow_nd=False)
-        
-        smote_enn = SMOTEENN(
-            smote=SMOTE(
-                sampling_strategy=self.sampling_strategy,
-                random_state=self.random_state,
-                k_neighbors=self.k_neighbors
-            ),
-            enn=EditedNearestNeighbours(
-                n_neighbors=self.n_neighbors,
-                n_jobs=-1
-            ),
-            random_state=self.random_state
-        )
-        
-        return smote_enn.fit_resample(X, y)
-
-```
-
 ## src/utils.py
 
 ```python
@@ -3094,4 +2892,3 @@ def save_metrics_to_json(
         else:
             print(f"Failed to save metrics to JSON: {e}")
 ```
-
