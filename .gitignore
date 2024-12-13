@@ -30,3 +30,8 @@ models/best_model_random forest (tuned).pkl
 models/transformers/scaler.pkl
 models/transformers/categories.pkl
 12_dec_optimization.db
+sepsis_prediction_optimization.db
+checkpoints_old/optuna_studies.pkl
+checkpoints_old/preprocessed_data.pkl
+checkpoints_old/resampled_data.pkl
+checkpoints_old/trained_models.pkl

@@ -199,9 +199,8 @@ class ModelRegistry:
             )
             raise
 
-        # Update registry with file locking
-        sanitized_name = self._sanitize_model_name(name)
-        self.registry.setdefault(sanitized_name, []).append(metadata)
+        # Update registry with file locking, ensuring that the model is stored under "models"
+        self.registry["models"].setdefault(sanitized_name, []).append(metadata)
         self._save_registry()
 
         self._log(f"Saved model '{name}' version '{version}' to '{model_dir}'", "info")

@@ -22,14 +22,7 @@ from .evaluation import (
     plot_feature_interactions,
 )
 from .feature_engineering import preprocess_data
-from .models import (
-    predict_xgboost,
-    train_knn,
-    train_logistic_regression,
-    train_naive_bayes,
-    train_random_forest,
-    train_xgboost,
-)
+
 from .utils import (
     log_message,
     log_metrics,
@@ -53,13 +46,6 @@ __all__ = [
     "load_processed_data",
     "split_data",
     "preprocess_data",
-    # Models
-    "train_random_forest",
-    "train_naive_bayes",
-    "train_knn",
-    "train_logistic_regression",
-    "train_xgboost",
-    "predict_xgboost",
     # Evaluation and Plotting
     "evaluate_model",
     "generate_evaluation_plots",
@@ -87,10 +73,4 @@ __all__ = [
     "get_logger",
     "disable_duplicate_logging",
     "ModelRegistry",
-    # Remove unused functions
-    # "corr_matrix",
-    # "diagnostic_plots",
-    # "try_gaussian",
-    # "setup_logger" (duplicate),
-    # "save_model",
 ]

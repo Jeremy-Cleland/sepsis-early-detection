@@ -112,7 +112,6 @@ def drop_null_columns(df):
         "Lactate",
         "SaO2",
         "FiO2",
-        "Patient_ID",
     ]
 
     # Identify columns that exist in the DataFrame

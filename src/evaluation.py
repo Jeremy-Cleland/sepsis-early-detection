@@ -1,13 +1,14 @@
-import json
-import logging
-import os
-from typing import Any, Dict, Optional
-
-
+# evaluation.py
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 import pandas as pd
-import seaborn as sns
+from sklearn.calibration import calibration_curve
+from typing import List, Dict, Optional, Any
+import logging
+from itertools import combinations
+import json
+import os
 import xgboost as xgb
 from sklearn.metrics import (
     accuracy_score,
@@ -23,7 +24,6 @@ from sklearn.metrics import (
     roc_auc_score,
     roc_curve,
 )
-
 
 from .logger_utils import log_function
 
@@ -51,19 +51,36 @@ def setup_plot_style() -> None:
 
 
 def evaluate_model(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
+    y_true: pd.Series,
+    y_pred: pd.Series,
+    data: pd.DataFrame,
     model_name: str,
-    # data: pd.DataFrame,  # Add this parameter
     report_dir: str = "reports/evaluations",
-    y_pred_proba: Optional[np.ndarray] = None,
+    y_pred_proba: Optional[pd.Series] = None,
     model: Optional[Any] = None,
     logger: Optional[logging.Logger] = None,
 ) -> Dict[str, float]:
     """
     Comprehensive model evaluation function that calculates metrics and generates essential visualization plots.
+
+    Args:
+        y_true (pd.Series): True labels.
+        y_pred (pd.Series): Predicted labels.
+        data (pd.DataFrame): DataFrame containing the data.
+        model_name (str): Name of the model.
+        report_dir (str): Directory to save evaluation reports and plots.
+        y_pred_proba (Optional[pd.Series]): Predicted probabilities.
+        model (Optional[Any]): Trained model object.
+        logger (Optional[logging.Logger]): Logger object.
+
+    Returns:
+        Dict[str, float]: Dictionary containing evaluation metrics.
     """
     try:
+        # Ensure essential columns exist in data
+        assert "Hour" in data.columns, "Hour column missing in data."
+        assert "SepsisLabel" in data.columns, "SepsisLabel column missing in data."
+
         setup_plot_style()
         os.makedirs(report_dir, exist_ok=True)
 
@@ -82,8 +99,21 @@ def evaluate_model(
             try:
                 metrics["AUC-ROC"] = roc_auc_score(y_true, y_pred_proba)
             except ValueError as e:
-                logger.warning(f"Cannot calculate AUC-ROC: {e}")
+                if logger:
+                    logger.warning(f"Cannot calculate AUC-ROC: {e}")
                 metrics["AUC-ROC"] = None
+
+        # Calculate Specificity
+        cm = confusion_matrix(y_true, y_pred)
+        if cm.shape == (2, 2):
+            tn, fp, fn, tp = cm.ravel()
+            metrics["Specificity"] = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+        else:
+            metrics["Specificity"] = 0.0  # Handle non-binary classifications
+            if logger:
+                logger.warning(
+                    f"{model_name} - Specificity calculation is not applicable for non-binary classifications."
+                )
 
         # Log metrics
         log_metrics(logger, model_name, metrics)
@@ -91,8 +121,8 @@ def evaluate_model(
         # Generate and save essential plots
         generate_evaluation_plots(
             y_true=y_true,
-            #! data=data,  # Add this parameter
             y_pred=y_pred,
+            data=data,  # Pass the entire DataFrame
             y_pred_proba=y_pred_proba,
             model=model,
             model_name=model_name,
@@ -105,6 +135,10 @@ def evaluate_model(
 
         return metrics
 
+    except AssertionError as ae:
+        if logger:
+            logger.error(f"Assertion Error: {ae}", exc_info=True)
+        raise
     except Exception as e:
         if logger:
             logger.error(f"Error in model evaluation: {str(e)}", exc_info=True)
@@ -114,17 +148,18 @@ def evaluate_model(
 
 
 def generate_evaluation_plots(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
-    y_pred_proba: Optional[np.ndarray],
+    y_true: pd.Series,
+    y_pred: pd.Series,
+    data: pd.DataFrame,  # Added data parameter
+    y_pred_proba: Optional[pd.Series],
     model: Any,
     model_name: str,
     report_dir: str,
-    logger: Optional[logging.Logger],
+    logger: Optional[logging.Logger] = None,
 ) -> None:
-    """Generate essential evaluation plots for the model."""
+    """Generate comprehensive evaluation plots."""
     try:
-        # Confusion Matrix (Raw and Normalized)
+        # 1. Base plots (existing)
         plot_confusion_matrix(
             y_true, y_pred, model_name, report_dir, normalize=False, logger=logger
         )
@@ -132,28 +167,97 @@ def generate_evaluation_plots(
             y_true, y_pred, model_name, report_dir, normalize=True, logger=logger
         )
 
-        # ROC and Precision-Recall Curves
+        # 2. ROC and Precision-Recall curves (if probabilities available)
         if y_pred_proba is not None:
             plot_roc_curve(y_true, y_pred_proba, model_name, report_dir, logger=logger)
             plot_precision_recall_curve(
                 y_true, y_pred_proba, model_name, report_dir, logger=logger
             )
+            plot_calibration(
+                y_true, y_pred_proba, report_dir, model_name, logger=logger
+            )
 
-        # Feature Importance
+        # 3. Feature importance (if model available)
         if model is not None:
             plot_feature_importance(model, model_name, report_dir, logger=logger)
 
+        # 4. Data quality plots
+        plot_missing_values(data, report_dir, model_name=model_name, logger=logger)
+
+        # 5. Temporal analysis plots
+        vital_features = ["HR", "O2Sat", "Temp", "MAP", "Resp"]
+
+        # Extract Patient_IDs, assuming same index as y_true
+        patient_ids = data["Patient_ID"]
+
+        plot_temporal_progression(
+            data,
+            patient_ids,  # Pass patient_ids
+            vital_features,
+            report_dir,
+            model_name=model_name,
+            max_patients=5,
+            logger=logger,
+        )
+
+        # 6. Error analysis
+        # Define patient groups based on available features
+        patient_groups = {}
+        if "Age" in data.columns:
+            patient_groups.update(
+                {"Young": data["Age"] < 50, "Elderly": data["Age"] >= 50}
+            )
+        if "Gender_1" in data.columns:  # Assuming one-hot encoded
+            patient_groups.update(
+                {"Male": data["Gender_1"] == 1, "Female": data["Gender_1"] == 0}
+            )
+
+        if patient_groups:  # Only plot if we have groups defined
+            plot_error_analysis(
+                y_true,
+                y_pred,
+                patient_groups,
+                report_dir,
+                model_name=model_name,
+                logger=logger,
+            )
+
+        # 7. Feature interactions
+        numeric_features = data.select_dtypes(include=[np.number]).columns.tolist()
+        # Remove target variable if present
+        if "SepsisLabel" in numeric_features:
+            numeric_features.remove("SepsisLabel")
+
+        plot_feature_interactions(
+            data,
+            numeric_features,
+            report_dir,
+            model_name=model_name,
+            top_n=5,
+            logger=logger,
+        )
+
+        # 8. Prediction timeline
+        plot_prediction_timeline(
+            data,
+            y_pred,
+            report_dir,
+            model_name=model_name,
+            max_patients=5,
+            logger=logger,
+        )
+
     except Exception as e:
         if logger:
-            logger.error(f"Error generating plots: {str(e)}", exc_info=True)
+            logger.error(f"Error generating evaluation plots: {e}", exc_info=True)
         raise
     finally:
         plt.close("all")
 
 
 def plot_confusion_matrix(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
+    y_true: pd.Series,
+    y_pred: pd.Series,
     model_name: str,
     report_dir: str,
     normalize: bool = False,
@@ -176,36 +280,35 @@ def plot_confusion_matrix(
 
     except Exception as e:
         if logger:
-            logger.error(f"Error plotting confusion matrix: {str(e)}", exc_info=True)
+            logger.error(f"Error plotting confusion matrix: {e}", exc_info=True)
         raise
     finally:
         plt.close()
 
 
 def plot_class_distribution(
-    y: np.ndarray,
+    y: pd.Series,
     model_name: str,
     report_dir: str,
     title_suffix: str = "",
     logger: Optional[logging.Logger] = None,
 ) -> None:
-    """Plot and save the class distribution."""
+    """Plot and save the class distribution without redundant hue."""
     try:
         plt.figure(figsize=(6, 4))
-        sns.countplot(x=y, hue=y, palette="viridis", legend=False)
+        sns.countplot(x=y, color="blue")
         plt.title(f"Class Distribution for {model_name} {title_suffix}")
         plt.xlabel("Class")
         plt.ylabel("Count")
         plt.tight_layout()
 
         suffix = title_suffix.replace(" ", "_") if title_suffix else ""
-        save_plot(
-            plt, report_dir, f"{model_name}_class_distribution_{suffix}.png", logger
-        )
+        filename = f"{model_name.replace(' ', '_')}_class_distribution_{suffix}.png"
+        save_plot(plt, report_dir, filename, logger)
 
     except Exception as e:
         if logger:
-            logger.error(f"Error plotting class distribution: {str(e)}", exc_info=True)
+            logger.error(f"Error plotting class distribution: {e}", exc_info=True)
         raise
     finally:
         plt.close()
@@ -217,70 +320,90 @@ def plot_feature_importance(
     report_dir: str,
     logger: Optional[logging.Logger] = None,
 ) -> None:
-    """Plot and save feature importance."""
+    """Plot and save feature importance, or log model attributes if not available."""
     try:
         plt.figure(figsize=(10, 8))
 
+        # Log model attributes for debugging
+        if logger:
+            logger.debug(f"Model attributes for {model_name}:")
+            for attr in dir(model):
+                if not attr.startswith("_"):  # Exclude private attributes
+                    logger.debug(f"  - {attr}")
+
         if hasattr(model, "feature_importances_"):
+            # Handle tree-based models (Random Forest, XGBoost)
             importances = model.feature_importances_
             feature_names = (
-                model.get_booster().feature_names
-                if hasattr(model, "get_booster")
+                model.feature_names_in_
+                if hasattr(model, "feature_names_in_")
                 else [f"Feature {i}" for i in range(len(importances))]
             )
 
-            feature_importance_df = pd.DataFrame(
-                {"feature": feature_names, "importance": importances}
-            ).sort_values(by="importance", ascending=False)
+            feature_importance_df = (
+                pd.DataFrame({"feature": feature_names, "importance": importances})
+                .sort_values(by="importance", ascending=False)
+                .head(20)
+            )
 
-            # Modified barplot code to use hue instead of palette
             sns.barplot(
                 x="importance",
                 y="feature",
-                data=feature_importance_df.head(20),
-                hue="feature",  # Add hue parameter
-                legend=False,  # Hide the legend since we don't need it
-                dodge=False,
+                data=feature_importance_df,
+                color="skyblue",
+            )
+            plt.title(f"Top 20 Feature Importances for {model_name}")
+
+        elif hasattr(model, "coef_"):
+            # Handle Logistic Regression
+            importances = np.abs(model.coef_[0])  # Use absolute coefficients
+            feature_names = (
+                model.feature_names_in_
+                if hasattr(model, "feature_names_in_")
+                else [f"Feature {i}" for i in range(len(importances))]
             )
 
-        elif isinstance(model, xgb.Booster):
-            importances = model.get_score(importance_type="weight")
-            importance_df = pd.DataFrame(
-                {
-                    "feature": list(importances.keys()),
-                    "importance": list(importances.values()),
-                }
-            ).sort_values("importance", ascending=False)
+            feature_importance_df = (
+                pd.DataFrame({"feature": feature_names, "importance": importances})
+                .sort_values(by="importance", ascending=False)
+                .head(20)
+            )
 
-            # Modified barplot code for XGBoost case
             sns.barplot(
                 x="importance",
                 y="feature",
-                data=importance_df.head(20),
-                hue="feature",  # Add hue parameter
-                legend=False,  # Hide the legend
-                dodge=False,
+                data=feature_importance_df,
+                color="skyblue",
             )
+            plt.title(
+                f"Top 20 Feature Importances for {model_name} (Absolute Coefficients)"
+            )
+
         else:
-            raise AttributeError("Model does not have feature_importances_ attribute.")
+            if logger:
+                logger.warning(
+                    f"Model type {type(model)} does not support feature importance plotting."
+                )
+            return
 
-        plt.title(f"Top 20 Feature Importances for {model_name}")
         plt.xlabel("Importance")
         plt.ylabel("Feature")
         plt.tight_layout()
 
-        save_plot(plt, report_dir, f"{model_name}_feature_importance.png", logger)
+        filename = f"{model_name.replace(' ', '_')}_feature_importance.png"
+        save_plot(plt, report_dir, filename, logger)
 
     except Exception as e:
         if logger:
-            logger.error(f"Error plotting feature importance: {str(e)}", exc_info=True)
+            logger.error(f"Error plotting feature importance: {e}", exc_info=True)
+        raise
     finally:
         plt.close()
 
 
 def plot_roc_curve(
-    y_true: np.ndarray,
-    y_pred_proba: np.ndarray,
+    y_true: pd.Series,
+    y_pred_proba: pd.Series,
     model_name: str,
     report_dir: str,
     logger: Optional[logging.Logger] = None,
@@ -301,21 +424,23 @@ def plot_roc_curve(
         plt.ylabel("True Positive Rate")
         plt.title(f"ROC Curve for {model_name}")
         plt.legend(loc="lower right")
+        plt.grid(True, linestyle="--", alpha=0.5)
         plt.tight_layout()
 
-        save_plot(plt, report_dir, f"{model_name}_roc_curve.png", logger)
+        filename = f"{model_name.replace(' ', '_')}_roc_curve.png"
+        save_plot(plt, report_dir, filename, logger)
 
     except Exception as e:
         if logger:
-            logger.error(f"Error plotting ROC curve: {str(e)}", exc_info=True)
+            logger.error(f"Error plotting ROC curve: {e}", exc_info=True)
         raise
     finally:
         plt.close()
 
 
 def plot_precision_recall_curve(
-    y_true: np.ndarray,
-    y_pred_proba: np.ndarray,
+    y_true: pd.Series,
+    y_pred_proba: pd.Series,
     model_name: str,
     report_dir: str,
     logger: Optional[logging.Logger] = None,
@@ -337,15 +462,15 @@ def plot_precision_recall_curve(
         plt.ylabel("Precision")
         plt.title(f"Precision-Recall Curve for {model_name}")
         plt.legend(loc="lower left")
+        plt.grid(True, linestyle="--", alpha=0.5)
         plt.tight_layout()
 
-        save_plot(plt, report_dir, f"{model_name}_precision_recall_curve.png", logger)
+        filename = f"{model_name.replace(' ', '_')}_precision_recall_curve.png"
+        save_plot(plt, report_dir, filename, logger)
 
     except Exception as e:
         if logger:
-            logger.error(
-                f"Error plotting precision-recall curve: {str(e)}", exc_info=True
-            )
+            logger.error(f"Error plotting precision-recall curve: {e}", exc_info=True)
         raise
     finally:
         plt.close()
@@ -356,26 +481,554 @@ def plot_feature_correlation_heatmap(
     model_name: str,
     report_dir: str,
     top_n: int = 20,
+    threshold: float = 0.6,  # Made threshold a parameter with default value
     logger: Optional[logging.Logger] = None,
 ) -> None:
-    """Plot and save the feature correlation heatmap."""
-    plt.figure(figsize=(12, 10))
-    corr = df.corr().abs()
-    # Select upper triangle
-    upper = corr.where(np.triu(np.ones(corr.shape), k=1).astype(bool))
-    # Find features with correlation greater than a threshold
-    threshold = 0.6
-    to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+    """Plot and save the feature correlation heatmap with dynamic threshold."""
+    try:
+        plt.figure(figsize=(12, 10))
+        corr = df.corr().abs()
+        # Select upper triangle
+        upper = corr.where(np.triu(np.ones(corr.shape), k=1).astype(bool))
+        # Find features with correlation greater than the threshold
+        to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
 
-    # Compute correlation matrix of selected features
-    corr_selected = corr.drop(columns=to_drop).drop(index=to_drop)
+        # Compute correlation matrix of selected features
+        corr_selected = corr.drop(columns=to_drop).drop(index=to_drop)
 
-    sns.heatmap(corr_selected, annot=True, fmt=".2f", cmap="coolwarm")
-    plt.title(f"Feature Correlation Heatmap for {model_name}")
-    plt.tight_layout()
+        sns.heatmap(
+            corr_selected,
+            annot=True,
+            fmt=".2f",
+            cmap="coolwarm",
+            linewidths=0.5,
+            linecolor="grey",
+        )
+        plt.title(f"Feature Correlation Heatmap for {model_name}")
+        plt.xlabel("Features")
+        plt.ylabel("Features")
+        plt.tight_layout()
 
-    filename = f"{model_name.replace(' ', '_').lower()}_feature_correlation_heatmap.png"
-    save_plot(plt, report_dir, filename, logger=logger)
+        filename = f"{model_name.replace(' ', '_')}_feature_correlation_heatmap.png"
+        save_plot(plt, report_dir, filename, logger)
+
+    except Exception as e:
+        if logger:
+            logger.error(
+                f"Error plotting feature correlation heatmap: {e}", exc_info=True
+            )
+        raise
+    finally:
+        plt.close()
+
+
+def plot_missing_values(
+    data: pd.DataFrame, report_dir: str, model_name: str, logger: logging.Logger
+):
+    """
+    Plots a heatmap of missing values in the dataset with annotated missing percentages.
+
+    Args:
+        data (pd.DataFrame): The input DataFrame.
+        report_dir (str): Directory to save the plot.
+        model_name (str): Name of the model (used in the plot title and filename).
+        logger (logging.Logger): Logger object for logging information and errors.
+    """
+    try:
+        # Calculate missing percentage per column
+        missing_percentage = data.isnull().mean() * 100
+
+        # Set up the matplotlib figure
+        plt.figure(figsize=(12, 8))
+
+        # Create a boolean mask of missing values
+        sns.heatmap(data.isnull(), cbar=False, yticklabels=False, cmap="viridis")
+        plt.title(f"Missing Values Heatmap for {model_name}")
+
+        # Annotate missing percentages on the heatmap
+        # Adjust y-coordinate based on the number of rows in the heatmap
+        # Assuming one row per data sample; for large datasets, adjust accordingly
+        # Alternatively, skip annotation for large datasets to avoid clutter
+        if len(data) < 1000:  # Example threshold
+            for idx, column in enumerate(data.columns):
+                # Extract scalar value using .item()
+                perc = missing_percentage[column].item()
+                plt.text(
+                    idx + 0.5,  # x-coordinate (center of the column)
+                    0.5,  # y-coordinate (top of the heatmap)
+                    f"{perc:.1f}%",  # formatted string
+                    ha="center",
+                    va="center",
+                    color="red",
+                    fontsize=8,
+                    fontweight="bold",
+                )
+        else:
+            logger.warning(
+                f"{model_name} - Dataset too large for missing values annotation on heatmap."
+            )
+
+        # Save the heatmap
+        heatmap_path = os.path.join(
+            report_dir, f"{model_name}_missing_values_heatmap.png"
+        )
+        plt.savefig(heatmap_path, bbox_inches="tight")
+        plt.close()
+        logger.info(f"Missing values heatmap saved to {heatmap_path}")
+
+    except Exception as e:
+        logger.error(f"Error plotting missing values heatmap: {e}", exc_info=True)
+        raise
+
+
+def plot_temporal_progression(
+    data: pd.DataFrame,
+    patient_ids: pd.Series,  # Add patient_ids parameter
+    features: List[str],
+    report_dir: str,
+    model_name: str = "model",
+    max_patients: int = 5,
+    window_size: int = 5,
+    logger: Optional[logging.Logger] = None,
+) -> None:
+    """
+    Plot temporal progression of vital signs for selected patients with sorted data.
+    """
+    try:
+        # Select random sepsis patients using provided patient_ids
+        sepsis_patients = patient_ids[data["SepsisLabel"] == 1].unique()
+        if len(sepsis_patients) == 0:
+            logger.warning("No sepsis patients found for temporal progression plots.")
+            return
+
+        selected_patients = np.random.choice(
+            sepsis_patients, size=min(max_patients, len(sepsis_patients)), replace=False
+        )
+
+        for patient_id in selected_patients:
+            plt.figure(figsize=(15, 8))
+            patient_mask = patient_ids == patient_id
+            patient_data = data[patient_mask].copy()
+            patient_data = patient_data.sort_values(by="Hour")
+
+            # Apply rolling mean smoothing
+            for feature in features:
+                if feature not in patient_data.columns:
+                    logger.warning(f"Feature '{feature}' not found in patient data.")
+                    continue
+                smoothed_values = (
+                    patient_data[feature]
+                    .rolling(window=window_size, center=True)
+                    .mean()
+                )
+                plt.plot(patient_data["Hour"], smoothed_values, label=feature)
+
+            # Mark sepsis onset
+            sepsis_onset_series = patient_data[patient_data["SepsisLabel"] == 1]["Hour"]
+            sepsis_onset = (
+                sepsis_onset_series.iloc[0] if not sepsis_onset_series.empty else None
+            )
+            if sepsis_onset is not None:
+                plt.axvline(
+                    x=sepsis_onset, color="r", linestyle="--", label="Sepsis Onset"
+                )
+
+            plt.title(f"Temporal Progression - Patient {patient_id}")
+            plt.xlabel("Hours")
+            plt.ylabel("Normalized Values")
+            plt.legend(bbox_to_anchor=(1.05, 1), loc="upper left")
+            plt.grid(True, linestyle="--", alpha=0.5)
+
+            plt.tight_layout()
+            filename = (
+                f"{model_name.replace(' ', '_')}_temporal_patient_{patient_id}.png"
+            )
+            save_plot(plt, report_dir, filename, logger)
+
+        if logger:
+            logger.info(
+                f"Saved temporal progression plots for {len(selected_patients)} patients"
+            )
+
+    except Exception as e:
+        if logger:
+            logger.error(
+                f"Error plotting temporal progression: {str(e)}", exc_info=True
+            )
+        raise
+    finally:
+        plt.close("all")
+
+
+def plot_error_analysis(
+    y_true: pd.Series,
+    y_pred: pd.Series,
+    patient_groups: Dict[str, pd.Series],
+    report_dir: str,
+    model_name: str = "model",
+    logger: Optional[logging.Logger] = None,
+) -> None:
+    """
+    Create error analysis plots broken down by patient groups with normalized metrics.
+    """
+    try:
+        metrics_by_group = {}
+
+        # Calculate metrics for each group
+        for group_name, group_mask in patient_groups.items():
+            if len(y_true[group_mask]) > 0:  # Check if group has samples
+                cm = confusion_matrix(y_true[group_mask], y_pred[group_mask])
+                if cm.shape == (2, 2):
+                    tn, fp, fn, tp = cm.ravel()
+                    accuracy = (
+                        (tp + tn) / (tp + tn + fp + fn)
+                        if (tp + tn + fp + fn) > 0
+                        else 0
+                    )
+                    false_positive_rate = fp / (fp + tn) if (fp + tn) > 0 else 0
+                    false_negative_rate = fn / (fn + tp) if (fn + tp) > 0 else 0
+                else:
+                    accuracy = 0.0
+                    false_positive_rate = 0.0
+                    false_negative_rate = 0.0
+                    if logger:
+                        logger.warning(
+                            f"{model_name} - Confusion matrix for group '{group_name}' is not binary."
+                        )
+
+                metrics_by_group[group_name] = {
+                    "Accuracy (%)": accuracy * 100,
+                    "False Positive Rate (%)": false_positive_rate * 100,
+                    "False Negative Rate (%)": false_negative_rate * 100,
+                    "Sample Size": np.sum(group_mask),
+                }
+
+        # Create visualization
+        metrics_df = pd.DataFrame(metrics_by_group).T
+
+        # Plot multiple metrics
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig.suptitle(f"Error Analysis by Patient Groups for {model_name}", fontsize=16)
+
+        # Accuracy
+        sns.barplot(
+            x=metrics_df.index,
+            y=metrics_df["Accuracy (%)"],
+            ax=axes[0, 0],
+            color="skyblue",  # Use a single color if hue is not used
+        )
+        axes[0, 0].set_title("Accuracy by Group")
+        axes[0, 0].set_ylim(0, 100)
+        axes[0, 0].set_ylabel("Accuracy (%)")
+        axes[0, 0].set_xlabel("")
+        axes[0, 0].set_xticks(range(len(metrics_df.index)))
+        axes[0, 0].set_xticklabels(metrics_df.index, rotation=45)
+
+        # False Positive Rate
+        sns.barplot(
+            x=metrics_df.index,
+            y=metrics_df["False Positive Rate (%)"],
+            ax=axes[0, 1],
+            color="salmon",
+        )
+        axes[0, 1].set_title("False Positive Rate by Group")
+        axes[0, 1].set_ylim(0, 100)
+        axes[0, 1].set_ylabel("False Positive Rate (%)")
+        axes[0, 1].set_xlabel("")
+        axes[0, 1].set_xticks(range(len(metrics_df.index)))
+        axes[0, 1].set_xticklabels(metrics_df.index, rotation=45)
+
+        # False Negative Rate
+        sns.barplot(
+            x=metrics_df.index,
+            y=metrics_df["False Negative Rate (%)"],
+            ax=axes[1, 0],
+            color="lightgreen",
+        )
+        axes[1, 0].set_title("False Negative Rate by Group")
+        axes[1, 0].set_ylim(0, 100)
+        axes[1, 0].set_ylabel("False Negative Rate (%)")
+        axes[1, 0].set_xlabel("")
+        axes[1, 0].set_xticks(range(len(metrics_df.index)))
+        axes[1, 0].set_xticklabels(metrics_df.index, rotation=45)
+
+        # Sample Size
+        sns.barplot(
+            x=metrics_df.index,
+            y=metrics_df["Sample Size"],
+            ax=axes[1, 1],
+            color="plum",
+        )
+        axes[1, 1].set_title("Sample Size by Group")
+        axes[1, 1].set_ylabel("Sample Size")
+        axes[1, 1].set_xlabel("")
+        axes[1, 1].set_xticks(range(len(metrics_df.index)))
+        axes[1, 1].set_xticklabels(metrics_df.index, rotation=45)
+
+        plt.tight_layout(
+            rect=[0, 0.03, 1, 0.95]
+        )  # Adjust layout to accommodate suptitle
+        filename = f"{model_name.replace(' ', '_')}_error_analysis.png"
+        save_plot(plt, report_dir, filename, logger)
+
+        if logger:
+            logger.info(f"Saved error analysis plots to {report_dir}")
+
+    except Exception as e:
+        if logger:
+            logger.error(f"Error plotting error analysis: {e}", exc_info=True)
+        raise
+    finally:
+        plt.close("all")
+
+
+def plot_calibration(
+    y_true: pd.Series,
+    y_pred_proba: pd.Series,
+    report_dir: str,
+    model_name: str = "model",
+    n_bins: int = 10,
+    logger: Optional[logging.Logger] = None,
+) -> None:
+    """
+    Create calibration plot comparing predicted probabilities to observed frequencies with enhanced readability.
+    """
+    try:
+        prob_true, prob_pred = calibration_curve(y_true, y_pred_proba, n_bins=n_bins)
+
+        plt.figure(figsize=(8, 8))
+
+        # Plot perfectly calibrated line
+        plt.plot(
+            [0, 1], [0, 1], linestyle="--", color="gray", label="Perfectly Calibrated"
+        )
+
+        # Plot model calibration
+        plt.plot(
+            prob_pred, prob_true, marker="o", color="blue", label="Model Calibration"
+        )
+
+        plt.xlabel("Mean Predicted Probability")
+        plt.ylabel("Observed Frequency")
+        plt.title(f"Calibration Plot for {model_name}")
+        plt.legend(loc="lower right")
+        plt.grid(True, linestyle="--", alpha=0.5)
+
+        plt.tight_layout()
+        filename = f"{model_name.replace(' ', '_')}_calibration.png"
+        save_plot(plt, report_dir, filename, logger)
+
+    except Exception as e:
+        if logger:
+            logger.error(f"Error plotting calibration curve: {e}", exc_info=True)
+        raise
+    finally:
+        plt.close()
+
+
+def plot_prediction_timeline(
+    data: pd.DataFrame,
+    y_pred: pd.Series,
+    report_dir: str,
+    model_name: str = "model",
+    max_patients: int = 5,
+    threshold: float = 0.5,
+    logger: Optional[logging.Logger] = None,
+) -> None:
+    """
+    Create timeline comparing predicted vs actual sepsis onset with sorted data and threshold parameter.
+    """
+    try:
+        # Ensure essential columns exist
+        assert "Hour" in data.columns, "Hour column missing in data."
+        assert "SepsisLabel" in data.columns, "SepsisLabel column missing in data."
+
+        # Select sepsis patients
+        sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+        if len(sepsis_patients) == 0:
+            logger.warning("No sepsis patients found for prediction timeline plots.")
+            return
+
+        # Select patients who have predictions
+        sepsis_patients_with_preds = [
+            pid for pid in sepsis_patients if pid in y_pred.index
+        ]
+        if not sepsis_patients_with_preds:
+            logger.warning("No sepsis patients have predictions for timeline plots.")
+            return
+
+        # Ensure max_patients does not exceed available patients
+        selected_patients = np.random.choice(
+            sepsis_patients_with_preds,
+            size=min(max_patients, len(sepsis_patients_with_preds)),
+            replace=False,
+        )
+
+        for patient_id in selected_patients:
+            plt.figure(figsize=(15, 5))
+
+            patient_mask = data["Patient_ID"] == patient_id
+            patient_data = data[patient_mask].copy()
+            patient_data = patient_data.sort_values(by="Hour")  # Ensure sorted
+
+            # Retrieve predictions for the patient
+            if patient_id in y_pred.index:
+                patient_preds = y_pred.loc[patient_id]
+            else:
+                patient_preds = pd.Series()
+
+            # Log the start of plotting for the patient
+            if patient_preds.empty:
+                logger.warning(
+                    f"No predictions found for patient {patient_id}. Skipping plot."
+                )
+                plt.close()
+                continue
+            else:
+                logger.info(f"Plotting prediction timeline for patient {patient_id}.")
+
+            # Ensure y_pred is aligned with patient_data
+            # Assuming y_pred index aligns with data index
+            patient_preds_aligned = (
+                y_pred.loc[patient_data.index]
+                if isinstance(y_pred, pd.Series)
+                else y_pred
+            )
+
+            if len(patient_preds_aligned) != len(patient_data):
+                logger.warning(
+                    f"Mismatch in data and predictions lengths for patient {patient_id}. Skipping plot."
+                )
+                plt.close()
+                continue
+
+            # Plot actual sepsis label
+            plt.plot(
+                patient_data["Hour"],
+                patient_data["SepsisLabel"],
+                label="Actual",
+                color="black",
+                linewidth=2,
+            )
+
+            # Plot predictions
+            plt.plot(
+                patient_data["Hour"],
+                patient_preds_aligned,
+                label="Predicted",
+                color="blue",
+                alpha=0.7,
+            )
+
+            # Mark actual sepsis onset
+            sepsis_onset_series = patient_data[patient_data["SepsisLabel"] == 1]["Hour"]
+            sepsis_onset = (
+                sepsis_onset_series.iloc[0] if not sepsis_onset_series.empty else None
+            )
+            if sepsis_onset is not None:
+                plt.axvline(
+                    x=sepsis_onset, color="red", linestyle="--", label="Actual Onset"
+                )
+
+            # Mark predicted onset (first prediction above threshold)
+            pred_onset_indices = np.where(patient_preds_aligned > threshold)[0]
+            if len(pred_onset_indices) > 0:
+                pred_onset = patient_data["Hour"].iloc[pred_onset_indices[0]]
+                plt.axvline(
+                    x=pred_onset, color="green", linestyle="--", label="Predicted Onset"
+                )
+
+            plt.title(f"Prediction Timeline - Patient {patient_id}")
+            plt.xlabel("Hours")
+            plt.ylabel("Sepsis Probability")
+            plt.legend(loc="upper left")
+            plt.grid(True, linestyle="--", alpha=0.5)
+
+            plt.tight_layout()
+            filename = (
+                f"{model_name.replace(' ', '_')}_timeline_patient_{patient_id}.png"
+            )
+            save_plot(plt, report_dir, filename, logger)
+            logger.info(f"Saved prediction timeline plot for patient {patient_id}.")
+
+        if logger:
+            logger.info(
+                f"Saved prediction timeline plots for {len(selected_patients)} patients"
+            )
+
+    except AssertionError as ae:
+        if logger:
+            logger.error(f"Assertion Error: {ae}", exc_info=True)
+        raise
+    except Exception as e:
+        if logger:
+            logger.error(f"Error plotting prediction timeline: {e}", exc_info=True)
+        raise
+    finally:
+        plt.close("all")
+
+
+def plot_feature_interactions(
+    data: pd.DataFrame,
+    features: List[str],
+    report_dir: str,
+    model_name: str = "model",
+    top_n: int = 5,
+    logger: Optional[logging.Logger] = None,
+) -> None:
+    """
+    Create feature interaction plots for top correlated feature pairs.
+    """
+    try:
+        # Calculate correlation matrix
+        corr_matrix = data[features].corr().abs()
+
+        # Get top correlated pairs
+        pairs = []
+        for i, j in combinations(range(len(features)), 2):
+            pairs.append((features[i], features[j], corr_matrix.iloc[i, j]))
+
+        top_pairs = sorted(pairs, key=lambda x: x[2], reverse=True)[:top_n]
+
+        # Create plots for top pairs
+        for feat1, feat2, corr in top_pairs:
+            plt.figure(figsize=(10, 8))
+
+            # Create scatter plot with sepsis hue
+            sns.scatterplot(data=data, x=feat1, y=feat2, hue="SepsisLabel", alpha=0.5)
+
+            plt.title(
+                f"Feature Interaction: {feat1} vs {feat2}\nCorrelation: {corr:.2f}"
+            )
+
+            # Add regression lines for each class
+            sns.regplot(
+                data=data[data["SepsisLabel"] == 0],
+                x=feat1,
+                y=feat2,
+                scatter=False,
+                label="Non-Sepsis Trend",
+            )
+            sns.regplot(
+                data=data[data["SepsisLabel"] == 1],
+                x=feat1,
+                y=feat2,
+                scatter=False,
+                label="Sepsis Trend",
+            )
+
+            plt.legend()
+            plt.tight_layout()
+            plt.savefig(f"{report_dir}/{model_name}_interaction_{feat1}_{feat2}.png")
+            plt.close()
+
+        if logger:
+            logger.info(f"Saved feature interaction plots for top {top_n} pairs")
+
+    except Exception as e:
+        if logger:
+            logger.error(f"Error plotting feature interactions: {e}", exc_info=True)
+        raise
 
 
 def save_plot(

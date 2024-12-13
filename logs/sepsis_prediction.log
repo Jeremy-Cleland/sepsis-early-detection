@@ -1,268 +1,1051 @@
-12-13 03:23 - Starting Phase: Main
-12-13 03:23 - --------------------------------------------------------------------------------
-12-13 03:23 - Initial Memory Usage: 217.31 MB
-12-13 03:23 - Starting Sepsis Prediction Pipeline
-12-13 03:23 - Reports and metrics will be saved to: reports/evaluations/run_20241213_032314
-12-13 03:23 - Loading and preprocessing data.
-12-13 03:23 - Splitting data into training, validation, and testing sets
-12-13 03:23 - Starting step: Preprocessing training data
-12-13 03:27 - Completed step: Preprocessing training data (Duration: 215.03s)
-12-13 03:27 - Starting step: Preprocessing validation data
-12-13 03:27 - Completed step: Preprocessing validation data (Duration: 7.12s)
-12-13 03:27 - Starting step: Preprocessing testing data
-12-13 03:27 - Completed step: Preprocessing testing data (Duration: 7.34s)
-12-13 03:27 - Saved preprocessed data to checkpoints/preprocessed_data.pkl
-12-13 03:27 - Applying SMOTEENN to training data.
-12-13 03:30 - Saved plot: Resampled Training Data_class_distribution__after_resampling.png
-12-13 03:30 - Saved resampled data to checkpoints/resampled_data.pkl
-12-13 03:30 - Initializing Optuna studies.
-12-13 03:30 - Saved Optuna studies to checkpoints/optuna_studies.pkl
-12-13 03:30 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
-12-13 03:30 - Starting Optuna hyperparameter tuning for Random Forest
-12-13 03:33 - ================================================================================
-12-13 03:33 - Starting Phase: Main
-12-13 03:33 - --------------------------------------------------------------------------------
-12-13 03:33 - Initial Memory Usage: 216.72 MB
-12-13 03:33 - Starting Sepsis Prediction Pipeline
-12-13 03:33 - Reports and metrics will be saved to: reports/evaluations/run_20241213_033340
-12-13 03:33 - Loading preprocessed data from checkpoint.
-12-13 03:33 - Loading resampled data from checkpoint.
-12-13 03:33 - Loading Optuna studies from checkpoint.
-12-13 03:33 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
-12-13 03:33 - Starting Optuna hyperparameter tuning for Random Forest
-12-13 03:34 - Total trials: 2
-12-13 03:34 - Completed trials: 1
-12-13 03:34 - Pruned trials: 0
-12-13 03:34 - Failed trials: 0
-12-13 03:34 - Training Random Forest (Tuned)...
-12-13 03:35 - ================================================================================
-12-13 03:35 - Starting Phase: Main
-12-13 03:35 - --------------------------------------------------------------------------------
-12-13 03:35 - Initial Memory Usage: 216.72 MB
-12-13 03:35 - Starting Sepsis Prediction Pipeline
-12-13 03:35 - Reports and metrics will be saved to: reports/evaluations/run_20241213_033512
-12-13 03:35 - Loading preprocessed data from checkpoint.
-12-13 03:35 - Loading resampled data from checkpoint.
-12-13 03:35 - Loading Optuna studies from checkpoint.
-12-13 03:35 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
-12-13 03:35 - Starting Optuna hyperparameter tuning for Random Forest
-12-13 03:36 - ================================================================================
-12-13 03:36 - Starting Phase: Main
-12-13 03:36 - --------------------------------------------------------------------------------
-12-13 03:36 - Initial Memory Usage: 218.08 MB
-12-13 03:36 - Starting Sepsis Prediction Pipeline
-12-13 03:36 - Reports and metrics will be saved to: reports/evaluations/run_20241213_033618
-12-13 03:36 - Loading preprocessed data from checkpoint.
-12-13 03:36 - Loading resampled data from checkpoint.
-12-13 03:36 - Loading Optuna studies from checkpoint.
-12-13 03:36 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
-12-13 03:36 - Starting Optuna hyperparameter tuning for Random Forest
-12-13 03:37 - Total trials: 4
-12-13 03:37 - Completed trials: 2
-12-13 03:37 - Pruned trials: 0
-12-13 03:37 - Failed trials: 0
-12-13 03:37 - Training Random Forest (Tuned)...
-12-13 03:38 - 
-Random Forest (Tuned) Evaluation:
-12-13 03:38 -   Accuracy                  : 0.9711
-12-13 03:38 -   Precision                 : 0.3003
-12-13 03:38 -   Recall                    : 0.5752
-12-13 03:38 -   F1 Score                  : 0.3946
-12-13 03:38 -   Mean Absolute Error       : 0.0289
-12-13 03:38 -   Root Mean Squared Error   : 0.1699
-12-13 03:38 -   AUC-ROC                   : 0.9530
-12-13 03:38 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
-12-13 03:38 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
-12-13 03:38 - Saved plot: Random Forest (Tuned)_roc_curve.png
-12-13 03:38 - Saved plot: Random Forest (Tuned)_precision_recall_curve.png
-12-13 03:38 - Saved plot: Random Forest (Tuned)_feature_importance.png
-12-13 03:38 - Saved evaluation metrics to reports/evaluations/Random Forest (Tuned)_metrics.json
 
-12-13 03:38 - Saved hyperparameters to reports/evaluations/run_20241213_033618/random_forest_tuned_params.json
-12-13 03:38 - Starting Optuna hyperparameter tuning for Logistic Regression
-12-13 03:39 - Best LR parameters: {'penalty': 'elasticnet', 'C': 0.00487103058511874, 'max_iter': 724, 'tol': 0.0007813924003060163, 'l1_ratio': 0.4962965250777419}
-12-13 03:39 - Best LR F1 score: 0.8733
-12-13 03:39 - Training Logistic Regression (Tuned)...
-12-13 03:39 - Error training Logistic Regression (Tuned): Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
-Traceback (most recent call last):
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 121, in train_and_evaluate_model
-    pipeline.fit(X_train, y_train)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
-    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
-    solver = _check_solver(self.solver, self.penalty, self.dual)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
-    raise ValueError(
-ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
-12-13 03:39 - An error occurred: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
-Traceback (most recent call last):
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 645, in main
-    metrics_lr, best_lr_model = train_and_evaluate_model(
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 121, in train_and_evaluate_model
-    pipeline.fit(X_train, y_train)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
-    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
-    solver = _check_solver(self.solver, self.penalty, self.dual)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
-    raise ValueError(
-ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
-12-13 03:39 - Phase Failed: Main
-12-13 03:39 - Error: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
-Traceback (most recent call last):
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/logger_utils.py", line 42, in wrapper
-    result = func(*args, **kwargs)
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 645, in main
-    metrics_lr, best_lr_model = train_and_evaluate_model(
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 121, in train_and_evaluate_model
-    pipeline.fit(X_train, y_train)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
-    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
-    solver = _check_solver(self.solver, self.penalty, self.dual)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
-    raise ValueError(
-ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
-12-13 03:39 - ================================================================================
-12-13 03:45 - ================================================================================
-12-13 03:45 - Starting Phase: Main
-12-13 03:45 - --------------------------------------------------------------------------------
-12-13 03:45 - Initial Memory Usage: 213.88 MB
-12-13 03:45 - Starting Sepsis Prediction Pipeline
-12-13 03:45 - Reports and metrics will be saved to: reports/evaluations/run_20241213_034503
-12-13 03:45 - Loading and preprocessing data.
-12-13 03:45 - Splitting data into training, validation, and testing sets
-12-13 03:45 - Starting step: Preprocessing training data
-12-13 03:46 - ================================================================================
-12-13 03:46 - Starting Phase: Main
-12-13 03:46 - --------------------------------------------------------------------------------
-12-13 03:46 - Initial Memory Usage: 212.28 MB
-12-13 03:46 - Starting Sepsis Prediction Pipeline
-12-13 03:46 - Reports and metrics will be saved to: reports/evaluations/run_20241213_034627
-12-13 03:46 - Loading and preprocessing data.
-12-13 03:46 - Splitting data into training, validation, and testing sets
-12-13 03:46 - Starting step: Preprocessing training data
-12-13 03:52 - ================================================================================
-12-13 03:52 - Starting Phase: Main
-12-13 03:52 - --------------------------------------------------------------------------------
-12-13 03:52 - Initial Memory Usage: 212.97 MB
-12-13 03:52 - Starting Sepsis Prediction Pipeline
-12-13 03:52 - Reports and metrics will be saved to: reports/evaluations/run_20241213_035220
-12-13 03:52 - Loading and preprocessing data.
-12-13 03:52 - Splitting data into training, validation, and testing sets
-12-13 03:52 - Starting step: Preprocessing training data
-12-13 03:56 - Completed step: Preprocessing training data (Duration: 214.44s)
-12-13 03:56 - Starting step: Preprocessing validation data
-12-13 03:56 - Completed step: Preprocessing validation data (Duration: 7.01s)
-12-13 03:56 - Starting step: Preprocessing testing data
-12-13 03:56 - Completed step: Preprocessing testing data (Duration: 7.20s)
-12-13 03:56 - Saved preprocessed data to checkpoints/preprocessed_data.pkl
-12-13 03:56 - Applying SMOTEENN to training data.
-12-13 03:59 - Saved plot: Resampled Training Data_class_distribution__after_resampling.png
-12-13 03:59 - Saved resampled data to checkpoints/resampled_data.pkl
-12-13 03:59 - Initializing Optuna studies.
-12-13 03:59 - Saved Optuna studies to checkpoints/optuna_studies.pkl
-12-13 03:59 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
-12-13 03:59 - Starting Optuna hyperparameter tuning for Random Forest
-12-13 08:48 - Total trials: 50
-12-13 08:48 - Completed trials: 50
-12-13 08:48 - Pruned trials: 0
-12-13 08:48 - Failed trials: 0
-12-13 08:48 - Training Random Forest (Tuned)...
-12-13 08:49 - 
+12-13 13:29 - ================================================================================
+12-13 13:52 - ================================================================================
+12-13 13:52 - Starting Phase: Main
+12-13 13:52 - --------------------------------------------------------------------------------
+12-13 13:52 - Initial Memory Usage: 215.70 MB
+12-13 13:52 - Starting Sepsis Prediction Pipeline
+12-13 13:52 - Reports and metrics will be saved to: reports/evaluations/run_20241213_135242
+12-13 13:52 - Loading preprocessed data from checkpoint.
+12-13 13:52 - Loading resampled data from checkpoint.
+12-13 13:52 - Loading Optuna studies from checkpoint.
+12-13 13:52 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
+12-13 13:52 - Optimizing Random Forest hyperparameters with Optuna.
+12-13 14:07 - Best Random Forest parameters: {'n_estimators': 257, 'max_depth': 26, 'min_samples_split': 5, 'min_samples_leaf': 1, 'max_features': 'log2'}
+12-13 14:07 - Random Forest - Total trials: 83
+12-13 14:07 - Random Forest - Completed trials: 83
+12-13 14:07 - Random Forest - Pruned trials: 0
+12-13 14:07 - Random Forest - Failed trials: 0
+12-13 14:07 - Training Random Forest (Tuned)...
+12-13 14:09 - Training completed for Random Forest (Tuned).
+12-13 14:09 - Predictions made for Random Forest (Tuned).
+12-13 14:09 - 
 Random Forest (Tuned) Evaluation:
-12-13 08:49 -   Accuracy                  : 0.9718
-12-13 08:49 -   Precision                 : 0.3068
-12-13 08:49 -   Recall                    : 0.5748
-12-13 08:49 -   F1 Score                  : 0.4001
-12-13 08:49 -   Mean Absolute Error       : 0.0282
-12-13 08:49 -   Root Mean Squared Error   : 0.1679
-12-13 08:49 -   AUC-ROC                   : 0.9559
-12-13 08:49 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
-12-13 08:49 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
-12-13 08:49 - Saved plot: Random Forest (Tuned)_roc_curve.png
-12-13 08:49 - Saved plot: Random Forest (Tuned)_precision_recall_curve.png
-12-13 08:49 - Saved plot: Random Forest (Tuned)_feature_importance.png
-12-13 08:49 - Saved evaluation metrics to reports/evaluations/Random Forest (Tuned)_metrics.json
+12-13 14:09 -   Accuracy                  : 0.9742
+12-13 14:09 -   Precision                 : 0.3273
+12-13 14:09 -   Recall                    : 0.5494
+12-13 14:09 -   F1 Score                  : 0.4102
+12-13 14:09 -   Mean Absolute Error       : 0.0258
+12-13 14:09 -   Root Mean Squared Error   : 0.1607
+12-13 14:09 -   AUC-ROC                   : 0.9558
+12-13 14:09 -   Specificity               : 0.9812
+12-13 14:09 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
+12-13 14:09 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
+12-13 14:09 - Saved plot: Random_Forest_(Tuned)_roc_curve.png
+12-13 14:09 - Saved plot: Random_Forest_(Tuned)_precision_recall_curve.png
+12-13 14:09 - Saved plot: Random_Forest_(Tuned)_calibration.png
+12-13 14:09 - Saved plot: Random_Forest_(Tuned)_feature_importance.png
+12-13 14:09 - Random Forest (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 14:09 - Missing values heatmap saved to reports/evaluations/run_20241213_135242/Random Forest (Tuned)_missing_values_heatmap.png
+12-13 14:09 - Error plotting temporal progression: 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
 
-12-13 08:49 - Saved hyperparameters to reports/evaluations/run_20241213_035220/random_forest_tuned_params.json
-12-13 08:49 - Starting Optuna hyperparameter tuning for Logistic Regression
-12-13 09:08 - Best LR parameters: {'penalty': 'elasticnet', 'C': 0.014068950335106915, 'max_iter': 562, 'tol': 0.00038665457963334924, 'l1_ratio': 0.7321200498691196}
-12-13 09:08 - Best LR F1 score: 0.8740
-12-13 09:08 - Training Logistic Regression (Tuned)...
-12-13 09:08 - Error training Logistic Regression (Tuned): Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 116, in train_and_evaluate_model
-    pipeline.fit(X_train, y_train)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
-    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
-    solver = _check_solver(self.solver, self.penalty, self.dual)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
-    raise ValueError(
-ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
-12-13 09:08 - An error occurred: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:09 - Error generating evaluation plots: 'Patient_ID'
 Traceback (most recent call last):
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 722, in main
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:09 - Error in model evaluation: 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:09 - Error evaluating Random Forest (Tuned): 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 229, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:09 - Error training or evaluating Random Forest (Tuned): 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 229, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:09 - Error during Random Forest optimization or training: 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 881, in main
+    metrics_rf, best_rf_model = train_and_evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 229, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:09 - Optimizing Logistic Regression hyperparameters with Optuna.
+12-13 14:10 - Best Logistic Regression parameters: {'penalty': 'elasticnet', 'C': 0.011041550201016862, 'max_iter': 520, 'tol': 0.0009637319590157881, 'l1_ratio': 0.5408934365079544}
+12-13 14:10 - Logistic Regression - Total trials: 53
+12-13 14:10 - Logistic Regression - Completed trials: 53
+12-13 14:10 - Logistic Regression - Pruned trials: 0
+12-13 14:10 - Logistic Regression - Failed trials: 0
+12-13 14:10 - Training Logistic Regression (Tuned)...
+12-13 14:10 - Training completed for Logistic Regression (Tuned).
+12-13 14:10 - Predictions made for Logistic Regression (Tuned).
+12-13 14:10 - 
+Logistic Regression (Tuned) Evaluation:
+12-13 14:10 -   Accuracy                  : 0.9459
+12-13 14:10 -   Precision                 : 0.1916
+12-13 14:10 -   Recall                    : 0.7180
+12-13 14:10 -   F1 Score                  : 0.3025
+12-13 14:10 -   Mean Absolute Error       : 0.0541
+12-13 14:10 -   Root Mean Squared Error   : 0.2326
+12-13 14:10 -   AUC-ROC                   : 0.8949
+12-13 14:10 -   Specificity               : 0.9497
+12-13 14:10 - Saved plot: Logistic Regression (Tuned)_confusion_matrix.png
+12-13 14:10 - Saved plot: Logistic Regression (Tuned)_confusion_matrix_normalized.png
+12-13 14:10 - Saved plot: Logistic_Regression_(Tuned)_roc_curve.png
+12-13 14:10 - Saved plot: Logistic_Regression_(Tuned)_precision_recall_curve.png
+12-13 14:10 - Saved plot: Logistic_Regression_(Tuned)_calibration.png
+12-13 14:10 - Error plotting feature importance: Model does not have feature_importances_ attribute.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 359, in plot_feature_importance
+    raise AttributeError("Model does not have feature_importances_ attribute.")
+AttributeError: Model does not have feature_importances_ attribute.
+12-13 14:10 - Error generating evaluation plots: Model does not have feature_importances_ attribute.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 177, in generate_evaluation_plots
+    plot_feature_importance(model, model_name, report_dir, logger=logger)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 359, in plot_feature_importance
+    raise AttributeError("Model does not have feature_importances_ attribute.")
+AttributeError: Model does not have feature_importances_ attribute.
+12-13 14:10 - Error in model evaluation: Model does not have feature_importances_ attribute.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 177, in generate_evaluation_plots
+    plot_feature_importance(model, model_name, report_dir, logger=logger)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 359, in plot_feature_importance
+    raise AttributeError("Model does not have feature_importances_ attribute.")
+AttributeError: Model does not have feature_importances_ attribute.
+12-13 14:10 - Error evaluating Logistic Regression (Tuned): Model does not have feature_importances_ attribute.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 229, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 177, in generate_evaluation_plots
+    plot_feature_importance(model, model_name, report_dir, logger=logger)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 359, in plot_feature_importance
+    raise AttributeError("Model does not have feature_importances_ attribute.")
+AttributeError: Model does not have feature_importances_ attribute.
+12-13 14:10 - Error training or evaluating Logistic Regression (Tuned): Model does not have feature_importances_ attribute.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 229, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 177, in generate_evaluation_plots
+    plot_feature_importance(model, model_name, report_dir, logger=logger)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 359, in plot_feature_importance
+    raise AttributeError("Model does not have feature_importances_ attribute.")
+AttributeError: Model does not have feature_importances_ attribute.
+12-13 14:10 - Error during Logistic Regression optimization or training: Model does not have feature_importances_ attribute.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 1004, in main
     metrics_lr, best_lr_model = train_and_evaluate_model(
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 116, in train_and_evaluate_model
-    pipeline.fit(X_train, y_train)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
-    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
-    solver = _check_solver(self.solver, self.penalty, self.dual)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
-    raise ValueError(
-ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
-12-13 09:08 - Phase Failed: Main
-12-13 09:08 - Error: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 229, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 177, in generate_evaluation_plots
+    plot_feature_importance(model, model_name, report_dir, logger=logger)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 359, in plot_feature_importance
+    raise AttributeError("Model does not have feature_importances_ attribute.")
+AttributeError: Model does not have feature_importances_ attribute.
+12-13 14:10 - Optimizing XGBoost hyperparameters with Optuna.
+12-13 14:11 - Best XGBoost parameters: {'n_estimators': 342, 'max_depth': 7, 'learning_rate': 0.13248221414547756, 'subsample': 0.5799888056668157, 'colsample_bytree': 0.6478408354805403, 'gamma': 1.7826888631770714, 'reg_alpha': 0.7809664373726641, 'reg_lambda': 0.07902091737127415}
+12-13 14:11 - XGBoost - Total trials: 3
+12-13 14:11 - XGBoost - Completed trials: 3
+12-13 14:11 - XGBoost - Pruned trials: 0
+12-13 14:11 - XGBoost - Failed trials: 0
+12-13 14:11 - Training XGBoost (Tuned)...
+12-13 14:11 - Training completed for XGBoost (Tuned).
+12-13 14:11 - Predictions made for XGBoost (Tuned).
+12-13 14:11 - 
+XGBoost (Tuned) Evaluation:
+12-13 14:11 -   Accuracy                  : 0.9655
+12-13 14:11 -   Precision                 : 0.2773
+12-13 14:11 -   Recall                    : 0.6908
+12-13 14:11 -   F1 Score                  : 0.3958
+12-13 14:11 -   Mean Absolute Error       : 0.0345
+12-13 14:11 -   Root Mean Squared Error   : 0.1857
+12-13 14:11 -   AUC-ROC                   : 0.9578
+12-13 14:11 -   Specificity               : 0.9701
+12-13 14:11 - Saved plot: XGBoost (Tuned)_confusion_matrix.png
+12-13 14:11 - Saved plot: XGBoost (Tuned)_confusion_matrix_normalized.png
+12-13 14:11 - Saved plot: XGBoost_(Tuned)_roc_curve.png
+12-13 14:11 - Saved plot: XGBoost_(Tuned)_precision_recall_curve.png
+12-13 14:11 - Saved plot: XGBoost_(Tuned)_calibration.png
+12-13 14:11 - Saved plot: XGBoost_(Tuned)_feature_importance.png
+12-13 14:11 - XGBoost (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 14:11 - Missing values heatmap saved to reports/evaluations/run_20241213_135242/XGBoost (Tuned)_missing_values_heatmap.png
+12-13 14:11 - Error plotting temporal progression: 'Patient_ID'
 Traceback (most recent call last):
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/logger_utils.py", line 42, in wrapper
-    result = func(*args, **kwargs)
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 722, in main
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:11 - Error generating evaluation plots: 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:11 - Error in model evaluation: 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:11 - Error evaluating XGBoost (Tuned): 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 229, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:11 - Error training or evaluating XGBoost (Tuned): 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 229, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:11 - Error during XGBoost optimization or training: 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 1112, in main
+    metrics_xgb, best_xgb_model = train_and_evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main1.py", line 229, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 121, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 184, in generate_evaluation_plots
+    plot_temporal_progression(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:11 - Saved trained models to checkpoints/trained_models.pkl
+12-13 14:11 - Saved updated Optuna studies to checkpoints/optuna_studies.pkl
+12-13 14:11 - Saved trial data to reports/evaluations/run_20241213_135242/random_forest_optimization_optimization_trials.csv
+12-13 14:11 - Saved trial data to reports/evaluations/run_20241213_135242/logistic_regression_optimization_optimization_trials.csv
+12-13 14:11 - Saved trial data to reports/evaluations/run_20241213_135242/xgboost_optimization_optimization_trials.csv
+12-13 14:11 - No models were trained. Pipeline did not complete successfully.
+12-13 14:11 - --------------------------------------------------------------------------------
+12-13 14:11 - Phase Complete: Main
+12-13 14:11 - Duration: 1111.79 seconds
+12-13 14:11 - Final Memory Usage: 1165.59 MB
+12-13 14:11 - Memory Change: +949.89 MB
+12-13 14:11 - ================================================================================
+
+
+
+13:32  
+ /Users/jeremy/miniforge3/envs/predictsepsis/bin/python /Users/jeremy/Desktop/predicting-sepsis-main/combine.py
+Searching for Python files in: /Users/jeremy/Desktop/predicting-sepsis-main
+Done! Check combined_code.md for the output.
+(predictsepsis) 
+󰀵/Users/jeremy/miniforge3/envs/predictsepsis/bin/python /Users/jeremy/Desktop/predicting-sepsis-main/main1.py
+12-13 13:52 - ================================================================================
+12-13 13:52 - Starting Phase: Main
+12-13 13:52 - --------------------------------------------------------------------------------
+12-13 13:52 - Initial Memory Usage: 215.70 MB
+12-13 13:52 - Starting Sepsis Prediction Pipeline
+12-13 13:52 - Reports and metrics will be saved to: reports/evaluations/run_20241213_135242
+12-13 13:52 - Loading preprocessed data from checkpoint.
+12-13 13:52 - Loading resampled data from checkpoint.
+12-13 13:52 - Loading Optuna studies from checkpoint.
+12-13 13:52 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
+12-13 13:52 - Optimizing Random Forest hyperparameters with Optuna.
+[I 2024-12-13 14:07:13,656] Trial 82 finished with value: 0.9880949656446832 and parameters: {'n_estimators': 333, 'max_depth': 22, 'min_samples_split': 3, 'min_samples_leaf': 1, 'max_features': 'log2'}. Best is trial 64 with value: 0.9887264000280022.
+[I 2024-12-13 14:07:14,099] Trial 80 finished with value: 0.988099968056809 and parameters: {'n_estimators': 335, 'max_depth': 22, 'min_samples_split': 3, 'min_samples_leaf': 1, 'max_features': 'log2'}. Best is trial 64 with value: 0.9887264000280022.
+[I 2024-12-13 14:07:18,850] Trial 81 finished with value: 0.9881072410356943 and parameters: {'n_estimators': 341, 'max_depth': 22, 'min_samples_split': 3, 'min_samples_leaf': 1, 'max_features': 'log2'}. Best is trial 64 with value: 0.9887264000280022.
+12-13 14:07 - Best Random Forest parameters: {'n_estimators': 257, 'max_depth': 26, 'min_samples_split': 5, 'min_samples_leaf': 1, 'max_features': 'log2'}
+12-13 14:07 - Random Forest - Total trials: 83
+12-13 14:07 - Random Forest - Completed trials: 83
+12-13 14:07 - Random Forest - Pruned trials: 0
+12-13 14:07 - Random Forest - Failed trials: 0
+12-13 14:07 - Training Random Forest (Tuned)...
+12-13 14:09 - Training completed for Random Forest (Tuned).
+12-13 14:09 - Predictions made for Random Forest (Tuned).
+12-13 14:09 - 
+Random Forest (Tuned) Evaluation:
+12-13 14:09 -   Accuracy                  : 0.9742
+12-13 14:09 -   Precision                 : 0.3273
+12-13 14:09 -   Recall                    : 0.5494
+12-13 14:09 -   F1 Score                  : 0.4102
+12-13 14:09 -   Mean Absolute Error       : 0.0258
+12-13 14:09 -   Root Mean Squared Error   : 0.1607
+12-13 14:09 -   AUC-ROC                   : 0.9558
+12-13 14:09 -   Specificity               : 0.9812
+12-13 14:09 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
+12-13 14:09 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
+12-13 14:09 - Saved plot: Random_Forest_(Tuned)_roc_curve.png
+12-13 14:09 - Saved plot: Random_Forest_(Tuned)_precision_recall_curve.png
+12-13 14:09 - Saved plot: Random_Forest_(Tuned)_calibration.png
+12-13 14:09 - Saved plot: Random_Forest_(Tuned)_feature_importance.png
+12-13 14:09 - Random Forest (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 14:09 - Missing values heatmap saved to reports/evaluations/run_20241213_135242/Random Forest (Tuned)_missing_values_heatmap.png
+12-13 14:09 - Error plotting temporal progression: 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 571, in plot_temporal_progression
+    sepsis_patients = data[data["SepsisLabel"] == 1]["Patient_ID"].unique()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Patient_ID'
+12-13 14:09 - Error generating evaluation plots: 'Patient_ID'
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 191, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 234, in pandas._libs.index.IndexEngine._get_loc_duplicates
+  File "index.pyx", line 242, in pandas._libs.index.IndexEngine._maybe_get_bool_indexer
+  File "index.pyx", line 134, in pandas._libs.index._unpack_bool_indexer
+KeyError: 'Patient_ID'
+
+The above exception was the direct cause of the following exception:
+12-13 14:25 - ================================================================================
+12-13 14:25 - Starting Phase: Main
+12-13 14:25 - --------------------------------------------------------------------------------
+12-13 14:25 - Initial Memory Usage: 213.91 MB
+12-13 14:25 - Starting Sepsis Prediction Pipeline
+12-13 14:25 - Reports and metrics will be saved to: reports/evaluations/run_20241213_142557
+12-13 14:25 - Loading preprocessed data from checkpoint.
+12-13 14:25 - Loading resampled data from checkpoint.
+12-13 14:25 - Loading trained models from checkpoint.
+12-13 14:25 - Best model so far: None with F1 Score: 0.0000
+12-13 14:25 - No models were trained. Pipeline did not complete successfully.
+12-13 14:25 - --------------------------------------------------------------------------------
+12-13 14:25 - Phase Complete: Main
+12-13 14:25 - Duration: 0.10 seconds
+12-13 14:25 - Final Memory Usage: 547.61 MB
+12-13 14:25 - Memory Change: +333.70 MB
+12-13 14:25 - ================================================================================
+12-13 15:38 - ================================================================================
+12-13 15:38 - Starting Phase: Main
+12-13 15:38 - --------------------------------------------------------------------------------
+12-13 15:38 - Initial Memory Usage: 217.47 MB
+12-13 15:38 - Starting Sepsis Prediction Pipeline
+12-13 15:38 - Reports and metrics will be saved to: reports/evaluations/run_20241213_153852
+12-13 15:38 - Loading preprocessed data from checkpoint.
+12-13 15:38 - Loading resampled data from checkpoint.
+12-13 15:38 - Loading trained models from checkpoint.
+12-13 15:38 - Best model so far: None with F1 Score: 0.0000
+12-13 15:38 - No models were trained. Pipeline did not complete successfully.
+12-13 15:38 - --------------------------------------------------------------------------------
+12-13 15:38 - Phase Complete: Main
+12-13 15:38 - Duration: 0.09 seconds
+12-13 15:38 - Final Memory Usage: 549.48 MB
+12-13 15:38 - Memory Change: +332.02 MB
+12-13 15:38 - ================================================================================
+12-13 15:41 - ================================================================================
+12-13 15:41 - Starting Phase: Main
+12-13 15:41 - --------------------------------------------------------------------------------
+12-13 15:41 - Initial Memory Usage: 214.48 MB
+12-13 15:41 - Starting Sepsis Prediction Pipeline
+12-13 15:41 - Reports and metrics will be saved to: reports/evaluations/run_20241213_154102
+12-13 15:41 - Loading and preprocessing data.
+12-13 15:41 - Splitting data into training, validation, and testing sets
+12-13 15:41 - Starting step: Preprocessing training data
+12-13 15:44 - Completed step: Preprocessing training data (Duration: 214.14s)
+12-13 15:44 - Starting step: Preprocessing validation data
+12-13 15:44 - Completed step: Preprocessing validation data (Duration: 7.01s)
+12-13 15:44 - Starting step: Preprocessing testing data
+12-13 15:45 - Completed step: Preprocessing testing data (Duration: 7.26s)
+12-13 15:45 - Saved preprocessed data to checkpoints/preprocessed_data.pkl
+12-13 15:45 - Applying SMOTEENN to training data.
+12-13 15:48 - Saved plot: Resampled_Training_Data_class_distribution__after_resampling.png
+12-13 15:48 - Saved resampled data to checkpoints/resampled_data.pkl
+12-13 15:48 - Initializing new Optuna studies.
+12-13 15:48 - Saved Optuna studies to checkpoints/optuna_studies.pkl
+12-13 15:48 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
+12-13 15:48 - Optimizing Random Forest hyperparameters with Optuna.
+12-13 16:01 - Best Random Forest parameters: {'n_estimators': 437, 'max_depth': 30, 'min_samples_split': 11, 'min_samples_leaf': 3, 'max_features': 'log2'}
+12-13 16:01 - Random Forest - Total trials: 3
+12-13 16:01 - Random Forest - Completed trials: 3
+12-13 16:01 - Random Forest - Pruned trials: 0
+12-13 16:01 - Random Forest - Failed trials: 0
+12-13 16:01 - Training Random Forest (Tuned)...
+12-13 16:05 - Training completed for Random Forest (Tuned).
+12-13 16:05 - Predictions made for Random Forest (Tuned).
+12-13 16:05 - Extracted model for evaluation: <class 'sklearn.ensemble._forest.RandomForestClassifier'>
+12-13 16:05 - 
+Random Forest (Tuned) Evaluation:
+12-13 16:05 -   Accuracy                  : 0.9711
+12-13 16:05 -   Precision                 : 0.2907
+12-13 16:05 -   Recall                    : 0.5330
+12-13 16:05 -   F1 Score                  : 0.3762
+12-13 16:05 -   Mean Absolute Error       : 0.0289
+12-13 16:05 -   Root Mean Squared Error   : 0.1700
+12-13 16:05 -   AUC-ROC                   : 0.9534
+12-13 16:05 -   Specificity               : 0.9784
+12-13 16:05 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
+12-13 16:05 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_roc_curve.png
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_precision_recall_curve.png
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_calibration.png
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_feature_importance.png
+12-13 16:05 - Random Forest (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 16:05 - Missing values heatmap saved to reports/evaluations/run_20241213_154102/Random Forest (Tuned)_missing_values_heatmap.png
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_temporal_patient_19434.png
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_temporal_patient_119867.png
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_temporal_patient_113388.png
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_temporal_patient_16905.png
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_temporal_patient_18504.png
+12-13 16:05 - Saved temporal progression plots for 5 patients
+12-13 16:05 - Saved plot: Random_Forest_(Tuned)_error_analysis.png
+12-13 16:05 - Saved error analysis plots to reports/evaluations/run_20241213_154102
+12-13 16:06 - Saved feature interaction plots for top 5 pairs
+12-13 16:06 - Error plotting prediction timeline: x and y must have same first dimension, but have shapes (108,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (108,) and (0,)
+12-13 16:06 - Error generating evaluation plots: x and y must have same first dimension, but have shapes (108,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (108,) and (0,)
+12-13 16:06 - Error in model evaluation: x and y must have same first dimension, but have shapes (108,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (108,) and (0,)
+12-13 16:06 - Error evaluating Random Forest (Tuned): x and y must have same first dimension, but have shapes (108,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 250, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (108,) and (0,)
+12-13 16:06 - Error training or evaluating Random Forest (Tuned): x and y must have same first dimension, but have shapes (108,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 250, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (108,) and (0,)
+12-13 16:06 - Error during Random Forest optimization or training: x and y must have same first dimension, but have shapes (108,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 902, in main
+    metrics_rf, best_rf_model = train_and_evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 250, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (108,) and (0,)
+12-13 16:06 - Optimizing Logistic Regression hyperparameters with Optuna.
+12-13 16:09 - Best Logistic Regression parameters: {'penalty': 'elasticnet', 'C': 0.21956410310260677, 'max_iter': 520, 'tol': 0.00017962160461897637, 'l1_ratio': 0.46663841712083964}
+12-13 16:09 - Logistic Regression - Total trials: 3
+12-13 16:09 - Logistic Regression - Completed trials: 3
+12-13 16:09 - Logistic Regression - Pruned trials: 0
+12-13 16:09 - Logistic Regression - Failed trials: 0
+12-13 16:09 - Training Logistic Regression (Tuned)...
+12-13 16:09 - Training completed for Logistic Regression (Tuned).
+12-13 16:09 - Predictions made for Logistic Regression (Tuned).
+12-13 16:09 - Extracted model for evaluation: <class 'sklearn.linear_model._logistic.LogisticRegression'>
+12-13 16:09 - 
+Logistic Regression (Tuned) Evaluation:
+12-13 16:09 -   Accuracy                  : 0.9462
+12-13 16:09 -   Precision                 : 0.1906
+12-13 16:09 -   Recall                    : 0.7050
+12-13 16:09 -   F1 Score                  : 0.3001
+12-13 16:09 -   Mean Absolute Error       : 0.0538
+12-13 16:09 -   Root Mean Squared Error   : 0.2319
+12-13 16:09 -   AUC-ROC                   : 0.8967
+12-13 16:09 -   Specificity               : 0.9502
+12-13 16:09 - Saved plot: Logistic Regression (Tuned)_confusion_matrix.png
+12-13 16:09 - Saved plot: Logistic Regression (Tuned)_confusion_matrix_normalized.png
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_roc_curve.png
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_precision_recall_curve.png
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_calibration.png
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_feature_importance.png
+12-13 16:09 - Logistic Regression (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 16:09 - Missing values heatmap saved to reports/evaluations/run_20241213_154102/Logistic Regression (Tuned)_missing_values_heatmap.png
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_110729.png
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_1698.png
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_12208.png
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_102089.png
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_13569.png
+12-13 16:09 - Saved temporal progression plots for 5 patients
+12-13 16:09 - Saved plot: Logistic_Regression_(Tuned)_error_analysis.png
+12-13 16:09 - Saved error analysis plots to reports/evaluations/run_20241213_154102
+12-13 16:10 - Saved feature interaction plots for top 5 pairs
+12-13 16:10 - Error plotting prediction timeline: x and y must have same first dimension, but have shapes (11,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (11,) and (0,)
+12-13 16:10 - Error generating evaluation plots: x and y must have same first dimension, but have shapes (11,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (11,) and (0,)
+12-13 16:10 - Error in model evaluation: x and y must have same first dimension, but have shapes (11,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (11,) and (0,)
+12-13 16:10 - Error evaluating Logistic Regression (Tuned): x and y must have same first dimension, but have shapes (11,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 250, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (11,) and (0,)
+12-13 16:10 - Error training or evaluating Logistic Regression (Tuned): x and y must have same first dimension, but have shapes (11,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 250, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (11,) and (0,)
+12-13 16:10 - Error during Logistic Regression optimization or training: x and y must have same first dimension, but have shapes (11,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 1025, in main
     metrics_lr, best_lr_model = train_and_evaluate_model(
-  File "/Users/jeremy/Desktop/predicting-sepsis-main/optuna_main.py", line 116, in train_and_evaluate_model
-    pipeline.fit(X_train, y_train)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
-    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
-    return fit_method(estimator, *args, **kwargs)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 1194, in fit
-    solver = _check_solver(self.solver, self.penalty, self.dual)
-  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py", line 67, in _check_solver
-    raise ValueError(
-ValueError: Solver lbfgs supports only 'l2' or None penalties, got elasticnet penalty.
-12-13 09:08 - ================================================================================
-12-13 10:37 - ================================================================================
-12-13 10:37 - Starting Phase: Main
-12-13 10:37 - --------------------------------------------------------------------------------
-12-13 10:37 - Initial Memory Usage: 214.11 MB
-12-13 10:37 - Starting Sepsis Prediction Pipeline
-12-13 10:37 - Reports and metrics will be saved to: reports/evaluations/run_20241213_103719
-12-13 10:37 - Loading preprocessed data from checkpoint.
-12-13 10:37 - Loading resampled data from checkpoint.
-12-13 10:37 - Loading Optuna studies from checkpoint.
-12-13 10:37 - Starting Optuna hyperparameter tuning with 10 parallel jobs.
-12-13 10:37 - Starting Optuna hyperparameter tuning for Random Forest
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 250, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (11,) and (0,)
+12-13 16:10 - Optimizing XGBoost hyperparameters with Optuna.
+12-13 16:10 - Best XGBoost parameters: {'n_estimators': 176, 'max_depth': 7, 'learning_rate': 0.04638179464247007, 'subsample': 0.7606676539306889, 'colsample_bytree': 0.9160374894113419, 'gamma': 4.978798091728098, 'reg_alpha': 0.5845828949299587, 'reg_lambda': 0.899002251069711}
+12-13 16:10 - XGBoost - Total trials: 3
+12-13 16:10 - XGBoost - Completed trials: 3
+12-13 16:10 - XGBoost - Pruned trials: 0
+12-13 16:10 - XGBoost - Failed trials: 0
+12-13 16:10 - Training XGBoost (Tuned)...
+12-13 16:10 - Training completed for XGBoost (Tuned).
+12-13 16:10 - Predictions made for XGBoost (Tuned).
+12-13 16:10 - Extracted model for evaluation: <class 'xgboost.sklearn.XGBClassifier'>
+12-13 16:10 - 
+XGBoost (Tuned) Evaluation:
+12-13 16:10 -   Accuracy                  : 0.9288
+12-13 16:10 -   Precision                 : 0.1608
+12-13 16:10 -   Recall                    : 0.7956
+12-13 16:10 -   F1 Score                  : 0.2675
+12-13 16:10 -   Mean Absolute Error       : 0.0712
+12-13 16:10 -   Root Mean Squared Error   : 0.2669
+12-13 16:10 -   AUC-ROC                   : 0.9474
+12-13 16:10 -   Specificity               : 0.9310
+12-13 16:10 - Saved plot: XGBoost (Tuned)_confusion_matrix.png
+12-13 16:10 - Saved plot: XGBoost (Tuned)_confusion_matrix_normalized.png
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_roc_curve.png
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_precision_recall_curve.png
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_calibration.png
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_feature_importance.png
+12-13 16:10 - XGBoost (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 16:10 - Missing values heatmap saved to reports/evaluations/run_20241213_154102/XGBoost (Tuned)_missing_values_heatmap.png
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_temporal_patient_107525.png
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_temporal_patient_15199.png
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_temporal_patient_100693.png
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_temporal_patient_10855.png
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_temporal_patient_1895.png
+12-13 16:10 - Saved temporal progression plots for 5 patients
+12-13 16:10 - Saved plot: XGBoost_(Tuned)_error_analysis.png
+12-13 16:10 - Saved error analysis plots to reports/evaluations/run_20241213_154102
+12-13 16:11 - Saved feature interaction plots for top 5 pairs
+12-13 16:11 - Error plotting prediction timeline: x and y must have same first dimension, but have shapes (17,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (17,) and (0,)
+12-13 16:11 - Error generating evaluation plots: x and y must have same first dimension, but have shapes (17,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (17,) and (0,)
+12-13 16:11 - Error in model evaluation: x and y must have same first dimension, but have shapes (17,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (17,) and (0,)
+12-13 16:11 - Error evaluating XGBoost (Tuned): x and y must have same first dimension, but have shapes (17,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 250, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (17,) and (0,)
+12-13 16:11 - Error training or evaluating XGBoost (Tuned): x and y must have same first dimension, but have shapes (17,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 250, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (17,) and (0,)
+12-13 16:11 - Error during XGBoost optimization or training: x and y must have same first dimension, but have shapes (17,) and (0,)
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 1133, in main
+    metrics_xgb, best_xgb_model = train_and_evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 250, in train_and_evaluate_model
+    metrics = evaluate_model(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 120, in evaluate_model
+    generate_evaluation_plots(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 235, in generate_evaluation_plots
+    plot_prediction_timeline(
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/evaluation.py", line 860, in plot_prediction_timeline
+    plt.plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/pyplot.py", line 3794, in plot
+    return gca().plot(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 296, in __call__
+    yield from self._plot_args(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/matplotlib/axes/_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (17,) and (0,)
+12-13 16:11 - Saved trained models to checkpoints/trained_models.pkl
+12-13 16:11 - Saved updated Optuna studies to checkpoints/optuna_studies.pkl
+12-13 16:11 - Saved trial data to reports/evaluations/run_20241213_154102/random_forest_optimization_optimization_trials.csv
+12-13 16:11 - Saved trial data to reports/evaluations/run_20241213_154102/logistic_regression_optimization_optimization_trials.csv
+12-13 16:11 - Saved trial data to reports/evaluations/run_20241213_154102/xgboost_optimization_optimization_trials.csv
+12-13 16:11 - No models were trained. Pipeline did not complete successfully.
+12-13 16:11 - --------------------------------------------------------------------------------
+12-13 16:11 - Phase Complete: Main
+12-13 16:11 - Duration: 1827.19 seconds
+12-13 16:11 - Final Memory Usage: 1160.56 MB
+12-13 16:11 - Memory Change: +946.08 MB
+12-13 16:11 - ================================================================================
+12-13 16:31 - ================================================================================
+12-13 16:31 - Starting Phase: Main
+12-13 16:31 - --------------------------------------------------------------------------------
+12-13 16:31 - Initial Memory Usage: 215.95 MB
+12-13 16:31 - Starting Sepsis Prediction Pipeline
+12-13 16:31 - Reports and metrics will be saved to: reports/evaluations/run_20241213_163148
+12-13 16:31 - Loading preprocessed data from checkpoint.
+12-13 16:31 - Loading resampled data from checkpoint.
+12-13 16:31 - Loading trained models from checkpoint.
+12-13 16:31 - Best model so far: None with F1 Score: 0.0000
+12-13 16:31 - No models were trained. Pipeline did not complete successfully.
+12-13 16:31 - --------------------------------------------------------------------------------
+12-13 16:31 - Phase Complete: Main
+12-13 16:31 - Duration: 0.17 seconds
+12-13 16:31 - Final Memory Usage: 575.62 MB
+12-13 16:31 - Memory Change: +359.67 MB
+12-13 16:31 - ================================================================================
