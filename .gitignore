@@ -1,3 +1,12 @@
+# Ignore all CSV files
+*.csv
+
+# Allow specific CSV files to be tracked
+!logistic_regression_optimization_optimization_trials.csv
+!random_forest_optimization_optimization_trials.csv
+!xgboost_optimization_optimization_trials.csv
+
+# Ignore common files and directories
 __pycache__/
 *.pyc
 .DS_Store
@@ -11,21 +20,14 @@ old_evaluation.py
 
 data
 models*.pkl
-*.csv
 models/best_model_random forest.pkl
 data/processed/data_part1.csv
 data/processed/data_part2.csv
 data/processed/val_data.csv
 data/processed/test_data.csv
 models/best_model_xgboost.pkl
-data/processed/val_data.csv
-data/processed/test_data.csv
-models/best_model_xgboost.pkl
-checkpoints
-
 models/best_model_random forest(tuned).pkl
 models/best_model_naive bayes.pkl
-
 models/best_model_random forest (tuned).pkl
 models/transformers/scaler.pkl
 models/transformers/categories.pkl
@@ -37,3 +39,5 @@ checkpoints_old/resampled_data.pkl
 checkpoints_old/trained_models.pkl
 docs/Overview.md
 sepsis_prediction_optimization_20241213_210538.db
+
+checkpoints
