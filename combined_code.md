@@ -161,6 +161,19 @@ def parse_arguments():
     return parser.parse_args()
 
 
+# Initialize logger and related components once at the top level
+args = parse_arguments()
+os.makedirs("logs", exist_ok=True)
+disable_duplicate_logging()
+logger = get_logger(
+    name="sepsis_prediction",
+    level="INFO",
+    use_json=False,
+)
+logging.getLogger().setLevel(logging.WARNING)
+model_registry = ModelRegistry(base_dir="./", logger=logger)
+
+
 def create_or_load_studies(
     storage_url: str, new_study: bool = False
 ) -> Dict[str, optuna.Study]:
@@ -559,22 +572,9 @@ def generate_model_card(
     logger.info(f"Model card saved to {model_card_path}")
 
 
-@log_phase(logger=None)  # Placeholder; actual logger is defined within main()
+@log_phase(logger)  # Placeholder; actual logger is defined within main()
 def main():
     """Main function to execute the Sepsis Prediction Pipeline."""
-    # Parse command-line arguments
-    args = parse_arguments()
-
-    # Set up logger
-    os.makedirs("logs", exist_ok=True)
-    disable_duplicate_logging()
-    logger = get_logger(
-        name="sepsis_prediction",
-        level="INFO",
-        use_json=False,
-    )
-    logging.getLogger().setLevel(logging.WARNING)
-    model_registry = ModelRegistry(base_dir="./", logger=logger)
 
     logger.info("Starting Sepsis Prediction Pipeline")
 
@@ -762,7 +762,6 @@ def main():
                             "xgb_classifier",
                             XGBClassifier(
                                 random_state=42,
-                                use_label_encoder=False,
                                 eval_metric="logloss",
                                 n_jobs=-1,
                                 **param,
@@ -1187,8 +1186,14 @@ def main():
                     "timestamp", datetime.datetime.now().isoformat()
                 )
 
+                # Suggestion: Add early stopping
                 studies["XGBoost_Optimization"].optimize(
-                    xgb_objective, n_trials=args.xgb_trials, n_jobs=parallel_jobs
+                    xgb_objective,
+                    n_trials=args.xgb_trials,
+                    n_jobs=parallel_jobs,
+                    callbacks=[
+                        optuna.callbacks.EarlyStopping(patience=10, min_delta=0.001)
+                    ],
                 )
                 best_xgb_params = studies["XGBoost_Optimization"].best_params
                 logger.info(f"Best XGBoost parameters: {best_xgb_params}")
@@ -1862,13 +1867,6 @@ def evaluate_model(
         Dict[str, float]: Dictionary containing evaluation metrics.
     """
     try:
-        # Ensure essential columns exist in data
-        assert "Hour" in data.columns, "Hour column missing in data."
-        assert "SepsisLabel" in data.columns, "SepsisLabel column missing in data."
-
-        setup_plot_style()
-        os.makedirs(report_dir, exist_ok=True)
-
         # Calculate basic metrics
         metrics = {
             "Accuracy": accuracy_score(y_true, y_pred),
@@ -1879,22 +1877,24 @@ def evaluate_model(
             "Root Mean Squared Error": np.sqrt(mean_squared_error(y_true, y_pred)),
         }
 
-        # Calculate AUC-ROC if probabilities are available
+        # Calculate probability-based metrics if probabilities are available
         if y_pred_proba is not None:
             try:
                 metrics["AUC-ROC"] = roc_auc_score(y_true, y_pred_proba)
+                metrics["AUPRC"] = average_precision_score(y_true, y_pred_proba)
             except ValueError as e:
                 if logger:
-                    logger.warning(f"Cannot calculate AUC-ROC: {e}")
-                metrics["AUC-ROC"] = None
+                    logger.warning(f"Cannot calculate probability-based metrics: {e}")
+                metrics["AUC-ROC"] = np.nan
+                metrics["AUPRC"] = np.nan
 
-        # Calculate Specificity
+        # Calculate Specificity using confusion matrix
         cm = confusion_matrix(y_true, y_pred)
         if cm.shape == (2, 2):
             tn, fp, fn, tp = cm.ravel()
-            metrics["Specificity"] = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+            metrics["Specificity"] = tn / (tn + fp) if (tn + fp) > 0 else np.nan
         else:
-            metrics["Specificity"] = 0.0  # Handle non-binary classifications
+            metrics["Specificity"] = np.nan
             if logger:
                 logger.warning(
                     f"{model_name} - Specificity calculation is not applicable for non-binary classifications."
@@ -1907,7 +1907,7 @@ def evaluate_model(
         generate_evaluation_plots(
             y_true=y_true,
             y_pred=y_pred,
-            data=data,  # Pass the entire DataFrame
+            data=data,
             y_pred_proba=y_pred_proba,
             model=model,
             model_name=model_name,
@@ -1920,16 +1920,93 @@ def evaluate_model(
 
         return metrics
 
-    except AssertionError as ae:
-        if logger:
-            logger.error(f"Assertion Error: {ae}", exc_info=True)
-        raise
     except Exception as e:
         if logger:
             logger.error(f"Error in model evaluation: {str(e)}", exc_info=True)
         raise
     finally:
         plt.close("all")
+
+
+# def evaluate_model(
+#     y_true: pd.Series,
+#     y_pred: pd.Series,
+#     data: pd.DataFrame,
+#     model_name: str,
+#     report_dir: str = "reports/evaluations",
+#     y_pred_proba: Optional[pd.Series] = None,
+#     model: Optional[Any] = None,
+#     logger: Optional[logging.Logger] = None,
+# ) -> Dict[str, float]:
+#     try:
+#         # Ensure essential columns exist in data
+#         assert "Hour" in data.columns, "Hour column missing in data."
+#         assert "SepsisLabel" in data.columns, "SepsisLabel column missing in data."
+
+#         setup_plot_style()
+#         os.makedirs(report_dir, exist_ok=True)
+
+#         # Calculate basic metrics
+#         metrics = {
+#             "Accuracy": accuracy_score(y_true, y_pred),
+#             "Precision": precision_score(y_true, y_pred, zero_division=0),
+#             "Recall": recall_score(y_true, y_pred, zero_division=0),
+#             "F1 Score": f1_score(y_true, y_pred, zero_division=0),
+#             "Mean Absolute Error": mean_absolute_error(y_true, y_pred),
+#             "Root Mean Squared Error": np.sqrt(mean_squared_error(y_true, y_pred)),
+#         }
+
+#         # Calculate AUC-ROC if probabilities are available
+#         if y_pred_proba is not None:
+#             try:
+#                 metrics["AUC-ROC"] = roc_auc_score(y_true, y_pred_proba)
+#             except ValueError as e:
+#                 if logger:
+#                     logger.warning(f"Cannot calculate AUC-ROC: {e}")
+#                 metrics["AUC-ROC"] = None
+
+#         # Calculate Specificity
+#         cm = confusion_matrix(y_true, y_pred)
+#         if cm.shape == (2, 2):
+#             tn, fp, fn, tp = cm.ravel()
+#             metrics["Specificity"] = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+#         else:
+#             metrics["Specificity"] = 0.0  # Handle non-binary classifications
+#             if logger:
+#                 logger.warning(
+#                     f"{model_name} - Specificity calculation is not applicable for non-binary classifications."
+#                 )
+
+#         # Log metrics
+#         log_metrics(logger, model_name, metrics)
+
+#         # Generate and save essential plots
+#         generate_evaluation_plots(
+#             y_true=y_true,
+#             y_pred=y_pred,
+#             data=data,  # Pass the entire DataFrame
+#             y_pred_proba=y_pred_proba,
+#             model=model,
+#             model_name=model_name,
+#             report_dir=report_dir,
+#             logger=logger,
+#         )
+
+#         # Save metrics to JSON
+#         save_metrics_to_json(metrics, model_name, report_dir, logger)
+
+#         return metrics
+
+#     except AssertionError as ae:
+#         if logger:
+#             logger.error(f"Assertion Error: {ae}", exc_info=True)
+#         raise
+#     except Exception as e:
+#         if logger:
+#             logger.error(f"Error in model evaluation: {str(e)}", exc_info=True)
+#         raise
+#     finally:
+#         plt.close("all")
 
 
 def generate_evaluation_plots(
@@ -2964,7 +3041,7 @@ def fill_missing_values(df):
     # Initialize and fit the IterativeImputer
     imputer = IterativeImputer(
         random_state=42,  # Ensures reproducibility.
-        max_iter=30,  # Maximum number of iterations.
+        max_iter=100,  # Maximum number of iterations.
         initial_strategy="mean",  # Initial imputation strategy.
         skip_complete=True,  # Skips columns without missing values to save computation.
     )
@@ -3154,64 +3231,7 @@ def setup_logger(
 ) -> logging.Logger:
     """
     Set up and configure a logger with both console and file handling capabilities.
-
-    This logger supports:
-    - Colored console output with different colors for each log level
-    - File logging with rotation
-    - Optional JSON formatting
-    - Customizable date-time format (default: MM-DD HH:MM)
-    - Multiple logging handlers (console and file)
-
-    Parameters
-    ----------
-    name : str
-        The name of the logger instance. Used to identify different logger instances
-        in a hierarchical manner. Default is "sepsis_prediction".
-    log_file : str
-        Path to the log file where logs will be written. Directory will be created
-        if it doesn't exist. Default is "logs/sepsis_prediction.log".
-    level : Union[str, int]
-        The logging level. Can be string ('DEBUG', 'INFO', etc.) or corresponding
-        integer values. Default is "INFO".
-    use_json : bool
-        If True, logs will be formatted as JSON objects. Useful for log parsing
-        and analysis. Default is False.
-    formatter : str
-        The format string for log messages when not using JSON format.
-        Default is "%(asctime)s - %(message)s".
-    max_bytes : int
-        Maximum size of each log file in bytes before rotation occurs.
-        Default is 5MB (5 * 1024 * 1024 bytes).
-    backup_count : int
-        Number of backup files to keep when rotating logs.
-        Default is 5 files.
-    console : bool
-        Whether to enable console (stdout) logging in addition to file logging.
-        Default is True.
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance with specified handlers and formatters.
-
-    Raises
-    ------
-    ValueError
-        If an invalid logging level is provided.
-    Exception
-        If there's an error during logger setup (falls back to basic configuration).
-
-    Examples
-    --------
-    >>> logger = setup_logger(
-    ...     name="my_app",
-    ...     level="DEBUG",
-    ...     use_json=True
-    ... )
-    >>> logger.info("Application started")
-    >>> logger.error("An error occurred")
     """
-    logging.getLogger().handlers = []
     # Check if logger was already configured
     if name in _CONFIGURED_LOGGERS:
         return _CONFIGURED_LOGGERS[name]
@@ -3231,6 +3251,7 @@ def setup_logger(
         # Initialize logger
         logger = logging.getLogger(name)
         logger.setLevel(level)
+        logger.propagate = False  # Prevent propagation to ancestor loggers
 
         # Remove any existing handlers
         logger.handlers.clear()

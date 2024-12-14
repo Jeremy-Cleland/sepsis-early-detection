@@ -692,7 +692,6 @@ def main():
                             "xgb_classifier",
                             XGBClassifier(
                                 random_state=42,
-                                use_label_encoder=False,
                                 eval_metric="logloss",
                                 n_jobs=-1,
                                 **param,
@@ -1117,8 +1116,14 @@ def main():
                     "timestamp", datetime.datetime.now().isoformat()
                 )
 
+                # Suggestion: Add early stopping
                 studies["XGBoost_Optimization"].optimize(
-                    xgb_objective, n_trials=args.xgb_trials, n_jobs=parallel_jobs
+                    xgb_objective,
+                    n_trials=args.xgb_trials,
+                    n_jobs=parallel_jobs,
+                    callbacks=[
+                        optuna.callbacks.EarlyStopping(patience=10, min_delta=0.001)
+                    ],
                 )
                 best_xgb_params = studies["XGBoost_Optimization"].best_params
                 logger.info(f"Best XGBoost parameters: {best_xgb_params}")

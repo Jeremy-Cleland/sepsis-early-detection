@@ -651,3 +651,197 @@ UnboundLocalError: local variable 'df_test' referenced before assignment
 12-13 21:12 - Saved Optuna studies to checkpoints/optuna_studies_20241213_210538.pkl
 12-13 21:12 - Starting Optuna hyperparameter tuning with 1 parallel jobs.
 12-13 21:12 - Optimizing Random Forest hyperparameters with Optuna.
+12-13 22:26 - Best Random Forest parameters: {'n_estimators': 480, 'max_depth': 19, 'min_samples_split': 7, 'min_samples_leaf': 3, 'max_features': 'log2'}
+12-13 22:26 - Random Forest - Total trials: 10
+12-13 22:26 - Random Forest - Completed trials: 10
+12-13 22:26 - Random Forest - Pruned trials: 0
+12-13 22:26 - Random Forest - Failed trials: 0
+12-13 22:26 - Training Random Forest (Tuned)...
+12-13 22:29 - Training completed for Random Forest (Tuned).
+12-13 22:29 - Predictions made for Random Forest (Tuned).
+12-13 22:29 - Extracted model for evaluation: <class 'sklearn.ensemble._forest.RandomForestClassifier'>
+12-13 22:29 - 
+Random Forest (Tuned) Evaluation:
+12-13 22:29 -   Accuracy                  : 0.9695
+12-13 22:29 -   Precision                 : 0.2860
+12-13 22:29 -   Recall                    : 0.5791
+12-13 22:29 -   F1 Score                  : 0.3829
+12-13 22:29 -   Mean Absolute Error       : 0.0305
+12-13 22:29 -   Root Mean Squared Error   : 0.1747
+12-13 22:29 -   AUC-ROC                   : 0.9529
+12-13 22:29 -   Specificity               : 0.9760
+12-13 22:29 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
+12-13 22:29 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_roc_curve.png
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_precision_recall_curve.png
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_calibration.png
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_feature_importance.png
+12-13 22:29 - Random Forest (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 22:29 - Missing values heatmap saved to reports/evaluations/run_20241213_210538/Random Forest (Tuned)_missing_values_heatmap.png
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_temporal_patient_19434.png
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_temporal_patient_119867.png
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_temporal_patient_113388.png
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_temporal_patient_16905.png
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_temporal_patient_18504.png
+12-13 22:29 - Saved temporal progression plots for 5 patients
+12-13 22:29 - Saved plot: Random_Forest_(Tuned)_error_analysis.png
+12-13 22:29 - Saved error analysis plots to reports/evaluations/run_20241213_210538
+12-13 22:30 - Saved feature interaction plots for top 5 pairs
+12-13 22:30 - No sepsis patients have predictions for timeline plots.
+12-13 22:30 - Saved evaluation metrics to reports/evaluations/run_20241213_210538/Random Forest (Tuned)_metrics.json
+
+12-13 22:30 - Evaluation completed for Random Forest (Tuned).
+12-13 22:30 - New best model: Random Forest (Tuned) with F1 Score: 0.3829
+12-13 22:30 - Saved hyperparameters to reports/evaluations/run_20241213_210538/random_forest_tuned_params.json
+12-13 22:30 - Optimizing Logistic Regression hyperparameters with Optuna.
+12-13 22:36 - Best Logistic Regression parameters: {'penalty': 'l2', 'C': 29.363955482169217, 'max_iter': 1406, 'tol': 0.00032256290283729606}
+12-13 22:36 - Logistic Regression - Total trials: 10
+12-13 22:36 - Logistic Regression - Completed trials: 10
+12-13 22:36 - Logistic Regression - Pruned trials: 0
+12-13 22:36 - Logistic Regression - Failed trials: 0
+12-13 22:36 - Training Logistic Regression (Tuned)...
+12-13 22:36 - Training completed for Logistic Regression (Tuned).
+12-13 22:36 - Predictions made for Logistic Regression (Tuned).
+12-13 22:36 - Extracted model for evaluation: <class 'sklearn.linear_model._logistic.LogisticRegression'>
+12-13 22:36 - 
+Logistic Regression (Tuned) Evaluation:
+12-13 22:36 -   Accuracy                  : 0.9463
+12-13 22:36 -   Precision                 : 0.1907
+12-13 22:36 -   Recall                    : 0.7050
+12-13 22:36 -   F1 Score                  : 0.3002
+12-13 22:36 -   Mean Absolute Error       : 0.0537
+12-13 22:36 -   Root Mean Squared Error   : 0.2318
+12-13 22:36 -   AUC-ROC                   : 0.8967
+12-13 22:36 -   Specificity               : 0.9503
+12-13 22:36 - Saved plot: Logistic Regression (Tuned)_confusion_matrix.png
+12-13 22:36 - Saved plot: Logistic Regression (Tuned)_confusion_matrix_normalized.png
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_roc_curve.png
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_precision_recall_curve.png
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_calibration.png
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_feature_importance.png
+12-13 22:36 - Logistic Regression (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 22:36 - Missing values heatmap saved to reports/evaluations/run_20241213_210538/Logistic Regression (Tuned)_missing_values_heatmap.png
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_13391.png
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_113787.png
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_4376.png
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_16421.png
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_117871.png
+12-13 22:36 - Saved temporal progression plots for 5 patients
+12-13 22:36 - Saved plot: Logistic_Regression_(Tuned)_error_analysis.png
+12-13 22:36 - Saved error analysis plots to reports/evaluations/run_20241213_210538
+12-13 22:37 - Saved feature interaction plots for top 5 pairs
+12-13 22:37 - No sepsis patients have predictions for timeline plots.
+12-13 22:37 - Saved evaluation metrics to reports/evaluations/run_20241213_210538/Logistic Regression (Tuned)_metrics.json
+
+12-13 22:37 - Evaluation completed for Logistic Regression (Tuned).
+12-13 22:37 - Saved hyperparameters to reports/evaluations/run_20241213_210538/logistic_regression_tuned_params.json
+12-13 22:37 - Optimizing XGBoost hyperparameters with Optuna.
+12-13 22:40 - Best XGBoost parameters: {'n_estimators': 338, 'max_depth': 8, 'learning_rate': 0.16902518037374925, 'subsample': 0.8701688482044616, 'colsample_bytree': 0.6701347117764145, 'gamma': 0.21014101892587955, 'reg_alpha': 0.06923646746704126, 'reg_lambda': 0.4268922983052541}
+12-13 22:40 - XGBoost - Total trials: 10
+12-13 22:40 - XGBoost - Completed trials: 10
+12-13 22:40 - XGBoost - Pruned trials: 0
+12-13 22:40 - XGBoost - Failed trials: 0
+12-13 22:40 - Training XGBoost (Tuned)...
+12-13 22:41 - Training completed for XGBoost (Tuned).
+12-13 22:41 - Predictions made for XGBoost (Tuned).
+12-13 22:41 - Extracted model for evaluation: <class 'xgboost.sklearn.XGBClassifier'>
+12-13 22:41 - 
+XGBoost (Tuned) Evaluation:
+12-13 22:41 -   Accuracy                  : 0.9562
+12-13 22:41 -   Precision                 : 0.2323
+12-13 22:41 -   Recall                    : 0.7275
+12-13 22:41 -   F1 Score                  : 0.3522
+12-13 22:41 -   Mean Absolute Error       : 0.0438
+12-13 22:41 -   Root Mean Squared Error   : 0.2092
+12-13 22:41 -   AUC-ROC                   : 0.9436
+12-13 22:41 -   Specificity               : 0.9600
+12-13 22:41 - Saved plot: XGBoost (Tuned)_confusion_matrix.png
+12-13 22:41 - Saved plot: XGBoost (Tuned)_confusion_matrix_normalized.png
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_roc_curve.png
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_precision_recall_curve.png
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_calibration.png
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_feature_importance.png
+12-13 22:41 - XGBoost (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 22:41 - Missing values heatmap saved to reports/evaluations/run_20241213_210538/XGBoost (Tuned)_missing_values_heatmap.png
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_temporal_patient_110729.png
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_temporal_patient_1698.png
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_temporal_patient_12208.png
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_temporal_patient_102089.png
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_temporal_patient_13569.png
+12-13 22:41 - Saved temporal progression plots for 5 patients
+12-13 22:41 - Saved plot: XGBoost_(Tuned)_error_analysis.png
+12-13 22:41 - Saved error analysis plots to reports/evaluations/run_20241213_210538
+12-13 22:41 - Saved feature interaction plots for top 5 pairs
+12-13 22:41 - No sepsis patients have predictions for timeline plots.
+12-13 22:41 - Saved evaluation metrics to reports/evaluations/run_20241213_210538/XGBoost (Tuned)_metrics.json
+
+12-13 22:41 - Evaluation completed for XGBoost (Tuned).
+12-13 22:41 - Saved hyperparameters to reports/evaluations/run_20241213_210538/xgboost_tuned_params.json
+12-13 22:41 - Saved trained models to checkpoints/trained_models_20241213_210538.pkl
+12-13 22:41 - Saved updated Optuna studies to checkpoints/optuna_studies_20241213_210538.pkl
+12-13 22:41 - Saved trial data to reports/evaluations/run_20241213_210538/random_forest_optimization_optimization_trials.csv
+12-13 22:41 - Saved trial data to reports/evaluations/run_20241213_210538/logistic_regression_optimization_optimization_trials.csv
+12-13 22:41 - Saved trial data to reports/evaluations/run_20241213_210538/xgboost_optimization_optimization_trials.csv
+12-13 22:41 - 
+Performing final evaluation with best model: Random Forest (Tuned)
+12-13 22:41 - Predictions made with Random Forest (Tuned) on test set.
+12-13 22:41 - 
+Final_random_forest_(tuned) Evaluation:
+12-13 22:41 -   Accuracy                  : 0.9849
+12-13 22:41 -   Precision                 : 0.5280
+12-13 22:41 -   Recall                    : 0.5948
+12-13 22:41 -   F1 Score                  : 0.5594
+12-13 22:41 -   Mean Absolute Error       : 0.0151
+12-13 22:41 -   Root Mean Squared Error   : 0.1229
+12-13 22:41 -   AUC-ROC                   : 0.9760
+12-13 22:41 -   Specificity               : 0.9913
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_confusion_matrix.png
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_confusion_matrix_normalized.png
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_roc_curve.png
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_precision_recall_curve.png
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_calibration.png
+12-13 22:41 - Model type <class 'imblearn.pipeline.Pipeline'> does not support feature importance plotting.
+12-13 22:41 - Final_random_forest_(tuned) - Dataset too large for missing values annotation on heatmap.
+12-13 22:41 - Missing values heatmap saved to reports/evaluations/run_20241213_210538/Final_random_forest_(tuned)_missing_values_heatmap.png
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_temporal_patient_108897.png
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_temporal_patient_1849.png
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_temporal_patient_15449.png
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_temporal_patient_19636.png
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_temporal_patient_2114.png
+12-13 22:41 - Saved temporal progression plots for 5 patients
+12-13 22:41 - Saved plot: Final_random_forest_(tuned)_error_analysis.png
+12-13 22:41 - Saved error analysis plots to reports/evaluations/run_20241213_210538
+12-13 22:42 - Saved feature interaction plots for top 5 pairs
+12-13 22:42 - No sepsis patients have predictions for timeline plots.
+12-13 22:42 - Saved evaluation metrics to reports/evaluations/run_20241213_210538/Final_random_forest_(tuned)_metrics.json
+
+12-13 22:42 - Final evaluation completed for Random Forest (Tuned).
+12-13 22:42 - An error occurred during final evaluation: Unknown format code 'f' for object of type 'str'
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 1315, in main
+    model=best_model_pipeline,
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 428, in generate_model_card
+    f.write(f"| AUPRC | {metrics.get('AUPRC', 'N/A'):.4f} |\n")
+ValueError: Unknown format code 'f' for object of type 'str'
+12-13 22:42 - An error occurred: Unknown format code 'f' for object of type 'str'
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 1315, in main
+    model=best_model_pipeline,
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 428, in generate_model_card
+    f.write(f"| AUPRC | {metrics.get('AUPRC', 'N/A'):.4f} |\n")
+ValueError: Unknown format code 'f' for object of type 'str'
+12-13 22:42 - Phase Complete: Main
+12-13 22:42 - Duration: 5816.57 seconds
+12-13 22:42 - Final Memory Usage: 773.75 MB
+12-13 22:42 - Memory Change: +560.28 MB
+12-13 22:42 - Phase Failed: Main
+12-13 22:42 - Error: Unknown format code 'f' for object of type 'str'
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/src/logger_utils.py", line 42, in wrapper
+    result = func(*args, **kwargs)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 1315, in main
+    model=best_model_pipeline,
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 428, in generate_model_card
+    f.write(f"| AUPRC | {metrics.get('AUPRC', 'N/A'):.4f} |\n")
+ValueError: Unknown format code 'f' for object of type 'str'
+12-13 22:42 - ================================================================================

@@ -77,13 +77,6 @@ def evaluate_model(
         Dict[str, float]: Dictionary containing evaluation metrics.
     """
     try:
-        # Ensure essential columns exist in data
-        assert "Hour" in data.columns, "Hour column missing in data."
-        assert "SepsisLabel" in data.columns, "SepsisLabel column missing in data."
-
-        setup_plot_style()
-        os.makedirs(report_dir, exist_ok=True)
-
         # Calculate basic metrics
         metrics = {
             "Accuracy": accuracy_score(y_true, y_pred),
@@ -94,22 +87,24 @@ def evaluate_model(
             "Root Mean Squared Error": np.sqrt(mean_squared_error(y_true, y_pred)),
         }
 
-        # Calculate AUC-ROC if probabilities are available
+        # Calculate probability-based metrics if probabilities are available
         if y_pred_proba is not None:
             try:
                 metrics["AUC-ROC"] = roc_auc_score(y_true, y_pred_proba)
+                metrics["AUPRC"] = average_precision_score(y_true, y_pred_proba)
             except ValueError as e:
                 if logger:
-                    logger.warning(f"Cannot calculate AUC-ROC: {e}")
-                metrics["AUC-ROC"] = None
+                    logger.warning(f"Cannot calculate probability-based metrics: {e}")
+                metrics["AUC-ROC"] = np.nan
+                metrics["AUPRC"] = np.nan
 
-        # Calculate Specificity
+        # Calculate Specificity using confusion matrix
         cm = confusion_matrix(y_true, y_pred)
         if cm.shape == (2, 2):
             tn, fp, fn, tp = cm.ravel()
-            metrics["Specificity"] = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+            metrics["Specificity"] = tn / (tn + fp) if (tn + fp) > 0 else np.nan
         else:
-            metrics["Specificity"] = 0.0  # Handle non-binary classifications
+            metrics["Specificity"] = np.nan
             if logger:
                 logger.warning(
                     f"{model_name} - Specificity calculation is not applicable for non-binary classifications."
@@ -122,7 +117,7 @@ def evaluate_model(
         generate_evaluation_plots(
             y_true=y_true,
             y_pred=y_pred,
-            data=data,  # Pass the entire DataFrame
+            data=data,
             y_pred_proba=y_pred_proba,
             model=model,
             model_name=model_name,
@@ -135,16 +130,93 @@ def evaluate_model(
 
         return metrics
 
-    except AssertionError as ae:
-        if logger:
-            logger.error(f"Assertion Error: {ae}", exc_info=True)
-        raise
     except Exception as e:
         if logger:
             logger.error(f"Error in model evaluation: {str(e)}", exc_info=True)
         raise
     finally:
         plt.close("all")
+
+
+# def evaluate_model(
+#     y_true: pd.Series,
+#     y_pred: pd.Series,
+#     data: pd.DataFrame,
+#     model_name: str,
+#     report_dir: str = "reports/evaluations",
+#     y_pred_proba: Optional[pd.Series] = None,
+#     model: Optional[Any] = None,
+#     logger: Optional[logging.Logger] = None,
+# ) -> Dict[str, float]:
+#     try:
+#         # Ensure essential columns exist in data
+#         assert "Hour" in data.columns, "Hour column missing in data."
+#         assert "SepsisLabel" in data.columns, "SepsisLabel column missing in data."
+
+#         setup_plot_style()
+#         os.makedirs(report_dir, exist_ok=True)
+
+#         # Calculate basic metrics
+#         metrics = {
+#             "Accuracy": accuracy_score(y_true, y_pred),
+#             "Precision": precision_score(y_true, y_pred, zero_division=0),
+#             "Recall": recall_score(y_true, y_pred, zero_division=0),
+#             "F1 Score": f1_score(y_true, y_pred, zero_division=0),
+#             "Mean Absolute Error": mean_absolute_error(y_true, y_pred),
+#             "Root Mean Squared Error": np.sqrt(mean_squared_error(y_true, y_pred)),
+#         }
+
+#         # Calculate AUC-ROC if probabilities are available
+#         if y_pred_proba is not None:
+#             try:
+#                 metrics["AUC-ROC"] = roc_auc_score(y_true, y_pred_proba)
+#             except ValueError as e:
+#                 if logger:
+#                     logger.warning(f"Cannot calculate AUC-ROC: {e}")
+#                 metrics["AUC-ROC"] = None
+
+#         # Calculate Specificity
+#         cm = confusion_matrix(y_true, y_pred)
+#         if cm.shape == (2, 2):
+#             tn, fp, fn, tp = cm.ravel()
+#             metrics["Specificity"] = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+#         else:
+#             metrics["Specificity"] = 0.0  # Handle non-binary classifications
+#             if logger:
+#                 logger.warning(
+#                     f"{model_name} - Specificity calculation is not applicable for non-binary classifications."
+#                 )
+
+#         # Log metrics
+#         log_metrics(logger, model_name, metrics)
+
+#         # Generate and save essential plots
+#         generate_evaluation_plots(
+#             y_true=y_true,
+#             y_pred=y_pred,
+#             data=data,  # Pass the entire DataFrame
+#             y_pred_proba=y_pred_proba,
+#             model=model,
+#             model_name=model_name,
+#             report_dir=report_dir,
+#             logger=logger,
+#         )
+
+#         # Save metrics to JSON
+#         save_metrics_to_json(metrics, model_name, report_dir, logger)
+
+#         return metrics
+
+#     except AssertionError as ae:
+#         if logger:
+#             logger.error(f"Assertion Error: {ae}", exc_info=True)
+#         raise
+#     except Exception as e:
+#         if logger:
+#             logger.error(f"Error in model evaluation: {str(e)}", exc_info=True)
+#         raise
+#     finally:
+#         plt.close("all")
 
 
 def generate_evaluation_plots(
