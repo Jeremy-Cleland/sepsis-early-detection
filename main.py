@@ -39,7 +39,7 @@ def parse_arguments():
     parser.add_argument(
         "--optuna-n-jobs",
         type=int,
-        default=1,
+        default=5,
         help="Number of parallel jobs for Optuna hyperparameter tuning (default: 10)",
     )
     parser.add_argument(
@@ -669,20 +669,26 @@ def main():
             # Define Optuna objective functions with additional metrics storage
 
             def xgb_objective(trial: optuna.Trial) -> float:
-                """Objective function for XGBoost optimization."""
+                """Objective function for XGBoost optimization with refined parameter ranges."""
                 param = {
-                    "n_estimators": trial.suggest_int("n_estimators", 100, 500),
-                    "max_depth": trial.suggest_int("max_depth", 3, 10),
+                    "n_estimators": trial.suggest_int(
+                        "n_estimators", 300, 500
+                    ),  # Adjusted range
+                    "max_depth": trial.suggest_int(
+                        "max_depth", 7, 10
+                    ),  # Adjusted range
                     "learning_rate": trial.suggest_float(
-                        "learning_rate", 0.01, 0.3, log=True
+                        "learning_rate", 0.15, 0.25, log=True
                     ),
-                    "subsample": trial.suggest_float("subsample", 0.5, 1.0),
+                    "subsample": trial.suggest_float(
+                        "subsample", 0.7, 0.9
+                    ),  # Increased range
                     "colsample_bytree": trial.suggest_float(
-                        "colsample_bytree", 0.5, 1.0
-                    ),
-                    "gamma": trial.suggest_float("gamma", 0, 5),
-                    "reg_alpha": trial.suggest_float("reg_alpha", 0, 1),
-                    "reg_lambda": trial.suggest_float("reg_lambda", 0, 1),
+                        "colsample_bytree", 0.6, 0.7
+                    ),  # Narrowed range
+                    "gamma": trial.suggest_float("gamma", 0.1, 1.0),
+                    "reg_alpha": trial.suggest_float("reg_alpha", 0.05, 0.5),
+                    "reg_lambda": trial.suggest_float("reg_lambda", 0.05, 0.5),
                 }
 
                 xgb_pipeline = ImbPipeline(
@@ -712,7 +718,7 @@ def main():
                     xgb_pipeline,
                     X_train_resampled,
                     y_train_resampled,
-                    cv=3,
+                    cv=5,
                     scoring=scoring,
                     n_jobs=-1,
                 )
@@ -738,12 +744,17 @@ def main():
             def rf_objective(trial: optuna.Trial) -> float:
                 """Objective function for Random Forest optimization."""
                 param = {
-                    "n_estimators": trial.suggest_int("n_estimators", 100, 500),
-                    "max_depth": trial.suggest_int("max_depth", 5, 30),
-                    "min_samples_split": trial.suggest_int("min_samples_split", 2, 11),
-                    "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 5),
+                    "n_estimators": trial.suggest_int("n_estimators", 400, 700),
+                    "max_depth": trial.suggest_int("max_depth", 15, 25),
+                    "min_samples_split": trial.suggest_int("min_samples_split", 5, 10),
+                    "min_samples_leaf": trial.suggest_int("min_samples_leaf", 2, 4),
                     "max_features": trial.suggest_categorical(
-                        "max_features", ["sqrt", "log2", None]
+                        "max_features",
+                        ["sqrt", "log2"],
+                    ),
+                    "bootstrap": trial.suggest_categorical("bootstrap", [True, False]),
+                    "criterion": trial.suggest_categorical(
+                        "criterion", ["gini", "entropy"]
                     ),
                 }
                 rf_pipeline = ImbPipeline(
@@ -773,7 +784,7 @@ def main():
                     rf_pipeline,
                     X_train_resampled,
                     y_train_resampled,
-                    cv=3,  # Number of folds
+                    cv=5,  # Number of folds
                     scoring=scoring,
                     n_jobs=-1,
                 )
@@ -802,21 +813,29 @@ def main():
                     "penalty", ["l1", "l2", "elasticnet"]
                 )
 
-                # Define base parameters
+                # Define base parameters with refined search spaces
                 param = {
-                    "C": trial.suggest_float("C", 0.001, 100, log=True),
+                    "C": trial.suggest_float(
+                        "C", 1.0, 100.0, log=True
+                    ),  # Narrowed range based on best runs
                     "penalty": penalty,
-                    "solver": "saga",  # Only saga supports all penalties
-                    "max_iter": trial.suggest_int("max_iter", 500, 1500),
-                    "tol": trial.suggest_float("tol", 1e-5, 1e-3),
+                    "solver": "saga",  # Only saga supports all penalties including 'elasticnet'
+                    "max_iter": trial.suggest_int(
+                        "max_iter", 700, 2000
+                    ),  # Increased upper bound
+                    "tol": trial.suggest_float(
+                        "tol", 1e-6, 1e-4
+                    ),  # Tightened tolerance
                     "random_state": 42,
                     "n_jobs": 10,
-                    "class_weight": "balanced",  # Set directly
+                    "class_weight": "balanced",  # Consider making this tunable if necessary
                 }
 
-                # Add 'l1_ratio' if penalty is 'elasticnet'
+                # Add 'l1_ratio' if penalty is 'elasticnet' with a narrowed range
                 if penalty == "elasticnet":
-                    param["l1_ratio"] = trial.suggest_float("l1_ratio", 0.0, 1.0)
+                    param["l1_ratio"] = trial.suggest_float(
+                        "l1_ratio", 0.1, 0.3
+                    )  # Focused range
 
                 # Create the pipeline with the current trial's parameters
                 lr_pipeline = ImbPipeline(
@@ -826,7 +845,7 @@ def main():
                     ]
                 )
 
-                # Perform cross-validation with multiple metrics
+                # Define scoring metrics
                 scoring = {
                     "f1": "f1",
                     "accuracy": "accuracy",
@@ -834,14 +853,17 @@ def main():
                     "precision": "precision",
                     "recall": "recall",
                 }
+
+                # Perform cross-validation
                 cv_results = cross_validate(
                     lr_pipeline,
                     X_train_resampled,
                     y_train_resampled,
-                    cv=3,
+                    cv=5,
                     scoring=scoring,
                     n_jobs=-1,
                 )
+
                 # Store all metrics
                 trial.set_user_attr("accuracy", cv_results["test_accuracy"].mean())
                 trial.set_user_attr("roc_auc", cv_results["test_roc_auc"].mean())
@@ -855,10 +877,9 @@ def main():
 
                 # Return F1 score as the primary optimization metric
                 mean_f1 = cv_results["test_f1"].mean()
-                trial.set_user_attr(
-                    "f1_score", mean_f1
-                )  # Store the objective value explicitly
+                trial.set_user_attr("f1_score", mean_f1)  # Explicitly store F1 score
 
+                # Pruning condition
                 if trial.should_prune():
                     raise optuna.exceptions.TrialPruned()
 

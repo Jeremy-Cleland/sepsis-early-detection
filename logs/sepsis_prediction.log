@@ -845,3 +845,13 @@ Traceback (most recent call last):
     f.write(f"| AUPRC | {metrics.get('AUPRC', 'N/A'):.4f} |\n")
 ValueError: Unknown format code 'f' for object of type 'str'
 12-13 22:42 - ================================================================================
+12-13 23:15 - ================================================================================
+12-13 23:15 - Starting Phase: Main
+12-13 23:15 - --------------------------------------------------------------------------------
+12-13 23:15 - Initial Memory Usage: 216.06 MB
+12-13 23:15 - Starting Sepsis Prediction Pipeline
+12-13 23:15 - Initial Memory Usage: 216.06 MB
+12-13 23:15 - Reports and metrics will be saved to: reports/evaluations/run_20241213_231511
+12-13 23:15 - Loading and preprocessing data.
+12-13 23:15 - Splitting data into training, validation, and testing sets
+12-13 23:15 - Starting step: Preprocessing training data
