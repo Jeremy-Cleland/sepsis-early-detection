@@ -855,3 +855,10 @@ ValueError: Unknown format code 'f' for object of type 'str'
 12-13 23:15 - Loading and preprocessing data.
 12-13 23:15 - Splitting data into training, validation, and testing sets
 12-13 23:15 - Starting step: Preprocessing training data
+12-13 23:27 - Completed step: Preprocessing training data (Duration: 732.96s)
+12-13 23:27 - Starting step: Preprocessing validation data
+12-13 23:27 - Completed step: Preprocessing validation data (Duration: 7.67s)
+12-13 23:27 - Starting step: Preprocessing testing data
+12-13 23:27 - Completed step: Preprocessing testing data (Duration: 7.66s)
+12-13 23:27 - Saved preprocessed data to checkpoints/preprocessed_data_20241213_231511.pkl
+12-13 23:27 - Applying SMOTEENN to training data.
