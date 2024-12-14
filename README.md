@@ -473,9 +473,9 @@ Please ensure that your contributions adhere to the project's coding standards a
 
 For any questions or suggestions, please contact:
 
-- **Jeremy Cleland** - [jeremy.cleland@example.com](mailto:jdcl@umich.edu)
-- **Anthony Lewis** - [anthony.lewis@example.com](mailto:alewi@umich.edu)
-- **Salif Khan** - [salif.khan@example.com](mailto:khansaif@umich.edu)
+- **Jeremy Cleland** - [jdcl@umich.edu](mailto:jdcl@umich.edu)
+- **Anthony Lewis** - [alewi@umich.edu](mailto:alewi@umich.edu)
+- **Salif Khan** - [salif.khansaif@umich.edu](mailto:khansaif@umich.edu)
 
 ---
 
