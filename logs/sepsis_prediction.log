@@ -862,3 +862,49 @@ ValueError: Unknown format code 'f' for object of type 'str'
 12-13 23:27 - Completed step: Preprocessing testing data (Duration: 7.66s)
 12-13 23:27 - Saved preprocessed data to checkpoints/preprocessed_data_20241213_231511.pkl
 12-13 23:27 - Applying SMOTEENN to training data.
+12-13 23:31 - Saved plot: Resampled_Training_Data_class_distribution__after_resampling.png
+12-13 23:31 - Saved resampled data to checkpoints/resampled_data_20241213_231511.pkl
+12-13 23:31 - Initializing new Optuna studies.
+12-13 23:31 - Saved Optuna studies to checkpoints/optuna_studies_20241213_231511.pkl
+12-13 23:31 - Starting Optuna hyperparameter tuning with 5 parallel jobs.
+12-13 23:31 - Optimizing Random Forest hyperparameters with Optuna.
+12-13 23:31 - Error during Random Forest optimization or training: CategoricalDistribution does not support dynamic value space.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 908, in main
+    studies["Random_Forest_Optimization"].optimize(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/_optimize.py", line 100, in _optimize
+    f.result()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/concurrent/futures/_base.py", line 451, in result
+    return self.__get_result()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 751, in rf_objective
+    "max_features": trial.suggest_categorical(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/trial/_trial.py", line 402, in suggest_categorical
+    return self._suggest(name, CategoricalDistribution(choices=choices))
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/trial/_trial.py", line 637, in _suggest
+    storage.set_trial_param(trial_id, name, param_value_in_internal_repr, distribution)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/storages/_cached_storage.py", line 171, in set_trial_param
+    self._backend.set_trial_param(trial_id, param_name, param_value_internal, distribution)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/storages/_rdb/storage.py", line 585, in set_trial_param
+    self._set_trial_param_without_commit(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/storages/_rdb/storage.py", line 607, in _set_trial_param_without_commit
+    trial_param.check_and_add(session, trial.study_id)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/storages/_rdb/models.py", line 353, in check_and_add
+    self._check_compatibility_with_previous_trial_param_distributions(session, study_id)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/storages/_rdb/models.py", line 367, in _check_compatibility_with_previous_trial_param_distributions
+    distributions.check_distribution_compatibility(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/distributions.py", line 678, in check_distribution_compatibility
+    raise ValueError(
+ValueError: CategoricalDistribution does not support dynamic value space.
+12-13 23:31 - Optimizing Logistic Regression hyperparameters with Optuna.

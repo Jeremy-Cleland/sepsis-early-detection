@@ -19,7 +19,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 import optuna
-import psutil  # For memory usage
+import psutil
 
 from src.logger_config import get_logger, disable_duplicate_logging
 from src.model_registry import ModelRegistry
@@ -91,7 +91,6 @@ def parse_arguments():
     return parser.parse_args()
 
 
-# Initialize logger and related components once at the top level
 args = parse_arguments()
 os.makedirs("logs", exist_ok=True)
 disable_duplicate_logging()
@@ -126,7 +125,6 @@ def create_or_load_studies(
 
     for study_id, study_name in study_names.items():
         if new_study:
-            # Generate unique study name with timestamp
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             unique_study_name = f"{study_id}_{timestamp}"
 
@@ -467,8 +465,6 @@ def generate_model_card(
                 f"![Precision-Recall Curve]({model_name}_precision_recall_curve.png)\n"
             )
 
-        # Add feature importance plot if available
-        # Assuming 'plot_feature_importance' saves the plot correctly
         if os.path.exists(
             os.path.join(report_dir, f"{model_name}_feature_importance.png")
         ):
@@ -502,7 +498,7 @@ def generate_model_card(
     logger.info(f"Model card saved to {model_card_path}")
 
 
-@log_phase(logger)  # Placeholder; actual logger is defined within main()
+@log_phase(logger)
 def main():
     """Main function to execute the Sepsis Prediction Pipeline."""
 
@@ -537,7 +533,6 @@ def main():
         best_score = 0
         best_model_name = None
 
-        # Determine whether to load existing models or run optimizations
         should_run_optimizations = True  # Default to running optimizations
 
         if not args.force and not args.new_study:
@@ -584,11 +579,11 @@ def main():
 
                 with log_step(logger, "Preprocessing validation data"):
                     df_val_processed = preprocess_data(df_val)
-                    df_val_original = df_val.copy()  # Preserve original df_val
+                    df_val_original = df_val.copy()
 
                 with log_step(logger, "Preprocessing testing data"):
                     df_test_processed = preprocess_data(df_test)
-                    df_test_original = df_test.copy()  # Preserve original df_test
+                    df_test_original = df_test.copy()
 
                 # Save preprocessed data along with original df_val and df_test
                 joblib.dump(
@@ -644,7 +639,6 @@ def main():
                 logger.info(f"Saved resampled data to {checkpoints['resampled_data']}")
 
             # Step 3: Hyperparameter Tuning and Model Training
-            # Define Optuna studies with descriptive storage URL
             storage_url = (
                 f"sqlite:///sepsis_prediction_optimization_{run_id}.db"
                 if args.new_study
@@ -706,7 +700,7 @@ def main():
                     ]
                 )
 
-                # Cross-validation setup with multiple metrics
+                # Cross-validation
                 scoring = {
                     "f1": "f1",
                     "accuracy": "accuracy",
@@ -808,7 +802,7 @@ def main():
 
             def lr_objective(trial: optuna.Trial) -> float:
                 """Objective function for Logistic Regression optimization."""
-                # Suggest penalty type
+                # penalty type
                 penalty = trial.suggest_categorical(
                     "penalty", ["l1", "l2", "elasticnet"]
                 )
@@ -819,7 +813,7 @@ def main():
                         "C", 1.0, 100.0, log=True
                     ),  # Narrowed range based on best runs
                     "penalty": penalty,
-                    "solver": "saga",  # Only saga supports all penalties including 'elasticnet'
+                    "solver": "saga",
                     "max_iter": trial.suggest_int(
                         "max_iter", 700, 2000
                     ),  # Increased upper bound
@@ -828,7 +822,7 @@ def main():
                     ),  # Tightened tolerance
                     "random_state": 42,
                     "n_jobs": 10,
-                    "class_weight": "balanced",  # Consider making this tunable if necessary
+                    "class_weight": "balanced",
                 }
 
                 # Add 'l1_ratio' if penalty is 'elasticnet' with a narrowed range
@@ -992,8 +986,6 @@ def main():
                     f"Error during Random Forest optimization or training: {str(e)}",
                     exc_info=True,
                 )
-                # Optionally, continue to the next model or halt the pipeline
-                # For this example, we'll continue
                 pass
 
             # Optimize and train Logistic Regression within a try-except block
@@ -1059,8 +1051,7 @@ def main():
                 if best_lr_params.get("penalty") == "elasticnet":
                     best_lr_params["solver"] = "saga"
                 else:
-                    # You can choose to set another solver like 'lbfgs' or keep 'saga'
-                    best_lr_params["solver"] = "lbfgs"  # or 'saga'
+                    best_lr_params["solver"] = "lbfgs"
 
                 # Initialize pipeline with best parameters
                 lr_pipeline = ImbPipeline(
@@ -1115,8 +1106,6 @@ def main():
                     f"Error during Logistic Regression optimization or training: {str(e)}",
                     exc_info=True,
                 )
-                # Optionally, continue to the next model or halt the pipeline
-                # For this example, we'll continue
                 pass
 
             # Optimize and train XGBoost within a try-except block
@@ -1137,7 +1126,7 @@ def main():
                     "timestamp", datetime.datetime.now().isoformat()
                 )
 
-                # Suggestion: Add early stopping
+                # Add early stopping
                 studies["XGBoost_Optimization"].optimize(
                     xgb_objective,
                     n_trials=args.xgb_trials,
@@ -1229,8 +1218,6 @@ def main():
                     f"Error during XGBoost optimization or training: {str(e)}",
                     exc_info=True,
                 )
-                # Optionally, continue to the next process or halt the pipeline
-                # For this example, we'll continue
                 pass
 
             # Save all trained models to checkpoint
@@ -1315,9 +1302,7 @@ def main():
                     )
 
                     # Merge Patient_ID back for final evaluation
-                    df_test_with_predictions = (
-                        df_test_original.copy()
-                    )  # Use original df_test
+                    df_test_with_predictions = df_test_original.copy()
                     df_test_with_predictions[final_predictions.name] = final_predictions
                     if final_predictions_proba is not None:
                         df_test_with_predictions[final_predictions_proba.name] = (

@@ -10,7 +10,7 @@ import logging
 import shutil
 import re
 import uuid
-import fcntl  # For file locking on Unix-based systems
+import fcntl
 
 
 @dataclass
@@ -151,7 +151,6 @@ class ModelRegistry:
         try:
             model_dir.mkdir(parents=True, exist_ok=False)
         except FileExistsError:
-            # Extremely unlikely due to UUID, but handle just in case
             model_dir_name = (
                 f"{sanitized_name}_{timestamp}_{unique_id}_{uuid.uuid4().hex[:4]}"
             )

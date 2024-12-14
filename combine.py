@@ -14,7 +14,7 @@ def combine_python_files(directory: str, output_file: str = "combined_code.md"):
     # Convert directory to Path object
     root_dir = Path(directory)
 
-    # Find all Python files
+    # Find all Python files in the directory and its subdirectories
     python_files = list(root_dir.rglob("*.py"))
 
     # Sort files for consistent output

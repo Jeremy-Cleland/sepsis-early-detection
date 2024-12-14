@@ -1309,6 +1309,7 @@ def main():
                             "cv_iteration": trial.user_attrs.get("cv_iteration", None),
                             "params": trial.params,
                         }
+                        
                         trial_data.append(data)
 
                 # Convert to DataFrame for easy analysis
@@ -3999,4 +4000,3 @@ def save_metrics_to_json(
         else:
             print(f"Failed to save metrics to JSON: {e}")
 ```
-

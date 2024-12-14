@@ -138,87 +138,6 @@ def evaluate_model(
         plt.close("all")
 
 
-# def evaluate_model(
-#     y_true: pd.Series,
-#     y_pred: pd.Series,
-#     data: pd.DataFrame,
-#     model_name: str,
-#     report_dir: str = "reports/evaluations",
-#     y_pred_proba: Optional[pd.Series] = None,
-#     model: Optional[Any] = None,
-#     logger: Optional[logging.Logger] = None,
-# ) -> Dict[str, float]:
-#     try:
-#         # Ensure essential columns exist in data
-#         assert "Hour" in data.columns, "Hour column missing in data."
-#         assert "SepsisLabel" in data.columns, "SepsisLabel column missing in data."
-
-#         setup_plot_style()
-#         os.makedirs(report_dir, exist_ok=True)
-
-#         # Calculate basic metrics
-#         metrics = {
-#             "Accuracy": accuracy_score(y_true, y_pred),
-#             "Precision": precision_score(y_true, y_pred, zero_division=0),
-#             "Recall": recall_score(y_true, y_pred, zero_division=0),
-#             "F1 Score": f1_score(y_true, y_pred, zero_division=0),
-#             "Mean Absolute Error": mean_absolute_error(y_true, y_pred),
-#             "Root Mean Squared Error": np.sqrt(mean_squared_error(y_true, y_pred)),
-#         }
-
-#         # Calculate AUC-ROC if probabilities are available
-#         if y_pred_proba is not None:
-#             try:
-#                 metrics["AUC-ROC"] = roc_auc_score(y_true, y_pred_proba)
-#             except ValueError as e:
-#                 if logger:
-#                     logger.warning(f"Cannot calculate AUC-ROC: {e}")
-#                 metrics["AUC-ROC"] = None
-
-#         # Calculate Specificity
-#         cm = confusion_matrix(y_true, y_pred)
-#         if cm.shape == (2, 2):
-#             tn, fp, fn, tp = cm.ravel()
-#             metrics["Specificity"] = tn / (tn + fp) if (tn + fp) > 0 else 0.0
-#         else:
-#             metrics["Specificity"] = 0.0  # Handle non-binary classifications
-#             if logger:
-#                 logger.warning(
-#                     f"{model_name} - Specificity calculation is not applicable for non-binary classifications."
-#                 )
-
-#         # Log metrics
-#         log_metrics(logger, model_name, metrics)
-
-#         # Generate and save essential plots
-#         generate_evaluation_plots(
-#             y_true=y_true,
-#             y_pred=y_pred,
-#             data=data,  # Pass the entire DataFrame
-#             y_pred_proba=y_pred_proba,
-#             model=model,
-#             model_name=model_name,
-#             report_dir=report_dir,
-#             logger=logger,
-#         )
-
-#         # Save metrics to JSON
-#         save_metrics_to_json(metrics, model_name, report_dir, logger)
-
-#         return metrics
-
-#     except AssertionError as ae:
-#         if logger:
-#             logger.error(f"Assertion Error: {ae}", exc_info=True)
-#         raise
-#     except Exception as e:
-#         if logger:
-#             logger.error(f"Error in model evaluation: {str(e)}", exc_info=True)
-#         raise
-#     finally:
-#         plt.close("all")
-
-
 def generate_evaluation_plots(
     y_true: pd.Series,
     y_pred: pd.Series,
@@ -284,7 +203,7 @@ def generate_evaluation_plots(
                 {"Male": data["Gender_1"] == 1, "Female": data["Gender_1"] == 0}
             )
 
-        if patient_groups:  # Only plot if we have groups defined
+        if patient_groups:
             plot_error_analysis(
                 y_true,
                 y_pred,
@@ -618,9 +537,7 @@ def plot_missing_values(
         plt.title(f"Missing Values Heatmap for {model_name}")
 
         # Annotate missing percentages on the heatmap
-        # Adjust y-coordinate based on the number of rows in the heatmap
-        # Assuming one row per data sample; for large datasets, adjust accordingly
-        # Alternatively, skip annotation for large datasets to avoid clutter
+
         if len(data) < 1000:  # Example threshold
             for idx, column in enumerate(data.columns):
                 # Extract scalar value using .item()
