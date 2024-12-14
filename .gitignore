@@ -35,3 +35,5 @@ checkpoints_old/optuna_studies.pkl
 checkpoints_old/preprocessed_data.pkl
 checkpoints_old/resampled_data.pkl
 checkpoints_old/trained_models.pkl
+docs/Overview.md
+sepsis_prediction_optimization_20241213_210538.db

@@ -1,5 +1,70 @@
 # Combined Python Code
 
+## combine.py
+
+```python
+import os
+from pathlib import Path
+
+
+def combine_python_files(directory: str, output_file: str = "combined_code.md"):
+    """
+    Find all Python files in the given directory and its subdirectories,
+    and combine their contents into a single Markdown file.
+
+    Args:
+        directory (str): Root directory to search for Python files
+        output_file (str): Name of the output Markdown file
+    """
+    # Convert directory to Path object
+    root_dir = Path(directory)
+
+    # Find all Python files
+    python_files = list(root_dir.rglob("*.py"))
+
+    # Sort files for consistent output
+    python_files.sort()
+
+    # Create or overwrite the output file
+    with open(output_file, "w", encoding="utf-8") as outfile:
+        outfile.write("# Combined Python Code\n\n")
+
+        # Process each Python file
+        for file_path in python_files:
+            # Get relative path from root directory
+            try:
+                relative_path = file_path.relative_to(root_dir)
+            except ValueError:
+                relative_path = file_path
+
+            # Write file header
+            outfile.write(f"## {relative_path}\n\n")
+            outfile.write("```python\n")
+
+            # Read and write file contents
+            try:
+                with open(file_path, "r", encoding="utf-8") as infile:
+                    content = infile.read()
+                    outfile.write(content)
+
+                    # Ensure there's a newline at the end
+                    if not content.endswith("\n"):
+                        outfile.write("\n")
+            except Exception as e:
+                outfile.write(f"# Error reading file: {str(e)}\n")
+
+            outfile.write("```\n\n")
+
+
+if __name__ == "__main__":
+    # Get the current working directory
+    current_dir = os.getcwd()
+
+    print(f"Searching for Python files in: {current_dir}")
+    combine_python_files(current_dir)
+    print("Done! Check combined_code.md for the output.")
+```
+
 ## main.py
 
 ```python
@@ -9,6 +74,7 @@ import json
 import logging
 import os
 import argparse
+import time
 from typing import Any, Tuple, Dict
 
 import joblib
@@ -23,6 +89,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 import optuna
+import psutil  # For memory usage
 
 from src.logger_config import get_logger, disable_duplicate_logging
 from src.model_registry import ModelRegistry
@@ -42,25 +109,25 @@ def parse_arguments():
     parser.add_argument(
         "--optuna-n-jobs",
         type=int,
-        default=2,
+        default=1,
         help="Number of parallel jobs for Optuna hyperparameter tuning (default: 10)",
     )
     parser.add_argument(
         "--rf-trials",
         type=int,
-        default=2,
+        default=10,
         help="Number of trials for Random Forest optimization (default: 20)",
     )
     parser.add_argument(
         "--lr-trials",
         type=int,
-        default=2,
+        default=10,
         help="Number of trials for Logistic Regression optimization (default: 20)",
     )
     parser.add_argument(
         "--xgb-trials",
         type=int,
-        default=1,
+        default=10,
         help="Number of trials for XGBoost optimization (default: 20)",
     )
     parser.add_argument(
@@ -86,20 +153,12 @@ def parse_arguments():
         action="store_true",
         help="Create new Optuna studies instead of loading from checkpoint",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-training and hyperparameter tuning by ignoring existing checkpoints.",
+    )
     return parser.parse_args()
-
-
-# Initialize ModelRegistry early to use it in case of exceptions during setup
-args = parse_arguments()
-os.makedirs("logs", exist_ok=True)
-disable_duplicate_logging()
-logger = get_logger(
-    name="sepsis_prediction",
-    level="INFO",
-    use_json=False,
-)
-logging.getLogger().setLevel(logging.WARNING)
-model_registry = ModelRegistry(base_dir="./", logger=logger)
 
 
 def create_or_load_studies(
@@ -162,9 +221,9 @@ def train_and_evaluate_model(
     df_val_original: pd.DataFrame,
     unique_report_dir: str,
     logger: logging.Logger,
-) -> Tuple[Dict[str, float], Any]:
+) -> Tuple[Dict[str, float], ImbPipeline]:
     """
-    Trains and evaluates a model. Handles potential errors in evaluation by re-raising exceptions.
+    Trains and evaluates a model. Returns the entire pipeline instead of just the estimator.
 
     Args:
         model_name: Name of the model (e.g., "Random Forest (Tuned)")
@@ -180,7 +239,7 @@ def train_and_evaluate_model(
     Returns:
         A tuple containing:
             - metrics: Dictionary of evaluation metrics
-            - model: Trained model object
+            - pipeline: The entire trained pipeline object
     """
     logger.info(f"Training {model_name}...")
 
@@ -269,7 +328,7 @@ def train_and_evaluate_model(
             )
             raise
 
-        return metrics, model
+        return metrics, pipeline  # Return the entire pipeline instead of just the model
 
     except Exception as e:
         logger.error(
@@ -500,130 +559,164 @@ def generate_model_card(
     logger.info(f"Model card saved to {model_card_path}")
 
 
-@log_phase(logger)
+@log_phase(logger=None)  # Placeholder; actual logger is defined within main()
 def main():
     """Main function to execute the Sepsis Prediction Pipeline."""
+    # Parse command-line arguments
+    args = parse_arguments()
+
     # Set up logger
-    logger = get_logger(name="sepsis_prediction", level="INFO", use_json=False)
+    os.makedirs("logs", exist_ok=True)
+    disable_duplicate_logging()
+    logger = get_logger(
+        name="sepsis_prediction",
+        level="INFO",
+        use_json=False,
+    )
+    logging.getLogger().setLevel(logging.WARNING)
+    model_registry = ModelRegistry(base_dir="./", logger=logger)
+
     logger.info("Starting Sepsis Prediction Pipeline")
 
-    # Define checkpoint paths
+    # Record start time and initial memory usage
+    start_time = time.time()
+    process = psutil.Process(os.getpid())
+    initial_memory = process.memory_info().rss / (1024**2)  # Convert to MB
+    logger.info(f"Initial Memory Usage: {initial_memory:.2f} MB")
+
+    # Generate a unique identifier for this run
+    run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    unique_report_dir = os.path.join("reports", "evaluations", f"run_{run_id}")
+    os.makedirs(unique_report_dir, exist_ok=True)
+    logger.info(f"Reports and metrics will be saved to: {unique_report_dir}")
+
+    # Define run_id-specific checkpoint paths
     checkpoints = {
-        "preprocessed_data": "checkpoints/preprocessed_data.pkl",
-        "resampled_data": "checkpoints/resampled_data.pkl",
-        "trained_models": "checkpoints/trained_models.pkl",
-        "optuna_studies": "checkpoints/optuna_studies.pkl",
+        "preprocessed_data": f"checkpoints/preprocessed_data_{run_id}.pkl",
+        "resampled_data": f"checkpoints/resampled_data_{run_id}.pkl",
+        "trained_models": f"checkpoints/trained_models_{run_id}.pkl",
+        "optuna_studies": f"checkpoints/optuna_studies_{run_id}.pkl",
     }
 
     # Create checkpoint directory
     os.makedirs("checkpoints", exist_ok=True)
 
     try:
-        # Generate a unique identifier for this run
-        run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        unique_report_dir = os.path.join("reports", "evaluations", f"run_{run_id}")
-        os.makedirs(unique_report_dir, exist_ok=True)
-        logger.info(f"Reports and metrics will be saved to: {unique_report_dir}")
-
-        # Step 1: Load and preprocess data
-        if os.path.exists(checkpoints["preprocessed_data"]):
-            logger.info("Loading preprocessed data from checkpoint.")
-            df_train_processed, df_val_processed, df_test_processed, df_val_original = (
-                joblib.load(checkpoints["preprocessed_data"])
-            )
-        else:
-            logger.info("Loading and preprocessing data.")
-            combined_df = load_data(args.data_path)
-            logger.info("Splitting data into training, validation, and testing sets")
-            df_train, df_val, df_test = split_data(
-                combined_df, train_size=0.7, val_size=0.15
-            )
-
-            with log_step(logger, "Preprocessing training data"):
-                df_train_processed = preprocess_data(df_train)
-
-            with log_step(logger, "Preprocessing validation data"):
-                df_val_processed = preprocess_data(df_val)
-                df_val_original = df_val.copy()  # Preserve original df_val
-
-            with log_step(logger, "Preprocessing testing data"):
-                df_test_processed = preprocess_data(df_test)
-
-            # Save preprocessed data along with original df_val
-            joblib.dump(
-                (
-                    df_train_processed,
-                    df_val_processed,
-                    df_test_processed,
-                    df_val_original,
-                ),
-                checkpoints["preprocessed_data"],
-            )
-            logger.info(
-                f"Saved preprocessed data to {checkpoints['preprocessed_data']}"
-            )
-
-        # Step 2: Handle class imbalance with SMOTEENN
-        if os.path.exists(checkpoints["resampled_data"]):
-            logger.info("Loading resampled data from checkpoint.")
-            X_train_resampled, y_train_resampled = joblib.load(
-                checkpoints["resampled_data"]
-            )
-        else:
-            logger.info("Applying SMOTEENN to training data.")
-            smote_enn = SMOTEENN(
-                smote=SMOTE(sampling_strategy=0.5, random_state=42, k_neighbors=6),
-                enn=EditedNearestNeighbours(
-                    n_jobs=-1,
-                    n_neighbors=3,
-                ),
-                random_state=42,
-            )
-            X_train = df_train_processed.drop("SepsisLabel", axis=1)
-            y_train = df_train_processed["SepsisLabel"]
-            X_train_resampled, y_train_resampled = smote_enn.fit_resample(
-                X_train, y_train
-            )
-
-            # Plot resampled class distribution
-            plot_class_distribution(
-                y=y_train_resampled,
-                model_name="Resampled Training Data",
-                report_dir=unique_report_dir,
-                title_suffix="_after_resampling",
-                logger=logger,
-            )
-
-            # Save resampled data
-            joblib.dump(
-                (X_train_resampled, y_train_resampled),
-                checkpoints["resampled_data"],
-            )
-            logger.info(f"Saved resampled data to {checkpoints['resampled_data']}")
-
         # Initialize best score
         models = {}
         best_score = 0
         best_model_name = None
 
-        # Check if trained models exist
-        if os.path.exists(checkpoints["trained_models"]):
-            logger.info("Loading trained models from checkpoint.")
-            models = joblib.load(checkpoints["trained_models"])
-            # Determine the best model
-            for name, model_info in models.items():
-                if model_info["metrics"]["F1 Score"] > best_score:
-                    best_score = model_info["metrics"]["F1 Score"]
-                    best_model_name = name
-            logger.info(
-                f"Best model so far: {best_model_name} with F1 Score: {best_score:.4f}"
+        # Determine whether to load existing models or run optimizations
+        should_run_optimizations = True  # Default to running optimizations
+
+        if not args.force and not args.new_study:
+            # Check if all run_id-specific checkpoints exist
+            checkpoints_exist = all(
+                os.path.exists(path) for path in checkpoints.values()
             )
-        else:
+            if checkpoints_exist:
+                should_run_optimizations = False
+                logger.info("Loading trained models from checkpoint.")
+                models = joblib.load(checkpoints["trained_models"])
+                # Determine the best model
+                for name, model_info in models.items():
+                    if model_info["metrics"]["F1 Score"] > best_score:
+                        best_score = model_info["metrics"]["F1 Score"]
+                        best_model_name = name
+                logger.info(
+                    f"Best model so far: {best_model_name} with F1 Score: {best_score:.4f}"
+                )
+
+        if should_run_optimizations:
+            # Step 1: Load and preprocess data
+            if os.path.exists(checkpoints["preprocessed_data"]):
+                logger.info("Loading preprocessed data from checkpoint.")
+                (
+                    df_train_processed,
+                    df_val_processed,
+                    df_test_processed,
+                    df_val_original,
+                    df_test_original,
+                ) = joblib.load(checkpoints["preprocessed_data"])
+            else:
+                logger.info("Loading and preprocessing data.")
+                combined_df = load_data(args.data_path)
+                logger.info(
+                    "Splitting data into training, validation, and testing sets"
+                )
+                df_train, df_val, df_test = split_data(
+                    combined_df, train_size=0.7, val_size=0.15
+                )
+
+                with log_step(logger, "Preprocessing training data"):
+                    df_train_processed = preprocess_data(df_train)
+
+                with log_step(logger, "Preprocessing validation data"):
+                    df_val_processed = preprocess_data(df_val)
+                    df_val_original = df_val.copy()  # Preserve original df_val
+
+                with log_step(logger, "Preprocessing testing data"):
+                    df_test_processed = preprocess_data(df_test)
+                    df_test_original = df_test.copy()  # Preserve original df_test
+
+                # Save preprocessed data along with original df_val and df_test
+                joblib.dump(
+                    (
+                        df_train_processed,
+                        df_val_processed,
+                        df_test_processed,
+                        df_val_original,
+                        df_test_original,
+                    ),
+                    checkpoints["preprocessed_data"],
+                )
+                logger.info(
+                    f"Saved preprocessed data to {checkpoints['preprocessed_data']}"
+                )
+
+            # Step 2: Handle class imbalance with SMOTEENN
+            if os.path.exists(checkpoints["resampled_data"]):
+                logger.info("Loading resampled data from checkpoint.")
+                X_train_resampled, y_train_resampled = joblib.load(
+                    checkpoints["resampled_data"]
+                )
+            else:
+                logger.info("Applying SMOTEENN to training data.")
+                smote_enn = SMOTEENN(
+                    smote=SMOTE(sampling_strategy=0.5, random_state=42, k_neighbors=6),
+                    enn=EditedNearestNeighbours(
+                        n_jobs=-1,
+                        n_neighbors=3,
+                    ),
+                    random_state=42,
+                )
+                X_train = df_train_processed.drop("SepsisLabel", axis=1)
+                y_train = df_train_processed["SepsisLabel"]
+                X_train_resampled, y_train_resampled = smote_enn.fit_resample(
+                    X_train, y_train
+                )
+
+                # Plot resampled class distribution
+                plot_class_distribution(
+                    y=y_train_resampled,
+                    model_name="Resampled Training Data",
+                    report_dir=unique_report_dir,
+                    title_suffix="_after_resampling",
+                    logger=logger,
+                )
+
+                # Save resampled data
+                joblib.dump(
+                    (X_train_resampled, y_train_resampled),
+                    checkpoints["resampled_data"],
+                )
+                logger.info(f"Saved resampled data to {checkpoints['resampled_data']}")
+
             # Step 3: Hyperparameter Tuning and Model Training
             # Define Optuna studies with descriptive storage URL
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             storage_url = (
-                f"sqlite:///sepsis_prediction_optimization_{timestamp}.db"
+                f"sqlite:///sepsis_prediction_optimization_{run_id}.db"
                 if args.new_study
                 else "sqlite:///sepsis_prediction_optimization.db"
             )
@@ -1223,148 +1316,241 @@ def main():
                 trials_df.to_csv(trials_csv_path, index=False)
                 logger.info(f"Saved trial data to {trials_csv_path}")
 
-        # Step 4: Final Evaluation on Test Set
-        if best_model_name:
-            try:
-                logger.info(
-                    f"\nPerforming final evaluation with best model: {best_model_name}"
-                )
-                best_model = models[best_model_name]["model"]
-
-                # Make predictions on the test set
-                if "xgb_classifier" in best_model.named_steps:
-                    # Handle XGBoost predictions within the pipeline
-                    final_predictions_proba = best_model.predict_proba(
-                        df_test_processed.drop("SepsisLabel", axis=1)
-                    )[:, 1]
-                    final_predictions = (final_predictions_proba > 0.5).astype(int)
-                    logger.info(f"Predictions made with {best_model_name} on test set.")
-                else:
-                    # Handle other models
-                    final_predictions = best_model.predict(
-                        df_test_processed.drop("SepsisLabel", axis=1)
+            # Step 4: Final Evaluation on Test Set
+            if best_model_name:
+                try:
+                    logger.info(
+                        f"\nPerforming final evaluation with best model: {best_model_name}"
                     )
-                    final_predictions_proba = (
-                        best_model.predict_proba(
+                    best_model_pipeline = models[best_model_name]["model"]
+
+                    # Use the pipeline directly for predictions
+                    if hasattr(best_model_pipeline, "predict_proba"):
+                        final_predictions_proba = best_model_pipeline.predict_proba(
                             df_test_processed.drop("SepsisLabel", axis=1)
                         )[:, 1]
-                        if hasattr(best_model, "predict_proba")
+                        final_predictions = (final_predictions_proba > 0.5).astype(int)
+                        logger.info(
+                            f"Predictions made with {best_model_name} on test set."
+                        )
+                    else:
+                        final_predictions = best_model_pipeline.predict(
+                            df_test_processed.drop("SepsisLabel", axis=1)
+                        )
+                        final_predictions_proba = None
+                        logger.info(
+                            f"Predictions made with {best_model_name} on test set."
+                        )
+
+                    # Convert predictions to pandas.Series
+                    final_predictions = pd.Series(
+                        final_predictions,
+                        index=df_test_processed.index,
+                        name="Predicted",
+                    )
+                    final_predictions_proba = (
+                        pd.Series(
+                            final_predictions_proba,
+                            index=df_test_processed.index,
+                            name="Predicted_Prob",
+                        )
+                        if final_predictions_proba is not None
                         else None
                     )
-                    logger.info(f"Predictions made with {best_model_name} on test set.")
 
-                # Convert predictions to pandas.Series
-                final_predictions = pd.Series(
-                    final_predictions, index=df_test_processed.index, name="Predicted"
-                )
-                final_predictions_proba = (
-                    pd.Series(
-                        final_predictions_proba,
-                        index=df_test_processed.index,
-                        name="Predicted_Prob",
+                    # Merge Patient_ID back for final evaluation
+                    df_test_with_predictions = (
+                        df_test_original.copy()
+                    )  # Use original df_test
+                    df_test_with_predictions[final_predictions.name] = final_predictions
+                    if final_predictions_proba is not None:
+                        df_test_with_predictions[final_predictions_proba.name] = (
+                            final_predictions_proba
+                        )
+
+                    # Evaluate the best model on the test set
+                    metrics = evaluate_model(
+                        y_true=df_test_processed["SepsisLabel"],
+                        y_pred=final_predictions,
+                        data=df_test_with_predictions,  # Use df_test_with_predictions
+                        model_name=f"Final_{best_model_name.replace(' ', '_').lower()}",
+                        y_pred_proba=final_predictions_proba,
+                        model=best_model_pipeline,  # Use the pipeline directly
+                        report_dir=unique_report_dir,
+                        logger=logger,
                     )
-                    if final_predictions_proba is not None
-                    else None
-                )
+                    logger.info(f"Final evaluation completed for {best_model_name}.")
 
-                # Merge Patient_ID back for final evaluation
-                df_test_with_predictions = df_test.copy()  # Use original df_test
-                df_test_with_predictions[final_predictions.name] = final_predictions
-                if final_predictions_proba is not None:
-                    df_test_with_predictions[final_predictions_proba.name] = (
-                        final_predictions_proba
+                    # Generate model card
+                    generate_model_card(
+                        model=best_model_pipeline,
+                        model_name=best_model_name,
+                        metrics=metrics,
+                        train_data=df_train_processed,
+                        val_data=df_val_processed,
+                        test_data=df_test_processed,
+                        report_dir=unique_report_dir,
+                        run_id=run_id,
+                        logger=logger,
                     )
 
-                # Evaluate the best model on the test set
-                metrics = evaluate_model(
-                    y_true=df_test_processed["SepsisLabel"],
-                    y_pred=final_predictions,
-                    data=df_test_with_predictions,  # Use df_test_with_predictions
-                    model_name=f"Final_{best_model_name.replace(' ', '_').lower()}",
-                    y_pred_proba=final_predictions_proba,
-                    model=best_model,
-                    report_dir=unique_report_dir,
-                    logger=logger,
+                    # Save the best model using ModelRegistry
+                    logger.info(f"Saving the best model ({best_model_name})")
+                    model_registry.save_model(
+                        model=best_model_pipeline,  # Save the entire pipeline
+                        name=best_model_name,
+                        params=best_model_pipeline.get_params(),
+                        metrics=metrics,
+                        artifacts={
+                            "confusion_matrix": os.path.join(
+                                unique_report_dir,
+                                f"{best_model_name}_confusion_matrix.png",
+                            ),
+                            "roc_curve": os.path.join(
+                                unique_report_dir, f"{best_model_name}_roc_curve.png"
+                            ),
+                            "precision_recall_curve": os.path.join(
+                                unique_report_dir,
+                                f"{best_model_name}_precision_recall_curve.png",
+                            ),
+                            "feature_importance": os.path.join(
+                                unique_report_dir,
+                                f"{best_model_name}_feature_importance.png",
+                            ),
+                            "missing_values_heatmap": os.path.join(
+                                unique_report_dir,
+                                f"{best_model_name}_missing_values_heatmap.png",
+                            ),
+                        },
+                        tags=["tuned"],
+                    )
+                    logger.info(f"Model ({best_model_name}) saved successfully.")
+
+                    # Clean up
+                    del best_model_pipeline, final_predictions, final_predictions_proba
+                    gc.collect()
+
+                    logger.info("Sepsis Prediction Pipeline completed successfully.")
+
+                except Exception as e:
+                    logger.error(
+                        f"An error occurred during final evaluation: {str(e)}",
+                        exc_info=True,
+                    )
+                    raise
+
+            else:
+                logger.warning(
+                    "No models were trained. Pipeline did not complete successfully."
                 )
-                logger.info(f"Final evaluation completed for {best_model_name}.")
-
-                # Generate model card
-                generate_model_card(
-                    model=best_model,
-                    model_name=best_model_name,
-                    metrics=metrics
-                    if "metrics" in locals()
-                    else metrics_xgb,  # Use appropriate metrics
-                    train_data=df_train_processed,
-                    val_data=df_val_processed,
-                    test_data=df_test_processed,
-                    report_dir=unique_report_dir,
-                    run_id=run_id,
-                    logger=logger,
-                )
-
-                # Step 5: Save the best model using ModelRegistry
-                logger.info(f"Saving the best model ({best_model_name})")
-                # Extract the estimator's parameters for saving
-                estimator_step = best_model_name.lower().replace(" ", "_")
-                best_model_params = best_model.named_steps.get(
-                    estimator_step
-                ).get_params()
-
-                model_registry.save_model(
-                    model=best_model,
-                    name=best_model_name,
-                    params=best_model_params,
-                    metrics=metrics if "metrics" in locals() else metrics_xgb,
-                    artifacts={
-                        "confusion_matrix": os.path.join(
-                            unique_report_dir, f"{best_model_name}_confusion_matrix.png"
-                        ),
-                        "roc_curve": os.path.join(
-                            unique_report_dir, f"{best_model_name}_roc_curve.png"
-                        ),
-                        "precision_recall_curve": os.path.join(
-                            unique_report_dir,
-                            f"{best_model_name}_precision_recall_curve.png",
-                        ),
-                        "feature_importance": os.path.join(
-                            unique_report_dir,
-                            f"{best_model_name}_feature_importance.png",
-                        ),
-                        "missing_values_heatmap": os.path.join(
-                            unique_report_dir,
-                            f"{best_model_name}_missing_values_heatmap.png",
-                        ),
-                    },
-                    tags=["tuned"],
-                )
-                logger.info(f"Model ({best_model_name}) saved successfully.")
-
-                # Clean up
-                del best_model, final_predictions, final_predictions_proba
-                gc.collect()
-
-                logger.info("Sepsis Prediction Pipeline completed successfully.")
-
-            except Exception as e:
-                logger.error(
-                    f"An error occurred during final evaluation: {str(e)}",
-                    exc_info=True,
-                )
-                raise
 
         else:
-            logger.warning(
-                "No models were trained. Pipeline did not complete successfully."
-            )
+            logger.info("Skipping optimizations and training as checkpoints exist.")
+
+        logger.info("Sepsis Prediction Pipeline completed successfully.")
 
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}", exc_info=True)
         raise
 
+    finally:
+        # Record end time and final memory usage
+        end_time = time.time()
+        duration = end_time - start_time
+        final_memory = process.memory_info().rss / (1024**2)  # Convert to MB
+        memory_change = final_memory - initial_memory
+
+        logger.info("Phase Complete: Main")
+        logger.info(f"Duration: {duration:.2f} seconds")
+        logger.info(f"Final Memory Usage: {final_memory:.2f} MB")
+        logger.info(
+            f"Memory Change: {'+' if memory_change >=0 else '-'}{abs(memory_change):.2f} MB"
+        )
+
 
 if __name__ == "__main__":
     main()
+```
+
+## src/__init__.py
+
+```python
+# src/__init__.py
+
+from .data_processing import (
+    load_data,
+    load_processed_data,
+    split_data,
+)
+from .evaluation import (
+    evaluate_model,
+    plot_class_distribution,
+    plot_confusion_matrix,
+    plot_feature_correlation_heatmap,
+    plot_feature_importance,
+    plot_precision_recall_curve,
+    plot_roc_curve,
+    generate_evaluation_plots,
+    plot_missing_values,
+    plot_temporal_progression,
+    plot_error_analysis,
+    plot_calibration,
+    plot_prediction_timeline,
+    plot_feature_interactions,
+)
+from .feature_engineering import preprocess_data
+
+from .utils import (
+    log_message,
+    log_metrics,
+    save_metrics_to_json,
+)
+
+from .logger_utils import (
+    log_phase,
+    log_memory,
+    log_dataframe_info,
+    log_step,
+    log_function,
+)
+from .logger_config import get_logger, disable_duplicate_logging
+
+from .model_registry import ModelRegistry
+
+__all__ = [
+    # Data Processing
+    "load_data",
+    "load_processed_data",
+    "split_data",
+    "preprocess_data",
+    # Evaluation and Plotting
+    "evaluate_model",
+    "generate_evaluation_plots",
+    "plot_confusion_matrix",
+    "plot_roc_curve",
+    "plot_precision_recall_curve",
+    "plot_feature_importance",
+    "plot_class_distribution",
+    "plot_feature_correlation_heatmap",
+    "plot_missing_values",  # New
+    "plot_temporal_progression",  # New
+    "plot_error_analysis",  # New
+    "plot_calibration",  # New
+    "plot_prediction_timeline",  # New
+    "plot_feature_interactions",  # New
+    # Logging and Utilities
+    "log_message",
+    "log_metrics",
+    "save_metrics_to_json",
+    "log_phase",
+    "log_memory",
+    "log_dataframe_info",
+    "log_step",
+    "log_function",
+    "get_logger",
+    "disable_duplicate_logging",
+    "ModelRegistry",
+]
 ```
 
 ## src/data_processing.py
@@ -3792,3 +3978,4 @@ def save_metrics_to_json(
         else:
             print(f"Failed to save metrics to JSON: {e}")
 ```
+

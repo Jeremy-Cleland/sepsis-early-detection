@@ -84,7 +84,7 @@ def fill_missing_values(df):
     # Initialize and fit the IterativeImputer
     imputer = IterativeImputer(
         random_state=42,  # Ensures reproducibility.
-        max_iter=30,  # Maximum number of iterations.
+        max_iter=100,  # Maximum number of iterations.
         initial_strategy="mean",  # Initial imputation strategy.
         skip_complete=True,  # Skips columns without missing values to save computation.
     )

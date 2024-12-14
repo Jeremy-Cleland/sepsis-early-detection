@@ -549,3 +549,105 @@ Traceback (most recent call last):
     df_test_with_predictions = df_test.copy()  # Use original df_test
 UnboundLocalError: local variable 'df_test' referenced before assignment
 12-13 18:40 - ================================================================================
+12-13 18:53 - ================================================================================
+12-13 18:53 - Starting Phase: Main
+12-13 18:53 - --------------------------------------------------------------------------------
+12-13 18:53 - Initial Memory Usage: 214.27 MB
+12-13 18:53 - Starting Sepsis Prediction Pipeline
+12-13 18:53 - Reports and metrics will be saved to: reports/evaluations/run_20241213_185346
+12-13 18:53 - Loading and preprocessing data.
+12-13 18:53 - Splitting data into training, validation, and testing sets
+12-13 18:54 - Starting step: Preprocessing training data
+12-13 18:57 - Completed step: Preprocessing training data (Duration: 215.64s)
+12-13 18:57 - Starting step: Preprocessing validation data
+12-13 18:57 - Completed step: Preprocessing validation data (Duration: 7.12s)
+12-13 18:57 - Starting step: Preprocessing testing data
+12-13 18:57 - Completed step: Preprocessing testing data (Duration: 7.28s)
+12-13 18:57 - Saved preprocessed data to checkpoints/preprocessed_data.pkl
+12-13 18:57 - Loading resampled data from checkpoint.
+12-13 18:57 - Loading trained models from checkpoint.
+12-13 18:57 - Best model so far: Random Forest (Tuned) with F1 Score: 0.3762
+12-13 18:57 - --------------------------------------------------------------------------------
+12-13 18:57 - Phase Complete: Main
+12-13 18:57 - Duration: 247.40 seconds
+12-13 18:57 - Final Memory Usage: 1408.42 MB
+12-13 18:57 - Memory Change: +1194.16 MB
+12-13 18:57 - ================================================================================
+12-13 20:15 - ================================================================================
+12-13 20:15 - Starting Phase: Main
+12-13 20:15 - --------------------------------------------------------------------------------
+12-13 20:15 - Initial Memory Usage: 213.73 MB
+12-13 20:15 - Starting Sepsis Prediction Pipeline
+12-13 20:15 - Reports and metrics will be saved to: reports/evaluations/run_20241213_201502
+12-13 20:15 - Loading preprocessed data from checkpoint.
+12-13 20:15 - Loading resampled data from checkpoint.
+12-13 20:15 - Loading trained models from checkpoint.
+12-13 20:15 - Best model so far: Random Forest (Tuned) with F1 Score: 0.3762
+12-13 20:15 - --------------------------------------------------------------------------------
+12-13 20:15 - Phase Complete: Main
+12-13 20:15 - Duration: 1.23 seconds
+12-13 20:15 - Final Memory Usage: 632.72 MB
+12-13 20:15 - Memory Change: +418.98 MB
+12-13 20:15 - ================================================================================
+12-13 20:56 - ================================================================================
+12-13 20:56 - Starting Phase: Main
+12-13 20:56 - --------------------------------------------------------------------------------
+12-13 20:56 - Initial Memory Usage: 213.61 MB
+12-13 20:56 - Starting Sepsis Prediction Pipeline
+12-13 20:56 - Initial Memory Usage: 213.62 MB
+12-13 20:56 - Reports and metrics will be saved to: reports/evaluations/run_20241213_205654
+12-13 20:56 - Loading and preprocessing data.
+12-13 20:56 - Splitting data into training, validation, and testing sets
+12-13 20:57 - ================================================================================
+12-13 20:57 - Starting Phase: Main
+12-13 20:57 - --------------------------------------------------------------------------------
+12-13 20:57 - Initial Memory Usage: 213.41 MB
+12-13 20:57 - Starting Sepsis Prediction Pipeline
+12-13 20:57 - Initial Memory Usage: 213.42 MB
+12-13 20:57 - Reports and metrics will be saved to: reports/evaluations/run_20241213_205731
+12-13 20:57 - Loading and preprocessing data.
+12-13 20:57 - Splitting data into training, validation, and testing sets
+12-13 20:57 - Starting step: Preprocessing training data
+12-13 20:58 - ================================================================================
+12-13 20:58 - Starting Phase: Main
+12-13 20:58 - --------------------------------------------------------------------------------
+12-13 20:58 - Initial Memory Usage: 215.38 MB
+12-13 20:58 - Starting Sepsis Prediction Pipeline
+12-13 20:58 - Initial Memory Usage: 215.41 MB
+12-13 20:58 - Reports and metrics will be saved to: reports/evaluations/run_20241213_205811
+12-13 20:58 - Loading and preprocessing data.
+12-13 20:58 - Splitting data into training, validation, and testing sets
+12-13 20:58 - Starting step: Preprocessing training data
+12-13 20:58 - ================================================================================
+12-13 20:58 - Starting Phase: Main
+12-13 20:58 - --------------------------------------------------------------------------------
+12-13 20:58 - Initial Memory Usage: 213.88 MB
+12-13 20:58 - Starting Sepsis Prediction Pipeline
+12-13 20:58 - Initial Memory Usage: 213.91 MB
+12-13 20:58 - Reports and metrics will be saved to: reports/evaluations/run_20241213_205854
+12-13 20:58 - Loading and preprocessing data.
+12-13 20:58 - Splitting data into training, validation, and testing sets
+12-13 20:59 - Starting step: Preprocessing training data
+12-13 21:05 - ================================================================================
+12-13 21:05 - Starting Phase: Main
+12-13 21:05 - --------------------------------------------------------------------------------
+12-13 21:05 - Initial Memory Usage: 213.47 MB
+12-13 21:05 - Starting Sepsis Prediction Pipeline
+12-13 21:05 - Initial Memory Usage: 213.47 MB
+12-13 21:05 - Reports and metrics will be saved to: reports/evaluations/run_20241213_210538
+12-13 21:05 - Loading and preprocessing data.
+12-13 21:05 - Splitting data into training, validation, and testing sets
+12-13 21:05 - Starting step: Preprocessing training data
+12-13 21:09 - Completed step: Preprocessing training data (Duration: 213.00s)
+12-13 21:09 - Starting step: Preprocessing validation data
+12-13 21:09 - Completed step: Preprocessing validation data (Duration: 7.16s)
+12-13 21:09 - Starting step: Preprocessing testing data
+12-13 21:09 - Completed step: Preprocessing testing data (Duration: 7.30s)
+12-13 21:09 - Saved preprocessed data to checkpoints/preprocessed_data_20241213_210538.pkl
+12-13 21:09 - Applying SMOTEENN to training data.
+12-13 21:12 - Saved plot: Resampled_Training_Data_class_distribution__after_resampling.png
+12-13 21:12 - Saved resampled data to checkpoints/resampled_data_20241213_210538.pkl
+12-13 21:12 - Initializing new Optuna studies.
+12-13 21:12 - Saved Optuna studies to checkpoints/optuna_studies_20241213_210538.pkl
+12-13 21:12 - Starting Optuna hyperparameter tuning with 1 parallel jobs.
+12-13 21:12 - Optimizing Random Forest hyperparameters with Optuna.

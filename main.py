@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import argparse
+import time
 from typing import Any, Tuple, Dict
 
 import joblib
@@ -18,6 +19,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 import optuna
+import psutil  # For memory usage
 
 from src.logger_config import get_logger, disable_duplicate_logging
 from src.model_registry import ModelRegistry
@@ -43,19 +45,19 @@ def parse_arguments():
     parser.add_argument(
         "--rf-trials",
         type=int,
-        default=1,
+        default=10,
         help="Number of trials for Random Forest optimization (default: 20)",
     )
     parser.add_argument(
         "--lr-trials",
         type=int,
-        default=1,
+        default=10,
         help="Number of trials for Logistic Regression optimization (default: 20)",
     )
     parser.add_argument(
         "--xgb-trials",
         type=int,
-        default=1,
+        default=10,
         help="Number of trials for XGBoost optimization (default: 20)",
     )
     parser.add_argument(
@@ -81,10 +83,15 @@ def parse_arguments():
         action="store_true",
         help="Create new Optuna studies instead of loading from checkpoint",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-training and hyperparameter tuning by ignoring existing checkpoints.",
+    )
     return parser.parse_args()
 
 
-# Initialize ModelRegistry early to use it in case of exceptions during setup
+# Initialize logger and related components once at the top level
 args = parse_arguments()
 os.makedirs("logs", exist_ok=True)
 disable_duplicate_logging()
@@ -495,136 +502,151 @@ def generate_model_card(
     logger.info(f"Model card saved to {model_card_path}")
 
 
-@log_phase(logger)
+@log_phase(logger)  # Placeholder; actual logger is defined within main()
 def main():
     """Main function to execute the Sepsis Prediction Pipeline."""
-    # Set up logger
-    logger = get_logger(name="sepsis_prediction", level="INFO", use_json=False)
+
     logger.info("Starting Sepsis Prediction Pipeline")
 
-    # Define checkpoint paths
+    # Record start time and initial memory usage
+    start_time = time.time()
+    process = psutil.Process(os.getpid())
+    initial_memory = process.memory_info().rss / (1024**2)  # Convert to MB
+    logger.info(f"Initial Memory Usage: {initial_memory:.2f} MB")
+
+    # Generate a unique identifier for this run
+    run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    unique_report_dir = os.path.join("reports", "evaluations", f"run_{run_id}")
+    os.makedirs(unique_report_dir, exist_ok=True)
+    logger.info(f"Reports and metrics will be saved to: {unique_report_dir}")
+
+    # Define run_id-specific checkpoint paths
     checkpoints = {
-        "preprocessed_data": "checkpoints/preprocessed_data.pkl",
-        "resampled_data": "checkpoints/resampled_data.pkl",
-        "trained_models": "checkpoints/trained_models.pkl",
-        "optuna_studies": "checkpoints/optuna_studies.pkl",
+        "preprocessed_data": f"checkpoints/preprocessed_data_{run_id}.pkl",
+        "resampled_data": f"checkpoints/resampled_data_{run_id}.pkl",
+        "trained_models": f"checkpoints/trained_models_{run_id}.pkl",
+        "optuna_studies": f"checkpoints/optuna_studies_{run_id}.pkl",
     }
 
     # Create checkpoint directory
     os.makedirs("checkpoints", exist_ok=True)
 
     try:
-        # Generate a unique identifier for this run
-        run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        unique_report_dir = os.path.join("reports", "evaluations", f"run_{run_id}")
-        os.makedirs(unique_report_dir, exist_ok=True)
-        logger.info(f"Reports and metrics will be saved to: {unique_report_dir}")
+        # Initialize best score
+        models = {}
+        best_score = 0
+        best_model_name = None
 
-        # Step 1: Load and preprocess data
-        if os.path.exists(checkpoints["preprocessed_data"]):
-            logger.info("Loading preprocessed data from checkpoint.")
-            (
-                df_train_processed,
-                df_val_processed,
-                df_test_processed,
-                df_val_original,
-                df_test_original,
-            ) = joblib.load(checkpoints["preprocessed_data"])
-        else:
-            logger.info("Loading and preprocessing data.")
-            combined_df = load_data(args.data_path)
-            logger.info("Splitting data into training, validation, and testing sets")
-            df_train, df_val, df_test = split_data(
-                combined_df, train_size=0.7, val_size=0.15
+        # Determine whether to load existing models or run optimizations
+        should_run_optimizations = True  # Default to running optimizations
+
+        if not args.force and not args.new_study:
+            # Check if all run_id-specific checkpoints exist
+            checkpoints_exist = all(
+                os.path.exists(path) for path in checkpoints.values()
             )
+            if checkpoints_exist:
+                should_run_optimizations = False
+                logger.info("Loading trained models from checkpoint.")
+                models = joblib.load(checkpoints["trained_models"])
+                # Determine the best model
+                for name, model_info in models.items():
+                    if model_info["metrics"]["F1 Score"] > best_score:
+                        best_score = model_info["metrics"]["F1 Score"]
+                        best_model_name = name
+                logger.info(
+                    f"Best model so far: {best_model_name} with F1 Score: {best_score:.4f}"
+                )
 
-            with log_step(logger, "Preprocessing training data"):
-                df_train_processed = preprocess_data(df_train)
-
-            with log_step(logger, "Preprocessing validation data"):
-                df_val_processed = preprocess_data(df_val)
-                df_val_original = df_val.copy()  # Preserve original df_val
-
-            with log_step(logger, "Preprocessing testing data"):
-                df_test_processed = preprocess_data(df_test)
-                df_test_original = df_test.copy()  # Preserve original df_test
-
-            # Save preprocessed data along with original df_val and df_test
-            joblib.dump(
+        if should_run_optimizations:
+            # Step 1: Load and preprocess data
+            if os.path.exists(checkpoints["preprocessed_data"]):
+                logger.info("Loading preprocessed data from checkpoint.")
                 (
                     df_train_processed,
                     df_val_processed,
                     df_test_processed,
                     df_val_original,
                     df_test_original,
-                ),
-                checkpoints["preprocessed_data"],
-            )
-            logger.info(
-                f"Saved preprocessed data to {checkpoints['preprocessed_data']}"
-            )
+                ) = joblib.load(checkpoints["preprocessed_data"])
+            else:
+                logger.info("Loading and preprocessing data.")
+                combined_df = load_data(args.data_path)
+                logger.info(
+                    "Splitting data into training, validation, and testing sets"
+                )
+                df_train, df_val, df_test = split_data(
+                    combined_df, train_size=0.7, val_size=0.15
+                )
 
-        # Step 2: Handle class imbalance with SMOTEENN
-        if os.path.exists(checkpoints["resampled_data"]):
-            logger.info("Loading resampled data from checkpoint.")
-            X_train_resampled, y_train_resampled = joblib.load(
-                checkpoints["resampled_data"]
-            )
-        else:
-            logger.info("Applying SMOTEENN to training data.")
-            smote_enn = SMOTEENN(
-                smote=SMOTE(sampling_strategy=0.5, random_state=42, k_neighbors=6),
-                enn=EditedNearestNeighbours(
-                    n_jobs=-1,
-                    n_neighbors=3,
-                ),
-                random_state=42,
-            )
-            X_train = df_train_processed.drop("SepsisLabel", axis=1)
-            y_train = df_train_processed["SepsisLabel"]
-            X_train_resampled, y_train_resampled = smote_enn.fit_resample(
-                X_train, y_train
-            )
+                with log_step(logger, "Preprocessing training data"):
+                    df_train_processed = preprocess_data(df_train)
 
-            # Plot resampled class distribution
-            plot_class_distribution(
-                y=y_train_resampled,
-                model_name="Resampled Training Data",
-                report_dir=unique_report_dir,
-                title_suffix="_after_resampling",
-                logger=logger,
-            )
+                with log_step(logger, "Preprocessing validation data"):
+                    df_val_processed = preprocess_data(df_val)
+                    df_val_original = df_val.copy()  # Preserve original df_val
 
-            # Save resampled data
-            joblib.dump(
-                (X_train_resampled, y_train_resampled),
-                checkpoints["resampled_data"],
-            )
-            logger.info(f"Saved resampled data to {checkpoints['resampled_data']}")
+                with log_step(logger, "Preprocessing testing data"):
+                    df_test_processed = preprocess_data(df_test)
+                    df_test_original = df_test.copy()  # Preserve original df_test
 
-        # Initialize best score
-        models = {}
-        best_score = 0
-        best_model_name = None
+                # Save preprocessed data along with original df_val and df_test
+                joblib.dump(
+                    (
+                        df_train_processed,
+                        df_val_processed,
+                        df_test_processed,
+                        df_val_original,
+                        df_test_original,
+                    ),
+                    checkpoints["preprocessed_data"],
+                )
+                logger.info(
+                    f"Saved preprocessed data to {checkpoints['preprocessed_data']}"
+                )
 
-        # Check if trained models exist
-        if os.path.exists(checkpoints["trained_models"]):
-            logger.info("Loading trained models from checkpoint.")
-            models = joblib.load(checkpoints["trained_models"])
-            # Determine the best model
-            for name, model_info in models.items():
-                if model_info["metrics"]["F1 Score"] > best_score:
-                    best_score = model_info["metrics"]["F1 Score"]
-                    best_model_name = name
-            logger.info(
-                f"Best model so far: {best_model_name} with F1 Score: {best_score:.4f}"
-            )
-        else:
+            # Step 2: Handle class imbalance with SMOTEENN
+            if os.path.exists(checkpoints["resampled_data"]):
+                logger.info("Loading resampled data from checkpoint.")
+                X_train_resampled, y_train_resampled = joblib.load(
+                    checkpoints["resampled_data"]
+                )
+            else:
+                logger.info("Applying SMOTEENN to training data.")
+                smote_enn = SMOTEENN(
+                    smote=SMOTE(sampling_strategy=0.5, random_state=42, k_neighbors=6),
+                    enn=EditedNearestNeighbours(
+                        n_jobs=-1,
+                        n_neighbors=3,
+                    ),
+                    random_state=42,
+                )
+                X_train = df_train_processed.drop("SepsisLabel", axis=1)
+                y_train = df_train_processed["SepsisLabel"]
+                X_train_resampled, y_train_resampled = smote_enn.fit_resample(
+                    X_train, y_train
+                )
+
+                # Plot resampled class distribution
+                plot_class_distribution(
+                    y=y_train_resampled,
+                    model_name="Resampled Training Data",
+                    report_dir=unique_report_dir,
+                    title_suffix="_after_resampling",
+                    logger=logger,
+                )
+
+                # Save resampled data
+                joblib.dump(
+                    (X_train_resampled, y_train_resampled),
+                    checkpoints["resampled_data"],
+                )
+                logger.info(f"Saved resampled data to {checkpoints['resampled_data']}")
+
             # Step 3: Hyperparameter Tuning and Model Training
             # Define Optuna studies with descriptive storage URL
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             storage_url = (
-                f"sqlite:///sepsis_prediction_optimization_{timestamp}.db"
+                f"sqlite:///sepsis_prediction_optimization_{run_id}.db"
                 if args.new_study
                 else "sqlite:///sepsis_prediction_optimization.db"
             )
@@ -1352,6 +1374,29 @@ def main():
                     "No models were trained. Pipeline did not complete successfully."
                 )
 
+        else:
+            logger.info("Skipping optimizations and training as checkpoints exist.")
+
+        logger.info("Sepsis Prediction Pipeline completed successfully.")
+
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}", exc_info=True)
         raise
+
+    finally:
+        # Record end time and final memory usage
+        end_time = time.time()
+        duration = end_time - start_time
+        final_memory = process.memory_info().rss / (1024**2)  # Convert to MB
+        memory_change = final_memory - initial_memory
+
+        logger.info("Phase Complete: Main")
+        logger.info(f"Duration: {duration:.2f} seconds")
+        logger.info(f"Final Memory Usage: {final_memory:.2f} MB")
+        logger.info(
+            f"Memory Change: {'+' if memory_change >=0 else '-'}{abs(memory_change):.2f} MB"
+        )
+
+
+if __name__ == "__main__":
+    main()
