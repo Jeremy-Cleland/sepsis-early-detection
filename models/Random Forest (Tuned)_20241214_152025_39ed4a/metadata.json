@@ -1,0 +1,48 @@
+{
+    "name": "Random Forest (Tuned)",
+    "version": "v1",
+    "timestamp": "20241214_152025",
+    "metrics": {
+        "Accuracy": 0.9873042437008129,
+        "Precision": 0.6383720930232558,
+        "Recall": 0.49105545617173524,
+        "F1 Score": 0.5551061678463094,
+        "Mean Absolute Error": 0.012695756299187039,
+        "Root Mean Squared Error": 0.11267544674500758,
+        "AUC-ROC": 0.9746678420076932,
+        "AUPRC": 0.6051455259716317,
+        "Specificity": 0.9954396486623214
+    },
+    "params": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": "balanced",
+        "criterion": "gini",
+        "max_depth": 29,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 1,
+        "min_samples_split": 8,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 205,
+        "n_jobs": -1,
+        "oob_score": false,
+        "random_state": 42,
+        "verbose": 0,
+        "warm_start": false
+    },
+    "tags": [
+        "tuned"
+    ],
+    "model_path": "/Users/jeremy/Desktop/predicting-sepsis-main/models/Random Forest (Tuned)_20241214_152025_39ed4a/model.pkl",
+    "artifacts": {
+        "confusion_matrix": "reports/evaluations/run_20241214_150409/Random Forest (Tuned)_confusion_matrix.png",
+        "roc_curve": "reports/evaluations/run_20241214_150409/Random Forest (Tuned)_roc_curve.png",
+        "precision_recall_curve": "reports/evaluations/run_20241214_150409/Random Forest (Tuned)_precision_recall_curve.png",
+        "feature_importance": "reports/evaluations/run_20241214_150409/Random Forest (Tuned)_feature_importance.png",
+        "missing_values_heatmap": "reports/evaluations/run_20241214_150409/Random Forest (Tuned)_missing_values_heatmap.png"
+    }
+}

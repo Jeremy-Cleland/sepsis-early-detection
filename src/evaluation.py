@@ -25,6 +25,7 @@ from sklearn.metrics import (
     roc_curve,
 )
 
+
 from .logger_utils import log_function
 
 
@@ -138,6 +139,87 @@ def evaluate_model(
         plt.close("all")
 
 
+# def evaluate_model(
+#     y_true: pd.Series,
+#     y_pred: pd.Series,
+#     data: pd.DataFrame,
+#     model_name: str,
+#     report_dir: str = "reports/evaluations",
+#     y_pred_proba: Optional[pd.Series] = None,
+#     model: Optional[Any] = None,
+#     logger: Optional[logging.Logger] = None,
+# ) -> Dict[str, float]:
+#     try:
+#         # Ensure essential columns exist in data
+#         assert "Hour" in data.columns, "Hour column missing in data."
+#         assert "SepsisLabel" in data.columns, "SepsisLabel column missing in data."
+
+#         setup_plot_style()
+#         os.makedirs(report_dir, exist_ok=True)
+
+#         # Calculate basic metrics
+#         metrics = {
+#             "Accuracy": accuracy_score(y_true, y_pred),
+#             "Precision": precision_score(y_true, y_pred, zero_division=0),
+#             "Recall": recall_score(y_true, y_pred, zero_division=0),
+#             "F1 Score": f1_score(y_true, y_pred, zero_division=0),
+#             "Mean Absolute Error": mean_absolute_error(y_true, y_pred),
+#             "Root Mean Squared Error": np.sqrt(mean_squared_error(y_true, y_pred)),
+#         }
+
+#         # Calculate AUC-ROC if probabilities are available
+#         if y_pred_proba is not None:
+#             try:
+#                 metrics["AUC-ROC"] = roc_auc_score(y_true, y_pred_proba)
+#             except ValueError as e:
+#                 if logger:
+#                     logger.warning(f"Cannot calculate AUC-ROC: {e}")
+#                 metrics["AUC-ROC"] = None
+
+#         # Calculate Specificity
+#         cm = confusion_matrix(y_true, y_pred)
+#         if cm.shape == (2, 2):
+#             tn, fp, fn, tp = cm.ravel()
+#             metrics["Specificity"] = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+#         else:
+#             metrics["Specificity"] = 0.0  # Handle non-binary classifications
+#             if logger:
+#                 logger.warning(
+#                     f"{model_name} - Specificity calculation is not applicable for non-binary classifications."
+#                 )
+
+#         # Log metrics
+#         log_metrics(logger, model_name, metrics)
+
+#         # Generate and save essential plots
+#         generate_evaluation_plots(
+#             y_true=y_true,
+#             y_pred=y_pred,
+#             data=data,  # Pass the entire DataFrame
+#             y_pred_proba=y_pred_proba,
+#             model=model,
+#             model_name=model_name,
+#             report_dir=report_dir,
+#             logger=logger,
+#         )
+
+#         # Save metrics to JSON
+#         save_metrics_to_json(metrics, model_name, report_dir, logger)
+
+#         return metrics
+
+#     except AssertionError as ae:
+#         if logger:
+#             logger.error(f"Assertion Error: {ae}", exc_info=True)
+#         raise
+#     except Exception as e:
+#         if logger:
+#             logger.error(f"Error in model evaluation: {str(e)}", exc_info=True)
+#         raise
+#     finally:
+#         plt.close("all")
+
+
 def generate_evaluation_plots(
     y_true: pd.Series,
     y_pred: pd.Series,
@@ -150,6 +232,11 @@ def generate_evaluation_plots(
 ) -> None:
     """Generate comprehensive evaluation plots."""
     try:
+        # Log current columns
+        if logger:
+            logger.debug(
+                f"Data columns before plotting interactions: {data.columns.tolist()}"
+            )
         # 1. Base plots (existing)
         plot_confusion_matrix(
             y_true, y_pred, model_name, report_dir, normalize=False, logger=logger
@@ -176,16 +263,16 @@ def generate_evaluation_plots(
         plot_missing_values(data, report_dir, model_name=model_name, logger=logger)
 
         # 5. Temporal analysis plots
-        vital_features = ["HR", "O2Sat", "Temp", "MAP", "Resp"]
+        # vital_features = ["HR", "O2Sat", "Temp", "MAP", "Resp"]
 
-        # Extract Patient_IDs, assuming same index as y_true
-        patient_ids = data["Patient_ID"]
+        # # Extract Patient_IDs, assuming same index as y_true
+        # patient_ids = data["Patient_ID"]
 
         plot_temporal_progression(
-            data,
-            patient_ids,  # Pass patient_ids
-            vital_features,
-            report_dir,
+            data=data,  # Contains 'SepsisLabel'
+            patient_ids=data["Patient_ID"],  # Assuming 'Patient_ID' exists
+            features=["HR", "O2Sat", "Temp", "MAP", "Resp"],  # Example features
+            report_dir=report_dir,
             model_name=model_name,
             max_patients=5,
             logger=logger,
@@ -203,7 +290,7 @@ def generate_evaluation_plots(
                 {"Male": data["Gender_1"] == 1, "Female": data["Gender_1"] == 0}
             )
 
-        if patient_groups:
+        if patient_groups:  # Only plot if we have groups defined
             plot_error_analysis(
                 y_true,
                 y_pred,
@@ -537,7 +624,9 @@ def plot_missing_values(
         plt.title(f"Missing Values Heatmap for {model_name}")
 
         # Annotate missing percentages on the heatmap
-
+        # Adjust y-coordinate based on the number of rows in the heatmap
+        # Assuming one row per data sample; for large datasets, adjust accordingly
+        # Alternatively, skip annotation for large datasets to avoid clutter
         if len(data) < 1000:  # Example threshold
             for idx, column in enumerate(data.columns):
                 # Extract scalar value using .item()
@@ -584,14 +673,19 @@ def plot_temporal_progression(
     Plot temporal progression of vital signs for selected patients with sorted data.
     """
     try:
-        # Select random sepsis patients using provided patient_ids
+        if "SepsisLabel" not in data.columns:
+            raise KeyError("'SepsisLabel' column is missing from the data.")
+
         sepsis_patients = patient_ids[data["SepsisLabel"] == 1].unique()
+
         if len(sepsis_patients) == 0:
             logger.warning("No sepsis patients found for temporal progression plots.")
             return
 
         selected_patients = np.random.choice(
-            sepsis_patients, size=min(max_patients, len(sepsis_patients)), replace=False
+            sepsis_patients,
+            size=min(max_patients, len(sepsis_patients)),
+            replace=False,
         )
 
         for patient_id in selected_patients:
@@ -969,6 +1063,15 @@ def plot_feature_interactions(
     Create feature interaction plots for top correlated feature pairs.
     """
     try:
+        # Verify that all specified features are in the data
+        missing_features = set(features) - set(data.columns)
+        if missing_features:
+            if logger:
+                logger.error(
+                    f"The following features are missing in the data: {missing_features}"
+                )
+            raise KeyError(f"Missing features: {missing_features}")
+
         # Calculate correlation matrix
         corr_matrix = data[features].corr().abs()
 
@@ -979,12 +1082,54 @@ def plot_feature_interactions(
 
         top_pairs = sorted(pairs, key=lambda x: x[2], reverse=True)[:top_n]
 
+        # Ensure columns are unique
+        for feat1, feat2, corr in top_pairs:
+            if feat1 == feat2:
+                logger.warning(f"Skipping identical features: {feat1}")
+                continue
+
         # Create plots for top pairs
         for feat1, feat2, corr in top_pairs:
+            # Skip identical features
+            if feat1 == feat2:
+                continue
+
             plt.figure(figsize=(10, 8))
 
-            # Create scatter plot with sepsis hue
-            sns.scatterplot(data=data, x=feat1, y=feat2, hue="SepsisLabel", alpha=0.5)
+            # Subset data with required columns
+            subset = data[[feat1, feat2, "SepsisLabel"]].dropna()
+
+            # Debugging: Log the subset shape and data types
+            if logger:
+                logger.debug(
+                    f"Plotting feature interaction for: {feat1} vs {feat2}. Subset shape: {subset.shape}"
+                )
+                for col in subset.columns:
+                    logger.debug(f"Column '{col}' dtype: {subset.dtypes[col]}")
+                    # Sample data for object dtype columns
+                    if subset[col].dtype == "object":
+                        logger.debug(f"Sample data from '{col}': {subset[col].head()}")
+
+            # Check for non-scalar data
+            non_scalar = subset.apply(
+                lambda col: col.map(lambda x: isinstance(x, (list, np.ndarray))).any()
+            )
+            if non_scalar.any():
+                problematic_cols = non_scalar[non_scalar].index.tolist()
+                logger.warning(
+                    f"Skipping plot for {feat1} vs {feat2} due to non-scalar data in columns: {problematic_cols}"
+                )
+                plt.close()
+                continue  # Skip plotting this pair
+
+            # Plot scatterplot
+            sns.scatterplot(
+                data=subset,
+                x=feat1,
+                y=feat2,
+                hue="SepsisLabel",
+                alpha=0.5,
+            )
 
             plt.title(
                 f"Feature Interaction: {feat1} vs {feat2}\nCorrelation: {corr:.2f}"
@@ -992,14 +1137,14 @@ def plot_feature_interactions(
 
             # Add regression lines for each class
             sns.regplot(
-                data=data[data["SepsisLabel"] == 0],
+                data=subset[subset["SepsisLabel"] == 0],
                 x=feat1,
                 y=feat2,
                 scatter=False,
                 label="Non-Sepsis Trend",
             )
             sns.regplot(
-                data=data[data["SepsisLabel"] == 1],
+                data=subset[subset["SepsisLabel"] == 1],
                 x=feat1,
                 y=feat2,
                 scatter=False,
@@ -1008,8 +1153,8 @@ def plot_feature_interactions(
 
             plt.legend()
             plt.tight_layout()
-            plt.savefig(f"{report_dir}/{model_name}_interaction_{feat1}_{feat2}.png")
-            plt.close()
+            filename = f"{model_name}_interaction_{feat1}_{feat2}.png"
+            save_plot(plt, report_dir, filename, logger)
 
         if logger:
             logger.info(f"Saved feature interaction plots for top {top_n} pairs")
@@ -1018,6 +1163,8 @@ def plot_feature_interactions(
         if logger:
             logger.error(f"Error plotting feature interactions: {e}", exc_info=True)
         raise
+    finally:
+        plt.close("all")
 
 
 def save_plot(

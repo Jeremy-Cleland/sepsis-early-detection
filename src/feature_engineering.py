@@ -84,7 +84,7 @@ def fill_missing_values(df):
     # Initialize and fit the IterativeImputer
     imputer = IterativeImputer(
         random_state=42,  # Ensures reproducibility.
-        max_iter=100,  # Maximum number of iterations.
+        max_iter=200,  # Maximum number of iterations.
         initial_strategy="mean",  # Initial imputation strategy.
         skip_complete=True,  # Skips columns without missing values to save computation.
     )
@@ -175,27 +175,7 @@ def robust_scale(df, columns):
 
 
 def preprocess_data(df):
-    """Execute complete preprocessing pipeline for medical data.
-
-    Pipeline steps:
-    1. Drop redundant columns
-    2. Impute missing values using MICE
-    3. Drop specified null columns
-    4. One-hot encode gender
-    5. Apply log transformation to skewed features
-    6. Apply robust scaling to numeric features
-    7. Handle remaining NaN values
-    8. Standardize column names
-
-    Args:
-        df (pd.DataFrame): Raw input dataframe
-
-    Returns:
-        pd.DataFrame: Fully preprocessed dataframe ready for modeling
-
-    Note:
-        Logs progress at each major preprocessing step
-    """
+    """Execute complete preprocessing pipeline for medical data."""
     logging.info("Starting preprocessing")
 
     df = drop_columns(df)
@@ -215,7 +195,7 @@ def preprocess_data(df):
     df = log_transform(df, columns_log)
     logging.info(f"After log transformation: {df.columns.tolist()}")
 
-    # Standard scaling
+    # Robust scaling
     columns_scale = [
         "HR",
         "O2Sat",
@@ -241,5 +221,27 @@ def preprocess_data(df):
     # Convert all column names to strings
     df.columns = df.columns.astype(str)
     logging.info(f"Final preprocessed columns: {df.columns.tolist()}")
+
+    # Remove duplicate columns
+    df = df.loc[:, ~df.columns.duplicated()]
+    logging.info(f"After removing duplicate columns: {df.columns.tolist()}")
+
+    # **Ensure 'Unnamed: 0' is removed**
+    if "Unnamed: 0" in df.columns:
+        df = df.drop(columns=["Unnamed: 0"])
+        logging.info("Dropped 'Unnamed: 0' column after preprocessing.")
+
+    # **Add Validation to Ensure All Numeric Columns Are 1-Dimensional**
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    for col in numeric_cols:
+        # Check if any entry in the column is a list or ndarray
+        if df[col].apply(lambda x: isinstance(x, (list, np.ndarray))).any():
+            logging.error(f"Column '{col}' contains multi-dimensional data.")
+            raise ValueError(f"Column '{col}' contains multi-dimensional data.")
+
+    if "SepsisLabel" not in df.columns:
+        logging.error("'SepsisLabel' column is missing after preprocessing.")
+        raise KeyError("'SepsisLabel' column is missing after preprocessing.")
+    logging.info("Preprocessing completed successfully.")
 
     return df

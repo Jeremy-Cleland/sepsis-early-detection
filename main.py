@@ -32,6 +32,13 @@ from src import (
 )
 from src.evaluation import plot_class_distribution, generate_evaluation_plots
 
+# Define step_name_mapping at the top for consistency
+STEP_NAME_MAPPING = {
+    "Random Forest (Tuned)": "random_forest",
+    "Logistic Regression (Tuned)": "logistic_regression",
+    "XGBoost (Tuned)": "xgb_classifier",
+}
+
 
 def parse_arguments():
     """Parse command-line arguments for configurability."""
@@ -45,19 +52,19 @@ def parse_arguments():
     parser.add_argument(
         "--rf-trials",
         type=int,
-        default=10,
+        default=100,
         help="Number of trials for Random Forest optimization (default: 20)",
     )
     parser.add_argument(
         "--lr-trials",
         type=int,
-        default=10,
+        default=5,
         help="Number of trials for Logistic Regression optimization (default: 20)",
     )
     parser.add_argument(
         "--xgb-trials",
         type=int,
-        default=10,
+        default=5,
         help="Number of trials for XGBoost optimization (default: 20)",
     )
     parser.add_argument(
@@ -91,15 +98,18 @@ def parse_arguments():
     return parser.parse_args()
 
 
+# Initialize ModelRegistry early to use it in case of exceptions during setup
 args = parse_arguments()
 os.makedirs("logs", exist_ok=True)
-disable_duplicate_logging()
+
+# Set up logging - modified section
+disable_duplicate_logging()  # Call this first
 logger = get_logger(
     name="sepsis_prediction",
     level="INFO",
     use_json=False,
 )
-logging.getLogger().setLevel(logging.WARNING)
+
 model_registry = ModelRegistry(base_dir="./", logger=logger)
 
 
@@ -125,6 +135,7 @@ def create_or_load_studies(
 
     for study_id, study_name in study_names.items():
         if new_study:
+            # Generate unique study name with timestamp
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             unique_study_name = f"{study_id}_{timestamp}"
 
@@ -159,29 +170,10 @@ def train_and_evaluate_model(
     y_train: pd.Series,
     X_val: pd.DataFrame,
     y_val: pd.Series,
-    df_val_original: pd.DataFrame,
+    df_val_original: pd.DataFrame,  # Original validation DataFrame with Patient_ID
     unique_report_dir: str,
     logger: logging.Logger,
-) -> Tuple[Dict[str, float], ImbPipeline]:
-    """
-    Trains and evaluates a model. Returns the entire pipeline instead of just the estimator.
-
-    Args:
-        model_name: Name of the model (e.g., "Random Forest (Tuned)")
-        pipeline: imbalanced-learn Pipeline object containing preprocessing and the estimator
-        X_train: Training features
-        y_train: Training labels
-        X_val: Validation features
-        y_val: Validation labels
-        df_val_original: Original validation DataFrame (including Patient_ID and SepsisLabel)
-        unique_report_dir: Directory to save reports and plots for this run
-        logger: Logger object for logging information and errors
-
-    Returns:
-        A tuple containing:
-            - metrics: Dictionary of evaluation metrics
-            - pipeline: The entire trained pipeline object
-    """
+) -> Tuple[Dict[str, float], Any]:
     logger.info(f"Training {model_name}...")
 
     try:
@@ -206,40 +198,24 @@ def train_and_evaluate_model(
             else None
         )
 
-        # Merge Patient_ID back for evaluation
-        df_val_processed = df_val_original.copy()
-        df_val_processed[y_pred.name] = y_pred
+        # Merge predictions into df_val_processed (preprocessed validation DataFrame)
+        df_val_processed = X_val.copy()
+        df_val_processed["Predicted"] = y_pred
         if y_pred_proba is not None:
-            df_val_processed[y_pred_proba.name] = y_pred_proba
+            df_val_processed["Predicted_Prob"] = y_pred_proba
 
-        # Check if Patient_ID exists in df_val_original before merging
-        if "Patient_ID" in df_val_original.columns:
-            logger.debug("Patient_ID found in df_val_original.")
-        else:
-            logger.debug("Patient_ID not found in df_val_original.")
+        # **Do NOT merge into df_val_original to preserve it**
+        # If you need Patient_ID, use df_val_original separately during plotting
 
-        # Check if Patient_ID exists in df_val_processed after merging
-        if "Patient_ID" in df_val_processed.columns:
-            logger.debug("Patient_ID found in df_val_processed after merging.")
-        else:
-            logger.debug("Patient_ID not found in df_val_processed after merging.")
-
-        # Map display names to pipeline step names
-        step_name_mapping = {
-            "Random Forest (Tuned)": "random_forest",
-            "Logistic Regression (Tuned)": "logistic_regression",
-            "XGBoost (Tuned)": "xgb_classifier",
-        }
-
-        # Get the correct pipeline step name
-        estimator_step = step_name_mapping.get(model_name)
+        # Extract the model from the pipeline
+        estimator_step = STEP_NAME_MAPPING.get(model_name)
         if estimator_step is None:
             logger.warning(
                 f"No mapping found for model name: {model_name}. Using the last step."
             )
             estimator_step = pipeline.steps[-1][0]
 
-        # Extract the model from the pipeline
+        # Extract the model
         model = pipeline.named_steps.get(estimator_step)
         if model is None:
             model = pipeline[-1]
@@ -255,7 +231,7 @@ def train_and_evaluate_model(
             metrics = evaluate_model(
                 y_true=y_val,
                 y_pred=y_pred,
-                data=df_val_processed,
+                data=df_val_original,  # Pass preprocessed data with predictions
                 model_name=model_name,
                 y_pred_proba=y_pred_proba,
                 model=model,
@@ -269,7 +245,7 @@ def train_and_evaluate_model(
             )
             raise
 
-        return metrics, pipeline  # Return the entire pipeline instead of just the model
+        return metrics, pipeline
 
     except Exception as e:
         logger.error(
@@ -418,12 +394,25 @@ def generate_model_card(
         f.write(f"### Metrics (Test Set)\n\n")
         f.write(f"| Metric | Value |\n")
         f.write(f"|---|---|\n")
-        f.write(f"| F1 Score | {metrics.get('F1 Score', 'N/A'):.4f} |\n")
-        f.write(f"| Precision | {metrics.get('Precision', 'N/A'):.4f} |\n")
-        f.write(f"| Recall | {metrics.get('Recall', 'N/A'):.4f} |\n")
-        f.write(f"| Specificity | {metrics.get('Specificity', 'N/A'):.4f} |\n")
-        f.write(f"| AUROC | {metrics.get('AUC-ROC', 'N/A'):.4f} |\n")
-        f.write(f"| AUPRC | {metrics.get('AUPRC', 'N/A'):.4f} |\n")
+
+        # Define the list of metrics and their keys
+        metric_keys = [
+            ("F1 Score", "F1 Score"),
+            ("Precision", "Precision"),
+            ("Recall", "Recall"),
+            ("Specificity", "Specificity"),
+            ("AUROC", "AUC-ROC"),
+            ("AUPRC", "AUPRC"),
+        ]
+
+        for display_name, key in metric_keys:
+            value = metrics.get(key, "N/A")
+            # Check if the value is a float or int
+            if isinstance(value, (float, int)):
+                formatted_value = f"{value:.4f}"
+            else:
+                formatted_value = value  # e.g., "N/A"
+            f.write(f"| {display_name} | {formatted_value} |\n")
 
         # Generate and save essential plots
         generate_evaluation_plots(
@@ -454,20 +443,23 @@ def generate_model_card(
         f.write(f"![Confusion Matrix]({model_name}_confusion_matrix.png)\n")
 
         # Add ROC curve image
-        if metrics.get("AUC-ROC") is not None:
+        if "AUROC" in metrics and isinstance(metrics["AUROC"], (float, int)):
             f.write("\n### ROC Curve\n\n")
             f.write(f"![ROC Curve]({model_name}_roc_curve.png)\n")
 
         # Add Precision-Recall curve image
-        if metrics.get("AUPRC") is not None:
+        if "AUPRC" in metrics and isinstance(metrics["AUPRC"], (float, int)):
             f.write("\n### Precision-Recall Curve\n\n")
             f.write(
                 f"![Precision-Recall Curve]({model_name}_precision_recall_curve.png)\n"
             )
 
-        if os.path.exists(
-            os.path.join(report_dir, f"{model_name}_feature_importance.png")
-        ):
+        # Add feature importance plot if available
+        # Assuming 'plot_feature_importance' saves the plot correctly
+        feature_importance_path = os.path.join(
+            report_dir, f"{model_name}_feature_importance.png"
+        )
+        if os.path.exists(feature_importance_path):
             f.write("\n### Feature Importance\n\n")
             f.write(f"![Feature Importance]({model_name}_feature_importance.png)\n")
 
@@ -533,6 +525,7 @@ def main():
         best_score = 0
         best_model_name = None
 
+        # Determine whether to load existing models or run optimizations
         should_run_optimizations = True  # Default to running optimizations
 
         if not args.force and not args.new_study:
@@ -579,11 +572,11 @@ def main():
 
                 with log_step(logger, "Preprocessing validation data"):
                     df_val_processed = preprocess_data(df_val)
-                    df_val_original = df_val.copy()
+                    df_val_original = df_val.copy()  # Preserve original df_val
 
                 with log_step(logger, "Preprocessing testing data"):
                     df_test_processed = preprocess_data(df_test)
-                    df_test_original = df_test.copy()
+                    df_test_original = df_test.copy()  # Preserve original df_test
 
                 # Save preprocessed data along with original df_val and df_test
                 joblib.dump(
@@ -600,45 +593,44 @@ def main():
                     f"Saved preprocessed data to {checkpoints['preprocessed_data']}"
                 )
 
-            # Step 2: Handle class imbalance with SMOTEENN
-            if os.path.exists(checkpoints["resampled_data"]):
-                logger.info("Loading resampled data from checkpoint.")
-                X_train_resampled, y_train_resampled = joblib.load(
-                    checkpoints["resampled_data"]
-                )
-            else:
-                logger.info("Applying SMOTEENN to training data.")
-                smote_enn = SMOTEENN(
-                    smote=SMOTE(sampling_strategy=0.5, random_state=42, k_neighbors=6),
-                    enn=EditedNearestNeighbours(
-                        n_jobs=-1,
-                        n_neighbors=3,
-                    ),
-                    random_state=42,
-                )
-                X_train = df_train_processed.drop("SepsisLabel", axis=1)
-                y_train = df_train_processed["SepsisLabel"]
-                X_train_resampled, y_train_resampled = smote_enn.fit_resample(
-                    X_train, y_train
-                )
+        # Step 2: Handle class imbalance with SMOTEENN
+        if os.path.exists(checkpoints["resampled_data"]):
+            logger.info("Loading resampled data from checkpoint.")
+            X_train_resampled, y_train_resampled = joblib.load(
+                checkpoints["resampled_data"]
+            )
+        else:
+            logger.info("Applying SMOTEENN to training data.")
+            smote_enn = SMOTEENN(
+                smote=SMOTE(sampling_strategy=0.5, random_state=42, k_neighbors=6),
+                enn=EditedNearestNeighbours(
+                    n_jobs=-1,
+                    n_neighbors=3,
+                ),
+                random_state=42,
+            )
+            X_train = df_train_processed.drop("SepsisLabel", axis=1)
+            y_train = df_train_processed["SepsisLabel"]
+            X_train_resampled, y_train_resampled = smote_enn.fit_resample(
+                X_train, y_train
+            )
 
-                # Plot resampled class distribution
-                plot_class_distribution(
-                    y=y_train_resampled,
-                    model_name="Resampled Training Data",
-                    report_dir=unique_report_dir,
-                    title_suffix="_after_resampling",
-                    logger=logger,
-                )
+            # Plot resampled class distribution
+            plot_class_distribution(
+                y=y_train_resampled,
+                model_name="Resampled Training Data",
+                report_dir=unique_report_dir,
+                title_suffix="_after_resampling",
+                logger=logger,
+            )
 
-                # Save resampled data
-                joblib.dump(
-                    (X_train_resampled, y_train_resampled),
-                    checkpoints["resampled_data"],
-                )
-                logger.info(f"Saved resampled data to {checkpoints['resampled_data']}")
+            # Save resampled data
+            joblib.dump(
+                (X_train_resampled, y_train_resampled),
+                checkpoints["resampled_data"],
+            )
+            logger.info(f"Saved resampled data to {checkpoints['resampled_data']}")
 
-            # Step 3: Hyperparameter Tuning and Model Training
             storage_url = (
                 f"sqlite:///sepsis_prediction_optimization_{run_id}.db"
                 if args.new_study
@@ -663,26 +655,20 @@ def main():
             # Define Optuna objective functions with additional metrics storage
 
             def xgb_objective(trial: optuna.Trial) -> float:
-                """Objective function for XGBoost optimization with refined parameter ranges."""
+                """Objective function for XGBoost optimization."""
                 param = {
-                    "n_estimators": trial.suggest_int(
-                        "n_estimators", 300, 500
-                    ),  # Adjusted range
-                    "max_depth": trial.suggest_int(
-                        "max_depth", 7, 10
-                    ),  # Adjusted range
+                    "n_estimators": trial.suggest_int("n_estimators", 100, 500),
+                    "max_depth": trial.suggest_int("max_depth", 3, 10),
                     "learning_rate": trial.suggest_float(
-                        "learning_rate", 0.15, 0.25, log=True
+                        "learning_rate", 0.01, 0.3, log=True
                     ),
-                    "subsample": trial.suggest_float(
-                        "subsample", 0.7, 0.9
-                    ),  # Increased range
+                    "subsample": trial.suggest_float("subsample", 0.5, 1.0),
                     "colsample_bytree": trial.suggest_float(
-                        "colsample_bytree", 0.6, 0.7
-                    ),  # Narrowed range
-                    "gamma": trial.suggest_float("gamma", 0.1, 1.0),
-                    "reg_alpha": trial.suggest_float("reg_alpha", 0.05, 0.5),
-                    "reg_lambda": trial.suggest_float("reg_lambda", 0.05, 0.5),
+                        "colsample_bytree", 0.5, 1.0
+                    ),
+                    "gamma": trial.suggest_float("gamma", 0, 5),
+                    "reg_alpha": trial.suggest_float("reg_alpha", 0, 1),
+                    "reg_lambda": trial.suggest_float("reg_lambda", 0, 1),
                 }
 
                 xgb_pipeline = ImbPipeline(
@@ -692,6 +678,7 @@ def main():
                             "xgb_classifier",
                             XGBClassifier(
                                 random_state=42,
+                                # use_label_encoder=False,
                                 eval_metric="logloss",
                                 n_jobs=-1,
                                 **param,
@@ -700,7 +687,7 @@ def main():
                     ]
                 )
 
-                # Cross-validation
+                # Cross-validation setup with multiple metrics
                 scoring = {
                     "f1": "f1",
                     "accuracy": "accuracy",
@@ -712,7 +699,7 @@ def main():
                     xgb_pipeline,
                     X_train_resampled,
                     y_train_resampled,
-                    cv=5,
+                    cv=3,
                     scoring=scoring,
                     n_jobs=-1,
                 )
@@ -738,17 +725,12 @@ def main():
             def rf_objective(trial: optuna.Trial) -> float:
                 """Objective function for Random Forest optimization."""
                 param = {
-                    "n_estimators": trial.suggest_int("n_estimators", 400, 700),
-                    "max_depth": trial.suggest_int("max_depth", 15, 25),
-                    "min_samples_split": trial.suggest_int("min_samples_split", 5, 10),
-                    "min_samples_leaf": trial.suggest_int("min_samples_leaf", 2, 4),
+                    "n_estimators": trial.suggest_int("n_estimators", 100, 500),
+                    "max_depth": trial.suggest_int("max_depth", 5, 30),
+                    "min_samples_split": trial.suggest_int("min_samples_split", 2, 11),
+                    "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 5),
                     "max_features": trial.suggest_categorical(
-                        "max_features",
-                        ["sqrt", "log2"],
-                    ),
-                    "bootstrap": trial.suggest_categorical("bootstrap", [True, False]),
-                    "criterion": trial.suggest_categorical(
-                        "criterion", ["gini", "entropy"]
+                        "max_features", ["sqrt", "log2", None]
                     ),
                 }
                 rf_pipeline = ImbPipeline(
@@ -778,7 +760,7 @@ def main():
                     rf_pipeline,
                     X_train_resampled,
                     y_train_resampled,
-                    cv=5,  # Number of folds
+                    cv=3,  # Number of folds
                     scoring=scoring,
                     n_jobs=-1,
                 )
@@ -802,34 +784,26 @@ def main():
 
             def lr_objective(trial: optuna.Trial) -> float:
                 """Objective function for Logistic Regression optimization."""
-                # penalty type
+                # Suggest penalty type
                 penalty = trial.suggest_categorical(
                     "penalty", ["l1", "l2", "elasticnet"]
                 )
 
-                # Define base parameters with refined search spaces
+                # Define base parameters
                 param = {
-                    "C": trial.suggest_float(
-                        "C", 1.0, 100.0, log=True
-                    ),  # Narrowed range based on best runs
+                    "C": trial.suggest_float("C", 0.001, 100, log=True),
                     "penalty": penalty,
-                    "solver": "saga",
-                    "max_iter": trial.suggest_int(
-                        "max_iter", 700, 2000
-                    ),  # Increased upper bound
-                    "tol": trial.suggest_float(
-                        "tol", 1e-6, 1e-4
-                    ),  # Tightened tolerance
+                    "solver": "saga",  # Only saga supports all penalties
+                    "max_iter": trial.suggest_int("max_iter", 500, 1500),
+                    "tol": trial.suggest_float("tol", 1e-5, 1e-3),
                     "random_state": 42,
                     "n_jobs": 10,
-                    "class_weight": "balanced",
+                    "class_weight": "balanced",  # Set directly
                 }
 
-                # Add 'l1_ratio' if penalty is 'elasticnet' with a narrowed range
+                # Add 'l1_ratio' if penalty is 'elasticnet'
                 if penalty == "elasticnet":
-                    param["l1_ratio"] = trial.suggest_float(
-                        "l1_ratio", 0.1, 0.3
-                    )  # Focused range
+                    param["l1_ratio"] = trial.suggest_float("l1_ratio", 0.0, 1.0)
 
                 # Create the pipeline with the current trial's parameters
                 lr_pipeline = ImbPipeline(
@@ -839,7 +813,7 @@ def main():
                     ]
                 )
 
-                # Define scoring metrics
+                # Perform cross-validation with multiple metrics
                 scoring = {
                     "f1": "f1",
                     "accuracy": "accuracy",
@@ -847,17 +821,14 @@ def main():
                     "precision": "precision",
                     "recall": "recall",
                 }
-
-                # Perform cross-validation
                 cv_results = cross_validate(
                     lr_pipeline,
                     X_train_resampled,
                     y_train_resampled,
-                    cv=5,
+                    cv=3,
                     scoring=scoring,
                     n_jobs=-1,
                 )
-
                 # Store all metrics
                 trial.set_user_attr("accuracy", cv_results["test_accuracy"].mean())
                 trial.set_user_attr("roc_auc", cv_results["test_roc_auc"].mean())
@@ -871,9 +842,10 @@ def main():
 
                 # Return F1 score as the primary optimization metric
                 mean_f1 = cv_results["test_f1"].mean()
-                trial.set_user_attr("f1_score", mean_f1)  # Explicitly store F1 score
+                trial.set_user_attr(
+                    "f1_score", mean_f1
+                )  # Store the objective value explicitly
 
-                # Pruning condition
                 if trial.should_prune():
                     raise optuna.exceptions.TrialPruned()
 
@@ -986,9 +958,10 @@ def main():
                     f"Error during Random Forest optimization or training: {str(e)}",
                     exc_info=True,
                 )
+                # Optionally, continue to the next model or halt the pipeline
+
                 pass
 
-            # Optimize and train Logistic Regression within a try-except block
             try:
                 logger.info(
                     "Optimizing Logistic Regression hyperparameters with Optuna."
@@ -1051,7 +1024,8 @@ def main():
                 if best_lr_params.get("penalty") == "elasticnet":
                     best_lr_params["solver"] = "saga"
                 else:
-                    best_lr_params["solver"] = "lbfgs"
+                    # You can choose to set another solver like 'lbfgs' or keep 'saga'
+                    best_lr_params["solver"] = "lbfgs"  # or 'saga'
 
                 # Initialize pipeline with best parameters
                 lr_pipeline = ImbPipeline(
@@ -1106,9 +1080,11 @@ def main():
                     f"Error during Logistic Regression optimization or training: {str(e)}",
                     exc_info=True,
                 )
+                # Optionally, continue to the next model or halt the pipeline
+                # For this example, we'll continue
                 pass
 
-            # Optimize and train XGBoost within a try-except block
+            # Optimize and train XGBoost wfvithin a try-except block
             try:
                 logger.info("Optimizing XGBoost hyperparameters with Optuna.")
                 studies["XGBoost_Optimization"].set_user_attr("model_type", "XGBoost")
@@ -1126,14 +1102,8 @@ def main():
                     "timestamp", datetime.datetime.now().isoformat()
                 )
 
-                # Add early stopping
                 studies["XGBoost_Optimization"].optimize(
-                    xgb_objective,
-                    n_trials=args.xgb_trials,
-                    n_jobs=parallel_jobs,
-                    callbacks=[
-                        optuna.callbacks.EarlyStopping(patience=10, min_delta=0.001)
-                    ],
+                    xgb_objective, n_trials=args.xgb_trials, n_jobs=parallel_jobs
                 )
                 best_xgb_params = studies["XGBoost_Optimization"].best_params
                 logger.info(f"Best XGBoost parameters: {best_xgb_params}")
@@ -1169,7 +1139,7 @@ def main():
                             "xgb_classifier",
                             XGBClassifier(
                                 random_state=42,
-                                use_label_encoder=False,
+                                # use_label_encoder=False,
                                 eval_metric="logloss",
                                 n_jobs=-1,
                                 **best_xgb_params,
@@ -1218,6 +1188,8 @@ def main():
                     f"Error during XGBoost optimization or training: {str(e)}",
                     exc_info=True,
                 )
+                # Optionally, continue to the next process or halt the pipeline
+                # For this example, we'll continue
                 pass
 
             # Save all trained models to checkpoint
@@ -1259,154 +1231,162 @@ def main():
                 trials_df.to_csv(trials_csv_path, index=False)
                 logger.info(f"Saved trial data to {trials_csv_path}")
 
-            # Step 4: Final Evaluation on Test Set
-            if best_model_name:
-                try:
-                    logger.info(
-                        f"\nPerforming final evaluation with best model: {best_model_name}"
-                    )
-                    best_model_pipeline = models[best_model_name]["model"]
+        # Step 4: Final Evaluation on Test Set
+        if best_model_name:
+            try:
+                logger.info(
+                    f"\nPerforming final evaluation with best model: {best_model_name}"
+                )
+                best_model = models[best_model_name]["model"]
 
-                    # Use the pipeline directly for predictions
-                    if hasattr(best_model_pipeline, "predict_proba"):
-                        final_predictions_proba = best_model_pipeline.predict_proba(
-                            df_test_processed.drop("SepsisLabel", axis=1)
-                        )[:, 1]
-                        final_predictions = (final_predictions_proba > 0.5).astype(int)
-                        logger.info(
-                            f"Predictions made with {best_model_name} on test set."
-                        )
-                    else:
-                        final_predictions = best_model_pipeline.predict(
-                            df_test_processed.drop("SepsisLabel", axis=1)
-                        )
-                        final_predictions_proba = None
-                        logger.info(
-                            f"Predictions made with {best_model_name} on test set."
-                        )
-
-                    # Convert predictions to pandas.Series
-                    final_predictions = pd.Series(
-                        final_predictions,
-                        index=df_test_processed.index,
-                        name="Predicted",
+                # Make predictions on the test set
+                if "xgb_classifier" in best_model.named_steps:
+                    # Handle XGBoost predictions within the pipeline
+                    final_predictions_proba = best_model.predict_proba(
+                        df_test_processed.drop("SepsisLabel", axis=1)
+                    )[:, 1]
+                    final_predictions = (final_predictions_proba > 0.5).astype(int)
+                    logger.info(f"Predictions made with {best_model_name} on test set.")
+                else:
+                    # Handle other models
+                    final_predictions = best_model.predict(
+                        df_test_processed.drop("SepsisLabel", axis=1)
                     )
                     final_predictions_proba = (
-                        pd.Series(
-                            final_predictions_proba,
-                            index=df_test_processed.index,
-                            name="Predicted_Prob",
-                        )
-                        if final_predictions_proba is not None
+                        best_model.predict_proba(
+                            df_test_processed.drop("SepsisLabel", axis=1)
+                        )[:, 1]
+                        if hasattr(best_model, "predict_proba")
                         else None
                     )
+                    logger.info(f"Predictions made with {best_model_name} on test set.")
 
-                    # Merge Patient_ID back for final evaluation
-                    df_test_with_predictions = df_test_original.copy()
-                    df_test_with_predictions[final_predictions.name] = final_predictions
-                    if final_predictions_proba is not None:
-                        df_test_with_predictions[final_predictions_proba.name] = (
-                            final_predictions_proba
-                        )
-
-                    # Evaluate the best model on the test set
-                    metrics = evaluate_model(
-                        y_true=df_test_processed["SepsisLabel"],
-                        y_pred=final_predictions,
-                        data=df_test_with_predictions,  # Use df_test_with_predictions
-                        model_name=f"Final_{best_model_name.replace(' ', '_').lower()}",
-                        y_pred_proba=final_predictions_proba,
-                        model=best_model_pipeline,  # Use the pipeline directly
-                        report_dir=unique_report_dir,
-                        logger=logger,
+                # Convert predictions to pandas.Series
+                final_predictions = pd.Series(
+                    final_predictions, index=df_test_processed.index, name="Predicted"
+                )
+                final_predictions_proba = (
+                    pd.Series(
+                        final_predictions_proba,
+                        index=df_test_processed.index,
+                        name="Predicted_Prob",
                     )
-                    logger.info(f"Final evaluation completed for {best_model_name}.")
-
-                    # Generate model card
-                    generate_model_card(
-                        model=best_model_pipeline,
-                        model_name=best_model_name,
-                        metrics=metrics,
-                        train_data=df_train_processed,
-                        val_data=df_val_processed,
-                        test_data=df_test_processed,
-                        report_dir=unique_report_dir,
-                        run_id=run_id,
-                        logger=logger,
-                    )
-
-                    # Save the best model using ModelRegistry
-                    logger.info(f"Saving the best model ({best_model_name})")
-                    model_registry.save_model(
-                        model=best_model_pipeline,  # Save the entire pipeline
-                        name=best_model_name,
-                        params=best_model_pipeline.get_params(),
-                        metrics=metrics,
-                        artifacts={
-                            "confusion_matrix": os.path.join(
-                                unique_report_dir,
-                                f"{best_model_name}_confusion_matrix.png",
-                            ),
-                            "roc_curve": os.path.join(
-                                unique_report_dir, f"{best_model_name}_roc_curve.png"
-                            ),
-                            "precision_recall_curve": os.path.join(
-                                unique_report_dir,
-                                f"{best_model_name}_precision_recall_curve.png",
-                            ),
-                            "feature_importance": os.path.join(
-                                unique_report_dir,
-                                f"{best_model_name}_feature_importance.png",
-                            ),
-                            "missing_values_heatmap": os.path.join(
-                                unique_report_dir,
-                                f"{best_model_name}_missing_values_heatmap.png",
-                            ),
-                        },
-                        tags=["tuned"],
-                    )
-                    logger.info(f"Model ({best_model_name}) saved successfully.")
-
-                    # Clean up
-                    del best_model_pipeline, final_predictions, final_predictions_proba
-                    gc.collect()
-
-                    logger.info("Sepsis Prediction Pipeline completed successfully.")
-
-                except Exception as e:
-                    logger.error(
-                        f"An error occurred during final evaluation: {str(e)}",
-                        exc_info=True,
-                    )
-                    raise
-
-            else:
-                logger.warning(
-                    "No models were trained. Pipeline did not complete successfully."
+                    if final_predictions_proba is not None
+                    else None
                 )
 
-        else:
-            logger.info("Skipping optimizations and training as checkpoints exist.")
+                # Merge Patient_ID back for final evaluation
+                df_test_with_predictions = df_test.copy()  # Use original df_test
+                df_test_with_predictions[final_predictions.name] = final_predictions
+                if final_predictions_proba is not None:
+                    df_test_with_predictions[final_predictions_proba.name] = (
+                        final_predictions_proba
+                    )
 
-        logger.info("Sepsis Prediction Pipeline completed successfully.")
+                # Evaluate the best model on the test set
+                metrics = evaluate_model(
+                    y_true=df_test_processed["SepsisLabel"],
+                    y_pred=final_predictions,
+                    data=df_test_with_predictions,  # Use df_test_with_predictions
+                    model_name=f"Final_{best_model_name.replace(' ', '_').lower()}",
+                    y_pred_proba=final_predictions_proba,
+                    model=best_model,
+                    report_dir=unique_report_dir,
+                    logger=logger,
+                )
+                logger.info(f"Final evaluation completed for {best_model_name}.")
+
+                # Generate model card
+                generate_model_card(
+                    model=best_model,
+                    model_name=best_model_name,
+                    metrics=metrics
+                    if "metrics" in locals()
+                    else metrics_xgb,  # Use appropriate metrics
+                    train_data=df_train_processed,
+                    val_data=df_val_processed,
+                    test_data=df_test_processed,
+                    report_dir=unique_report_dir,
+                    run_id=run_id,
+                    logger=logger,
+                )
+
+                # Step 5: Save the best model using ModelRegistry
+                logger.info(f"Saving the best model ({best_model_name})")
+                # Extract the estimator's parameters for saving
+
+                # Corrected Section Starts Here
+                estimator_step = STEP_NAME_MAPPING.get(best_model_name)
+                if estimator_step is None:
+                    logger.warning(
+                        f"No mapping found for model name: {best_model_name}. Using the last step."
+                    )
+                    estimator_step = best_model.steps[-1][0]
+                best_model_step = best_model.named_steps.get(estimator_step)
+                if best_model_step is None:
+                    logger.error(
+                        f"Estimator step '{estimator_step}' not found in the pipeline."
+                    )
+                    raise AttributeError(
+                        f"Estimator step '{estimator_step}' not found in the pipeline."
+                    )
+                best_model_params = best_model_step.get_params()
+                # Corrected Section Ends Here
+
+                model_registry.save_model(
+                    model=best_model,
+                    name=best_model_name,
+                    params=best_model_params,
+                    metrics=metrics if "metrics" in locals() else metrics_xgb,
+                    artifacts={
+                        "confusion_matrix": os.path.join(
+                            unique_report_dir, f"{best_model_name}_confusion_matrix.png"
+                        ),
+                        "roc_curve": os.path.join(
+                            unique_report_dir, f"{best_model_name}_roc_curve.png"
+                        ),
+                        "precision_recall_curve": os.path.join(
+                            unique_report_dir,
+                            f"{best_model_name}_precision_recall_curve.png",
+                        ),
+                        "calibration": os.path.join(
+                            unique_report_dir,
+                            f"{best_model_name}_calibration.png",
+                        ),
+                        "feature_importance": os.path.join(
+                            unique_report_dir,
+                            f"{best_model_name}_feature_importance.png",
+                        ),
+                        "missing_values_heatmap": os.path.join(
+                            unique_report_dir,
+                            f"{best_model_name}_missing_values_heatmap.png",
+                        ),
+                    },
+                    tags=["tuned"],
+                )
+                logger.info(f"Model ({best_model_name}) saved successfully.")
+
+                # Clean up
+                del best_model, final_predictions, final_predictions_proba
+                gc.collect()
+
+                logger.info("Sepsis Prediction Pipeline completed successfully.")
+
+            except Exception as e:
+                logger.error(
+                    f"An error occurred during final evaluation: {str(e)}",
+                    exc_info=True,
+                )
+                raise
+
+        else:
+            logger.warning(
+                "No models were trained. Pipeline did not complete successfully."
+            )
 
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}", exc_info=True)
         raise
-
-    finally:
-        # Record end time and final memory usage
-        end_time = time.time()
-        duration = end_time - start_time
-        final_memory = process.memory_info().rss / (1024**2)  # Convert to MB
-        memory_change = final_memory - initial_memory
-
-        logger.info("Phase Complete: Main")
-        logger.info(f"Duration: {duration:.2f} seconds")
-        logger.info(f"Final Memory Usage: {final_memory:.2f} MB")
-        logger.info(
-            f"Memory Change: {'+' if memory_change >=0 else '-'}{abs(memory_change):.2f} MB"
-        )
 
 
 if __name__ == "__main__":

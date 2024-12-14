@@ -24,7 +24,64 @@ def setup_logger(
 ) -> logging.Logger:
     """
     Set up and configure a logger with both console and file handling capabilities.
+
+    This logger supports:
+    - Colored console output with different colors for each log level
+    - File logging with rotation
+    - Optional JSON formatting
+    - Customizable date-time format (default: MM-DD HH:MM)
+    - Multiple logging handlers (console and file)
+
+    Parameters
+    ----------
+    name : str
+        The name of the logger instance. Used to identify different logger instances
+        in a hierarchical manner. Default is "sepsis_prediction".
+    log_file : str
+        Path to the log file where logs will be written. Directory will be created
+        if it doesn't exist. Default is "logs/sepsis_prediction.log".
+    level : Union[str, int]
+        The logging level. Can be string ('DEBUG', 'INFO', etc.) or corresponding
+        integer values. Default is "INFO".
+    use_json : bool
+        If True, logs will be formatted as JSON objects. Useful for log parsing
+        and analysis. Default is False.
+    formatter : str
+        The format string for log messages when not using JSON format.
+        Default is "%(asctime)s - %(message)s".
+    max_bytes : int
+        Maximum size of each log file in bytes before rotation occurs.
+        Default is 5MB (5 * 1024 * 1024 bytes).
+    backup_count : int
+        Number of backup files to keep when rotating logs.
+        Default is 5 files.
+    console : bool
+        Whether to enable console (stdout) logging in addition to file logging.
+        Default is True.
+
+    Returns
+    -------
+    logging.Logger
+        Configured logger instance with specified handlers and formatters.
+
+    Raises
+    ------
+    ValueError
+        If an invalid logging level is provided.
+    Exception
+        If there's an error during logger setup (falls back to basic configuration).
+
+    Examples
+    --------
+    >>> logger = setup_logger(
+    ...     name="my_app",
+    ...     level="DEBUG",
+    ...     use_json=True
+    ... )
+    >>> logger.info("Application started")
+    >>> logger.error("An error occurred")
     """
+    logging.getLogger().handlers = []
     # Check if logger was already configured
     if name in _CONFIGURED_LOGGERS:
         return _CONFIGURED_LOGGERS[name]
@@ -44,7 +101,6 @@ def setup_logger(
         # Initialize logger
         logger = logging.getLogger(name)
         logger.setLevel(level)
-        logger.propagate = False  # Prevent propagation to ancestor loggers
 
         # Remove any existing handlers
         logger.handlers.clear()
@@ -120,8 +176,12 @@ def get_logger(
 
 
 def disable_duplicate_logging():
-    """Disable duplicate logging by removing handlers from the root logger."""
+    """Remove all handlers from the root logger and other existing loggers."""
+    # Remove handlers from root logger
     root = logging.getLogger()
     if root.handlers:
         for handler in root.handlers:
             root.removeHandler(handler)
+
+    # Disable propagation to root logger for your custom logger
+    logging.getLogger("sepsis_prediction").propagate = False
