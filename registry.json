@@ -97,6 +97,126 @@
                     "feature_importance": "reports/evaluations/run_20241214_172700/Random Forest (Tuned)_feature_importance.png",
                     "missing_values_heatmap": "reports/evaluations/run_20241214_172700/Random Forest (Tuned)_missing_values_heatmap.png"
                 }
+            },
+            {
+                "name": "Random Forest (Tuned)",
+                "version": "v3",
+                "timestamp": "20241215_042816",
+                "metrics": {
+                    "Accuracy": 0.9872321087218403,
+                    "Precision": 0.6267682263329706,
+                    "Recall": 0.5152057245080501,
+                    "F1 Score": 0.5655375552282769,
+                    "Mean Absolute Error": 0.012767891278159693,
+                    "Root Mean Squared Error": 0.11299509404465174,
+                    "AUC-ROC": 0.9723342963463978,
+                    "AUPRC": 0.6072816552955985,
+                    "Specificity": 0.9949704163703416
+                },
+                "params": {
+                    "bootstrap": true,
+                    "ccp_alpha": 0.0,
+                    "class_weight": "balanced",
+                    "criterion": "gini",
+                    "max_depth": 29,
+                    "max_features": "log2",
+                    "max_leaf_nodes": null,
+                    "max_samples": null,
+                    "min_impurity_decrease": 0.0,
+                    "min_samples_leaf": 1,
+                    "min_samples_split": 2,
+                    "min_weight_fraction_leaf": 0.0,
+                    "monotonic_cst": null,
+                    "n_estimators": 200,
+                    "n_jobs": -1,
+                    "oob_score": false,
+                    "random_state": 42,
+                    "verbose": 0,
+                    "warm_start": false
+                },
+                "tags": [
+                    "tuned"
+                ],
+                "model_path": "/Users/jeremy/Desktop/predicting-sepsis-main/models/Random Forest (Tuned)_20241215_042816_6c36d4/model.pkl",
+                "artifacts": {
+                    "confusion_matrix": "reports/evaluations/run_20241215_022220/Random Forest (Tuned)_confusion_matrix.png",
+                    "roc_curve": "reports/evaluations/run_20241215_022220/Random Forest (Tuned)_roc_curve.png",
+                    "precision_recall_curve": "reports/evaluations/run_20241215_022220/Random Forest (Tuned)_precision_recall_curve.png",
+                    "calibration": "reports/evaluations/run_20241215_022220/Random Forest (Tuned)_calibration.png",
+                    "feature_importance": "reports/evaluations/run_20241215_022220/Random Forest (Tuned)_feature_importance.png",
+                    "missing_values_heatmap": "reports/evaluations/run_20241215_022220/Random Forest (Tuned)_missing_values_heatmap.png"
+                }
+            }
+        ],
+        "XGBoost (Tuned)": [
+            {
+                "name": "XGBoost (Tuned)",
+                "version": "v1",
+                "timestamp": "20241215_014011",
+                "metrics": {
+                    "Accuracy": 0.9447157521153583,
+                    "Precision": 0.2055760468648297,
+                    "Recall": 0.8474955277280859,
+                    "F1 Score": 0.3308887724812293,
+                    "Mean Absolute Error": 0.05528424788464174,
+                    "Root Mean Squared Error": 0.23512602553660822,
+                    "AUC-ROC": 0.9586586837674836,
+                    "AUPRC": 0.6273374072591532,
+                    "Specificity": 0.9463095613411245
+                },
+                "params": {
+                    "objective": "binary:logistic",
+                    "base_score": null,
+                    "booster": null,
+                    "callbacks": null,
+                    "colsample_bylevel": null,
+                    "colsample_bynode": null,
+                    "colsample_bytree": 0.5433439671072606,
+                    "device": null,
+                    "early_stopping_rounds": null,
+                    "enable_categorical": false,
+                    "eval_metric": "logloss",
+                    "feature_types": null,
+                    "gamma": 0.012455929246615097,
+                    "grow_policy": null,
+                    "importance_type": null,
+                    "interaction_constraints": null,
+                    "learning_rate": 0.17255776234553302,
+                    "max_bin": null,
+                    "max_cat_threshold": null,
+                    "max_cat_to_onehot": null,
+                    "max_delta_step": null,
+                    "max_depth": 9,
+                    "max_leaves": null,
+                    "min_child_weight": null,
+                    "missing": NaN,
+                    "monotone_constraints": null,
+                    "multi_strategy": null,
+                    "n_estimators": 457,
+                    "n_jobs": -1,
+                    "num_parallel_tree": null,
+                    "random_state": 42,
+                    "reg_alpha": 0.07875095024685662,
+                    "reg_lambda": 0.5035646682042978,
+                    "sampling_method": null,
+                    "scale_pos_weight": null,
+                    "subsample": 0.7574329529424287,
+                    "tree_method": null,
+                    "validate_parameters": null,
+                    "verbosity": null
+                },
+                "tags": [
+                    "tuned"
+                ],
+                "model_path": "/Users/jeremy/Desktop/predicting-sepsis-main/models/XGBoost (Tuned)_20241215_014011_ced8dc/model.pkl",
+                "artifacts": {
+                    "confusion_matrix": "reports/evaluations/run_20241215_010515/XGBoost (Tuned)_confusion_matrix.png",
+                    "roc_curve": "reports/evaluations/run_20241215_010515/XGBoost (Tuned)_roc_curve.png",
+                    "precision_recall_curve": "reports/evaluations/run_20241215_010515/XGBoost (Tuned)_precision_recall_curve.png",
+                    "calibration": "reports/evaluations/run_20241215_010515/XGBoost (Tuned)_calibration.png",
+                    "feature_importance": "reports/evaluations/run_20241215_010515/XGBoost (Tuned)_feature_importance.png",
+                    "missing_values_heatmap": "reports/evaluations/run_20241215_010515/XGBoost (Tuned)_missing_values_heatmap.png"
+                }
             }
         ]
     }

@@ -23,7 +23,7 @@ from .evaluation import (
 )
 from .feature_engineering import preprocess_data
 
-from .old.utils import (
+from .utils import (
     log_message,
     log_metrics,
     save_metrics_to_json,

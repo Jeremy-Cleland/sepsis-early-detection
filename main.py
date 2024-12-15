@@ -15,15 +15,16 @@ from imblearn.pipeline import Pipeline as ImbPipeline
 from imblearn.under_sampling import EditedNearestNeighbours
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import cross_validate
+from sklearn.model_selection import cross_validate, StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 import optuna
 import psutil
 
+
 from src.logger_config import get_logger, disable_duplicate_logging
 from src.model_registry import ModelRegistry
-from src.logger_utils import log_dataframe_info, log_step, log_phase
+from src.logger_utils import log_dataframe_info, log_step, log_phase, log_memory
 from src import (
     evaluate_model,
     load_data,
@@ -46,25 +47,25 @@ def parse_arguments():
     parser.add_argument(
         "--optuna-n-jobs",
         type=int,
-        default=5,
+        default=5,  #! -1 (all cores)
         help="Number of parallel jobs for Optuna hyperparameter tuning (default: 10)",
     )
     parser.add_argument(
         "--rf-trials",
         type=int,
-        default=100,
+        default=50,
         help="Number of trials for Random Forest optimization (default: 20)",
     )
     parser.add_argument(
         "--lr-trials",
         type=int,
-        default=5,
+        default=0,
         help="Number of trials for Logistic Regression optimization (default: 20)",
     )
     parser.add_argument(
         "--xgb-trials",
         type=int,
-        default=5,
+        default=0,
         help="Number of trials for XGBoost optimization (default: 20)",
     )
     parser.add_argument(
@@ -602,7 +603,8 @@ def main():
         else:
             logger.info("Applying SMOTEENN to training data.")
             smote_enn = SMOTEENN(
-                smote=SMOTE(sampling_strategy=0.5, random_state=42, k_neighbors=6),
+                #! original at 0.5
+                smote=SMOTE(sampling_strategy=0.7, random_state=42, k_neighbors=6),
                 enn=EditedNearestNeighbours(
                     n_jobs=-1,
                     n_neighbors=3,
@@ -614,6 +616,7 @@ def main():
             X_train_resampled, y_train_resampled = smote_enn.fit_resample(
                 X_train, y_train
             )
+            log_memory(logger, label="Post-Resampling")
 
             # Plot resampled class distribution
             plot_class_distribution(
@@ -629,6 +632,8 @@ def main():
                 (X_train_resampled, y_train_resampled),
                 checkpoints["resampled_data"],
             )
+            log_memory(logger, label="Post-Resampling")
+
             logger.info(f"Saved resampled data to {checkpoints['resampled_data']}")
 
             storage_url = (
@@ -722,17 +727,101 @@ def main():
 
                 return mean_f1
 
+                # def rf_objective(trial: optuna.Trial) -> float:
+                #     """Objective function for Random Forest optimization."""
+                #     param = {
+                #         "n_estimators": trial.suggest_int("n_estimators", 100, 500),
+                #         "max_depth": trial.suggest_int("max_depth", 5, 30),
+                #         "min_samples_split": trial.suggest_int("min_samples_split", 2, 11),
+                #         "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 5),
+                #         "max_features": trial.suggest_categorical(
+                #             "max_features", ["sqrt", "log2", None]
+                #         ),
+                #     }
+                #     rf_pipeline = ImbPipeline(
+                #         [
+                #             ("scaler", StandardScaler()),
+                #             (
+                #                 "random_forest",
+                #                 RandomForestClassifier(
+                #                     random_state=42,
+                #                     class_weight="balanced",
+                #                     n_jobs=-1,
+                #                     **param,
+                #                 ),
+                #             ),
+                #         ]
+                #     )
+
+                #     # Cross-validation setup with multiple metrics
+                #     scoring = {
+                #         "f1": "f1",
+                #         "accuracy": "accuracy",
+                #         "roc_auc": "roc_auc",
+                #         "precision": "precision",
+                #         "recall": "recall",
+                #     }
+                #     cv_results = cross_validate(
+                #         rf_pipeline,
+                #         X_train_resampled,
+                #         y_train_resampled,
+                #         cv=3,  # Number of folds
+                #         scoring=scoring,
+                #         n_jobs=-1,
+                #     )
+                #     # Store all metrics
+                #     trial.set_user_attr("accuracy", cv_results["test_accuracy"].mean())
+                #     trial.set_user_attr("roc_auc", cv_results["test_roc_auc"].mean())
+                #     trial.set_user_attr("precision", cv_results["test_precision"].mean())
+                #     trial.set_user_attr("recall", cv_results["test_recall"].mean())
+                #     trial.set_user_attr("f1_std", cv_results["test_f1"].std())
+                #     trial.set_user_attr(
+                #         "cv_iteration", len(studies["Random_Forest_Optimization"].trials)
+                #     )
+
+                #     # Return F1 score as the primary optimization metric
+                #     mean_f1 = cv_results["test_f1"].mean()
+                #     trial.set_user_attr(
+                #         "f1_score", mean_f1
+                #     )  # Store the objective value explicitly
+
+                #     return mean_f1
+
             def rf_objective(trial: optuna.Trial) -> float:
                 """Objective function for Random Forest optimization."""
                 param = {
-                    "n_estimators": trial.suggest_int("n_estimators", 100, 500),
-                    "max_depth": trial.suggest_int("max_depth", 5, 30),
-                    "min_samples_split": trial.suggest_int("min_samples_split", 2, 11),
-                    "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 5),
+                    "n_estimators": trial.suggest_int(
+                        "n_estimators", 100, 800
+                    ),  # Reduced
+                    "max_depth": trial.suggest_int("max_depth", 10, 40),  # Reduced
+                    "min_samples_split": trial.suggest_int(
+                        "min_samples_split", 2, 20
+                    ),  # Reduced
+                    "min_samples_leaf": trial.suggest_int(
+                        "min_samples_leaf", 1, 10
+                    ),  # Reduced
                     "max_features": trial.suggest_categorical(
                         "max_features", ["sqrt", "log2", None]
                     ),
+                    "ccp_alpha": trial.suggest_float("ccp_alpha", 0.0, 0.05, step=0.01),
+                    "class_weight": trial.suggest_categorical(
+                        "class_weight", ["balanced", "balanced_subsample", None]
+                    ),
+                    "bootstrap": trial.suggest_categorical("bootstrap", [True, False]),
+                    "criterion": trial.suggest_categorical(
+                        "criterion", ["gini", "entropy", "log_loss"]
+                    ),
+                    "max_leaf_nodes": trial.suggest_int(
+                        "max_leaf_nodes", 10, 500
+                    ),  # Reduced
+                    "min_impurity_decrease": trial.suggest_float(
+                        "min_impurity_decrease", 0.0, 0.1
+                    ),
+                    "max_samples": trial.suggest_float("max_samples", 0.5, 1.0)
+                    if trial.suggest_categorical("bootstrap", [True, False])
+                    else None,
                 }
+
                 rf_pipeline = ImbPipeline(
                     [
                         ("scaler", StandardScaler()),
@@ -740,7 +829,6 @@ def main():
                             "random_forest",
                             RandomForestClassifier(
                                 random_state=42,
-                                class_weight="balanced",
                                 n_jobs=-1,
                                 **param,
                             ),
@@ -748,39 +836,30 @@ def main():
                     ]
                 )
 
-                # Cross-validation setup with multiple metrics
-                scoring = {
-                    "f1": "f1",
-                    "accuracy": "accuracy",
-                    "roc_auc": "roc_auc",
-                    "precision": "precision",
-                    "recall": "recall",
-                }
+                # Define scoring metrics
+                scoring = {"f1": "f1", "roc_auc": "roc_auc"}
+
+                # Stratified K-Fold for better class distribution handling
+                cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+
                 cv_results = cross_validate(
                     rf_pipeline,
                     X_train_resampled,
                     y_train_resampled,
-                    cv=3,  # Number of folds
+                    cv=cv,
                     scoring=scoring,
                     n_jobs=-1,
                 )
-                # Store all metrics
-                trial.set_user_attr("accuracy", cv_results["test_accuracy"].mean())
+
                 trial.set_user_attr("roc_auc", cv_results["test_roc_auc"].mean())
-                trial.set_user_attr("precision", cv_results["test_precision"].mean())
-                trial.set_user_attr("recall", cv_results["test_recall"].mean())
+                trial.set_user_attr("f1_score", cv_results["test_f1"].mean())
                 trial.set_user_attr("f1_std", cv_results["test_f1"].std())
                 trial.set_user_attr(
                     "cv_iteration", len(studies["Random_Forest_Optimization"].trials)
                 )
 
-                # Return F1 score as the primary optimization metric
-                mean_f1 = cv_results["test_f1"].mean()
-                trial.set_user_attr(
-                    "f1_score", mean_f1
-                )  # Store the objective value explicitly
-
-                return mean_f1
+                # Return the mean F1 score as the objective value
+                return cv_results["test_f1"].mean()
 
             def lr_objective(trial: optuna.Trial) -> float:
                 """Objective function for Logistic Regression optimization."""
@@ -825,7 +904,7 @@ def main():
                     lr_pipeline,
                     X_train_resampled,
                     y_train_resampled,
-                    cv=3,
+                    cv=5,
                     scoring=scoring,
                     n_jobs=-1,
                 )
@@ -1282,6 +1361,11 @@ def main():
                     df_test_with_predictions[final_predictions_proba.name] = (
                         final_predictions_proba
                     )
+
+                # Log DataFrame info
+                log_dataframe_info(
+                    logger, df_test_with_predictions, name="Test Data with Predictions"
+                )
 
                 # Evaluate the best model on the test set
                 metrics = evaluate_model(
