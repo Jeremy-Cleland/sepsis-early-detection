@@ -6333,3 +6333,630 @@ Final_random_forest_(tuned) Evaluation:
 12-15 04:28 - Final Memory Usage: 2073.75 MB
 12-15 04:28 - Memory Change: +1861.55 MB
 12-15 04:28 - ================================================================================
+12-15 10:29 - ================================================================================
+12-15 10:29 - Starting Phase: Main
+12-15 10:29 - --------------------------------------------------------------------------------
+12-15 10:29 - Initial Memory Usage: 213.08 MB
+12-15 10:29 - Starting Sepsis Prediction Pipeline
+12-15 10:29 - Initial Memory Usage: 213.08 MB
+12-15 10:29 - Reports and metrics will be saved to: reports/evaluations/run_20241215_102949
+12-15 10:29 - Loading and preprocessing data.
+12-15 10:29 - Splitting data into training, validation, and testing sets
+12-15 10:30 - Starting step: Preprocessing training data
+12-15 10:55 - Completed step: Preprocessing training data (Duration: 1541.93s)
+12-15 10:55 - Starting step: Preprocessing validation data
+12-15 10:56 - Completed step: Preprocessing validation data (Duration: 14.40s)
+12-15 10:56 - Starting step: Preprocessing testing data
+12-15 10:56 - Completed step: Preprocessing testing data (Duration: 14.70s)
+12-15 10:56 - Saved preprocessed data to checkpoints/preprocessed_data_20241215_102949.pkl
+12-15 10:56 - Applying SMOTEENN to training data.
+12-15 10:59 - Post-Resampling Memory Usage: 2422.16 MB
+12-15 10:59 - Saved plot: Resampled_Training_Data_class_distribution__after_resampling.png
+12-15 10:59 - Post-Resampling Memory Usage: 1879.69 MB
+12-15 10:59 - Saved resampled data to checkpoints/resampled_data_20241215_102949.pkl
+12-15 10:59 - Initializing new Optuna studies.
+12-15 10:59 - Saved Optuna studies to checkpoints/optuna_studies_20241215_102949.pkl
+12-15 10:59 - Starting Optuna hyperparameter tuning with 5 parallel jobs.
+12-15 10:59 - Optimizing Random Forest hyperparameters with Optuna.
+12-15 10:59 - Error during Random Forest optimization or training: 
+All the 3 fits failed.
+It is very likely that your model is misconfigured.
+You can try to debug the error by setting error_score='raise'.
+
+Below are more details about the failures:
+--------------------------------------------------------------------------------
+3 fits failed with the following error:
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/model_selection/_validation.py", line 888, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
+    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1466, in wrapper
+    estimator._validate_params()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 666, in _validate_params
+    validate_parameter_constraints(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'min_samples_split' parameter of RandomForestClassifier must be an int in the range [2, inf) or a float in the range (0.0, 1.0]. Got 1 instead.
+Traceback (most recent call last):
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 954, in main
+    studies["Random_Forest_Optimization"].optimize(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/_optimize.py", line 100, in _optimize
+    f.result()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/concurrent/futures/_base.py", line 451, in result
+    return self.__get_result()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+  File "/Users/jeremy/Desktop/predicting-sepsis-main/main.py", line 764, in rf_objective
+    cv_results = cross_validate(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/utils/_param_validation.py", line 213, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/model_selection/_validation.py", line 443, in cross_validate
+    _warn_or_raise_about_fit_failures(results, error_score)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/model_selection/_validation.py", line 529, in _warn_or_raise_about_fit_failures
+    raise ValueError(all_fits_failed_message)
+ValueError: 
+All the 3 fits failed.
+It is very likely that your model is misconfigured.
+You can try to debug the error by setting error_score='raise'.
+
+Below are more details about the failures:
+--------------------------------------------------------------------------------
+3 fits failed with the following error:
+Traceback (most recent call last):
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/model_selection/_validation.py", line 888, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1473, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/imblearn/pipeline.py", line 333, in fit
+    self._final_estimator.fit(Xt, yt, **last_step_params["fit"])
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 1466, in wrapper
+    estimator._validate_params()
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/base.py", line 666, in _validate_params
+    validate_parameter_constraints(
+  File "/Users/jeremy/miniforge3/envs/predictsepsis/lib/python3.10/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'min_samples_split' parameter of RandomForestClassifier must be an int in the range [2, inf) or a float in the range (0.0, 1.0]. Got 1 instead.
+
+12-15 10:59 - Optimizing Logistic Regression hyperparameters with Optuna.
+12-15 10:59 - Best Logistic Regression parameters: {'penalty': 'elasticnet', 'C': 0.14333491189702535, 'max_iter': 1010, 'tol': 1.4467518214030764e-05, 'l1_ratio': 0.009821290379741665}
+12-15 10:59 - Logistic Regression - Total trials: 26
+12-15 10:59 - Logistic Regression - Completed trials: 25
+12-15 10:59 - Logistic Regression - Pruned trials: 0
+12-15 10:59 - Logistic Regression - Failed trials: 0
+12-15 10:59 - Training Logistic Regression (Tuned)...
+12-15 11:00 - Training completed for Logistic Regression (Tuned).
+12-15 11:00 - Predictions made for Logistic Regression (Tuned).
+12-15 11:00 - Extracted model for evaluation: <class 'sklearn.linear_model._logistic.LogisticRegression'>
+12-15 11:00 - 
+Logistic Regression (Tuned) Evaluation:
+12-15 11:00 -   Accuracy                  : 0.9344
+12-15 11:00 -   Precision                 : 0.1691
+12-15 11:00 -   Recall                    : 0.7697
+12-15 11:00 -   F1 Score                  : 0.2773
+12-15 11:00 -   Mean Absolute Error       : 0.0656
+12-15 11:00 -   Root Mean Squared Error   : 0.2561
+12-15 11:00 -   AUC-ROC                   : 0.8938
+12-15 11:00 -   AUPRC                     : 0.1381
+12-15 11:00 -   Specificity               : 0.9372
+12-15 11:00 - Saved plot: Logistic Regression (Tuned)_confusion_matrix.png
+12-15 11:00 - Saved plot: Logistic Regression (Tuned)_confusion_matrix_normalized.png
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_roc_curve.png
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_precision_recall_curve.png
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_calibration.png
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_feature_importance.png
+12-15 11:00 - Logistic Regression (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-15 11:00 - Missing values heatmap saved to reports/evaluations/run_20241215_102949/Logistic Regression (Tuned)_missing_values_heatmap.png
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_19434.png
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_119867.png
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_113388.png
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_16905.png
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_18504.png
+12-15 11:00 - Saved temporal progression plots for 5 patients
+12-15 11:00 - Saved plot: Logistic_Regression_(Tuned)_error_analysis.png
+12-15 11:00 - Saved error analysis plots to reports/evaluations/run_20241215_102949
+12-15 11:00 - Saved plot: Logistic Regression (Tuned)_interaction_Unit1_Unit2.png
+12-15 11:00 - Saved plot: Logistic Regression (Tuned)_interaction_Unnamed: 0_Hour.png
+12-15 11:01 - Saved plot: Logistic Regression (Tuned)_interaction_Unnamed: 0_ICULOS.png
+12-15 11:01 - Saved plot: Logistic Regression (Tuned)_interaction_Hour_ICULOS.png
+12-15 11:01 - Saved plot: Logistic Regression (Tuned)_interaction_Bilirubin_direct_Bilirubin_total.png
+12-15 11:01 - Saved feature interaction plots for top 5 pairs
+12-15 11:01 - No sepsis patients have predictions for timeline plots.
+12-15 11:01 - Saved evaluation metrics to reports/evaluations/run_20241215_102949/Logistic Regression (Tuned)_metrics.json
+
+12-15 11:01 - Evaluation completed for Logistic Regression (Tuned).
+12-15 11:01 - New best model: Logistic Regression (Tuned) with F1 Score: 0.2773
+12-15 11:01 - Saved hyperparameters to reports/evaluations/run_20241215_102949/logistic_regression_tuned_params.json
+12-15 11:01 - Optimizing XGBoost hyperparameters with Optuna.
+12-15 11:01 - Best XGBoost parameters: {'n_estimators': 457, 'max_depth': 9, 'learning_rate': 0.17255776234553302, 'subsample': 0.7574329529424287, 'colsample_bytree': 0.5433439671072606, 'gamma': 0.012455929246615097, 'reg_alpha': 0.07875095024685662, 'reg_lambda': 0.5035646682042978}
+12-15 11:01 - XGBoost - Total trials: 48
+12-15 11:01 - XGBoost - Completed trials: 48
+12-15 11:01 - XGBoost - Pruned trials: 0
+12-15 11:01 - XGBoost - Failed trials: 0
+12-15 11:01 - Training XGBoost (Tuned)...
+12-15 11:01 - Training completed for XGBoost (Tuned).
+12-15 11:01 - Predictions made for XGBoost (Tuned).
+12-15 11:01 - Extracted model for evaluation: <class 'xgboost.sklearn.XGBClassifier'>
+12-15 11:01 - 
+XGBoost (Tuned) Evaluation:
+12-15 11:01 -   Accuracy                  : 0.9594
+12-15 11:01 -   Precision                 : 0.2453
+12-15 11:01 -   Recall                    : 0.7150
+12-15 11:01 -   F1 Score                  : 0.3653
+12-15 11:01 -   Mean Absolute Error       : 0.0406
+12-15 11:01 -   Root Mean Squared Error   : 0.2015
+12-15 11:01 -   AUC-ROC                   : 0.9437
+12-15 11:01 -   AUPRC                     : 0.4494
+12-15 11:01 -   Specificity               : 0.9634
+12-15 11:01 - Saved plot: XGBoost (Tuned)_confusion_matrix.png
+12-15 11:01 - Saved plot: XGBoost (Tuned)_confusion_matrix_normalized.png
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_roc_curve.png
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_precision_recall_curve.png
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_calibration.png
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_feature_importance.png
+12-15 11:01 - XGBoost (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-15 11:01 - Missing values heatmap saved to reports/evaluations/run_20241215_102949/XGBoost (Tuned)_missing_values_heatmap.png
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_temporal_patient_13391.png
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_temporal_patient_113787.png
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_temporal_patient_4376.png
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_temporal_patient_16421.png
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_temporal_patient_117871.png
+12-15 11:01 - Saved temporal progression plots for 5 patients
+12-15 11:01 - Saved plot: XGBoost_(Tuned)_error_analysis.png
+12-15 11:01 - Saved error analysis plots to reports/evaluations/run_20241215_102949
+12-15 11:01 - Saved plot: XGBoost (Tuned)_interaction_Unit1_Unit2.png
+12-15 11:01 - Saved plot: XGBoost (Tuned)_interaction_Unnamed: 0_Hour.png
+12-15 11:02 - Saved plot: XGBoost (Tuned)_interaction_Unnamed: 0_ICULOS.png
+12-15 11:02 - Saved plot: XGBoost (Tuned)_interaction_Hour_ICULOS.png
+12-15 11:02 - Saved plot: XGBoost (Tuned)_interaction_Bilirubin_direct_Bilirubin_total.png
+12-15 11:02 - Saved feature interaction plots for top 5 pairs
+12-15 11:02 - No sepsis patients have predictions for timeline plots.
+12-15 11:02 - Saved evaluation metrics to reports/evaluations/run_20241215_102949/XGBoost (Tuned)_metrics.json
+
+12-15 11:02 - Evaluation completed for XGBoost (Tuned).
+12-15 11:02 - New best model: XGBoost (Tuned) with F1 Score: 0.3653
+12-15 11:02 - Saved hyperparameters to reports/evaluations/run_20241215_102949/xgboost_tuned_params.json
+12-15 11:02 - Saved trained models to checkpoints/trained_models_20241215_102949.pkl
+12-15 11:02 - Saved updated Optuna studies to checkpoints/optuna_studies_20241215_102949.pkl
+12-15 11:02 - Saved trial data to reports/evaluations/run_20241215_102949/random_forest_optimization_optimization_trials.csv
+12-15 11:02 - Saved trial data to reports/evaluations/run_20241215_102949/logistic_regression_optimization_optimization_trials.csv
+12-15 11:02 - Saved trial data to reports/evaluations/run_20241215_102949/xgboost_optimization_optimization_trials.csv
+12-15 11:02 - 
+Performing final evaluation with best model: XGBoost (Tuned)
+12-15 11:02 - Predictions made with XGBoost (Tuned) on test set.
+12-15 11:02 - 
+Test Data with Predictions Information:
+12-15 11:02 - Shape: (231564, 46)
+12-15 11:02 - Memory usage: 82.15 MB
+12-15 11:02 - Columns: ['Unnamed: 0', 'Hour', 'HR', 'O2Sat', 'Temp', 'SBP', 'MAP', 'DBP', 'Resp', 'EtCO2', 'BaseExcess', 'HCO3', 'FiO2', 'pH', 'PaCO2', 'SaO2', 'AST', 'BUN', 'Alkalinephos', 'Calcium', 'Chloride', 'Creatinine', 'Bilirubin_direct', 'Glucose', 'Lactate', 'Magnesium', 'Phosphate', 'Potassium', 'Bilirubin_total', 'TroponinI', 'Hct', 'Hgb', 'PTT', 'WBC', 'Fibrinogen', 'Platelets', 'Age', 'Gender', 'Unit1', 'Unit2', 'HospAdmTime', 'ICULOS', 'SepsisLabel', 'Patient_ID', 'Predicted', 'Predicted_Prob']
+12-15 11:02 - 
+Columns with missing values:
+12-15 11:02 - HR: 23238 missing values (10.04%)
+12-15 11:02 - O2Sat: 30505 missing values (13.17%)
+12-15 11:02 - Temp: 153908 missing values (66.46%)
+12-15 11:02 - SBP: 33801 missing values (14.60%)
+12-15 11:02 - MAP: 29215 missing values (12.62%)
+12-15 11:02 - DBP: 73440 missing values (31.71%)
+12-15 11:02 - Resp: 35682 missing values (15.41%)
+12-15 11:02 - EtCO2: 223495 missing values (96.52%)
+12-15 11:02 - BaseExcess: 219066 missing values (94.60%)
+12-15 11:02 - HCO3: 221952 missing values (95.85%)
+12-15 11:02 - FiO2: 212427 missing values (91.74%)
+12-15 11:02 - pH: 215588 missing values (93.10%)
+12-15 11:02 - PaCO2: 218826 missing values (94.50%)
+12-15 11:02 - SaO2: 223674 missing values (96.59%)
+12-15 11:02 - AST: 227770 missing values (98.36%)
+12-15 11:02 - BUN: 215682 missing values (93.14%)
+12-15 11:02 - Alkalinephos: 227820 missing values (98.38%)
+12-15 11:02 - Calcium: 218005 missing values (94.14%)
+12-15 11:02 - Chloride: 221130 missing values (95.49%)
+12-15 11:02 - Creatinine: 217516 missing values (93.93%)
+12-15 11:02 - Bilirubin_direct: 231116 missing values (99.81%)
+12-15 11:02 - Glucose: 191908 missing values (82.87%)
+12-15 11:02 - Lactate: 225462 missing values (97.36%)
+12-15 11:02 - Magnesium: 216944 missing values (93.69%)
+12-15 11:02 - Phosphate: 222323 missing values (96.01%)
+12-15 11:02 - Potassium: 210138 missing values (90.75%)
+12-15 11:02 - Bilirubin_total: 228141 missing values (98.52%)
+12-15 11:02 - TroponinI: 229287 missing values (99.02%)
+12-15 11:02 - Hct: 210814 missing values (91.04%)
+12-15 11:02 - Hgb: 214394 missing values (92.59%)
+12-15 11:02 - PTT: 224719 missing values (97.04%)
+12-15 11:02 - WBC: 216618 missing values (93.55%)
+12-15 11:02 - Fibrinogen: 230003 missing values (99.33%)
+12-15 11:02 - Platelets: 217708 missing values (94.02%)
+12-15 11:02 - Unit1: 92935 missing values (40.13%)
+12-15 11:02 - Unit2: 92935 missing values (40.13%)
+12-15 11:02 - HospAdmTime: 8 missing values (0.00%)
+12-15 11:02 - Predicted: 92935 missing values (40.13%)
+12-15 11:02 - Predicted_Prob: 92935 missing values (40.13%)
+12-15 11:02 - Class distribution: {0: 227392, 1: 4172}
+12-15 11:02 - 
+Final_xgboost_(tuned) Evaluation:
+12-15 11:02 -   Accuracy                  : 0.9269
+12-15 11:02 -   Precision                 : 0.1643
+12-15 11:02 -   Recall                    : 0.8645
+12-15 11:02 -   F1 Score                  : 0.2762
+12-15 11:02 -   Mean Absolute Error       : 0.0731
+12-15 11:02 -   Root Mean Squared Error   : 0.2704
+12-15 11:02 -   AUC-ROC                   : 0.9571
+12-15 11:02 -   AUPRC                     : 0.6340
+12-15 11:02 -   Specificity               : 0.9279
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_confusion_matrix.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_confusion_matrix_normalized.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_roc_curve.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_precision_recall_curve.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_calibration.png
+12-15 11:02 - Model type <class 'imblearn.pipeline.Pipeline'> does not support feature importance plotting.
+12-15 11:02 - Final_xgboost_(tuned) - Dataset too large for missing values annotation on heatmap.
+12-15 11:02 - Missing values heatmap saved to reports/evaluations/run_20241215_102949/Final_xgboost_(tuned)_missing_values_heatmap.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_temporal_patient_4786.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_temporal_patient_8586.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_temporal_patient_2919.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_temporal_patient_8522.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_temporal_patient_110866.png
+12-15 11:02 - Saved temporal progression plots for 5 patients
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_error_analysis.png
+12-15 11:02 - Saved error analysis plots to reports/evaluations/run_20241215_102949
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_interaction_Unnamed: 0_Hour.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_interaction_Unit1_Unit2.png
+12-15 11:02 - Saved plot: Final_xgboost_(tuned)_interaction_Unnamed: 0_ICULOS.png
+12-15 11:03 - Saved plot: Final_xgboost_(tuned)_interaction_Hour_ICULOS.png
+12-15 11:03 - Saved plot: Final_xgboost_(tuned)_interaction_Bilirubin_direct_Bilirubin_total.png
+12-15 11:03 - Saved feature interaction plots for top 5 pairs
+12-15 11:03 - No sepsis patients have predictions for timeline plots.
+12-15 11:03 - Saved evaluation metrics to reports/evaluations/run_20241215_102949/Final_xgboost_(tuned)_metrics.json
+
+12-15 11:03 - Final evaluation completed for XGBoost (Tuned).
+12-15 11:03 - Saved plot: XGBoost (Tuned)_confusion_matrix.png
+12-15 11:03 - Saved plot: XGBoost (Tuned)_confusion_matrix_normalized.png
+12-15 11:03 - Saved plot: XGBoost_(Tuned)_roc_curve.png
+12-15 11:03 - Saved plot: XGBoost_(Tuned)_precision_recall_curve.png
+12-15 11:03 - Saved plot: XGBoost_(Tuned)_calibration.png
+12-15 11:03 - Model type <class 'imblearn.pipeline.Pipeline'> does not support feature importance plotting.
+12-15 11:03 - XGBoost (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-15 11:03 - Missing values heatmap saved to reports/evaluations/run_20241215_102949/XGBoost (Tuned)_missing_values_heatmap.png
+12-15 11:03 - Saved plot: XGBoost_(Tuned)_temporal_patient_107362.png
+12-15 11:03 - Saved plot: XGBoost_(Tuned)_temporal_patient_3698.png
+12-15 11:03 - Saved plot: XGBoost_(Tuned)_temporal_patient_113526.png
+12-15 11:03 - Saved plot: XGBoost_(Tuned)_temporal_patient_14518.png
+12-15 11:03 - Saved plot: XGBoost_(Tuned)_temporal_patient_111920.png
+12-15 11:03 - Saved temporal progression plots for 5 patients
+12-15 11:03 - Saved plot: XGBoost_(Tuned)_error_analysis.png
+12-15 11:03 - Saved error analysis plots to reports/evaluations/run_20241215_102949
+12-15 11:03 - Saved plot: XGBoost (Tuned)_interaction_Unit1_Unit2.png
+12-15 11:03 - Saved plot: XGBoost (Tuned)_interaction_Hour_ICULOS.png
+12-15 11:03 - Saved plot: XGBoost (Tuned)_interaction_Hct_Hgb.png
+12-15 11:03 - Saved plot: XGBoost (Tuned)_interaction_BUN_Creatinine.png
+12-15 11:03 - Saved plot: XGBoost (Tuned)_interaction_BUN_Age.png
+12-15 11:03 - Saved feature interaction plots for top 5 pairs
+12-15 11:03 - No sepsis patients have predictions for timeline plots.
+12-15 11:03 - Model card saved to reports/evaluations/run_20241215_102949/XGBoost (Tuned)_model_card.md
+12-15 11:03 - Saving the best model (XGBoost (Tuned))
+12-15 11:03 - Saved model 'XGBoost (Tuned)' version 'v2' to 'models/XGBoost (Tuned)_20241215_110337_ec8b81'
+12-15 11:03 - Model (XGBoost (Tuned)) saved successfully.
+12-15 11:03 - Sepsis Prediction Pipeline completed successfully.
+12-15 11:03 - --------------------------------------------------------------------------------
+12-15 11:03 - Phase Complete: Main
+12-15 11:03 - Duration: 2028.51 seconds
+12-15 11:03 - Final Memory Usage: 1015.02 MB
+12-15 11:03 - Memory Change: +801.94 MB
+12-15 11:03 - ================================================================================
+12-15 11:15 - ================================================================================
+12-15 11:15 - Starting Phase: Main
+12-15 11:15 - --------------------------------------------------------------------------------
+12-15 11:15 - Initial Memory Usage: 212.20 MB
+12-15 11:15 - Starting Sepsis Prediction Pipeline
+12-15 11:15 - Initial Memory Usage: 212.20 MB
+12-15 11:15 - Reports and metrics will be saved to: reports/evaluations/run_20241215_111534
+12-15 11:15 - Loading and preprocessing data.
+12-15 11:15 - Splitting data into training, validation, and testing sets
+12-15 11:15 - Starting step: Preprocessing training data
+12-15 11:21 - ================================================================================
+12-15 11:21 - Starting Phase: Main
+12-15 11:21 - --------------------------------------------------------------------------------
+12-15 11:21 - Initial Memory Usage: 212.22 MB
+12-15 11:21 - Starting Sepsis Prediction Pipeline
+12-15 11:21 - Initial Memory Usage: 212.23 MB
+12-15 11:21 - Reports and metrics will be saved to: reports/evaluations/run_20241215_112116
+12-15 11:21 - Loading and preprocessing data.
+12-15 11:21 - Splitting data into training, validation, and testing sets
+12-15 11:21 - Starting step: Preprocessing training data
+12-15 11:50 - Completed step: Preprocessing training data (Duration: 1762.72s)
+12-15 11:50 - Starting step: Preprocessing validation data
+12-15 11:51 - Completed step: Preprocessing validation data (Duration: 15.55s)
+12-15 11:51 - Starting step: Preprocessing testing data
+12-15 11:51 - Completed step: Preprocessing testing data (Duration: 15.15s)
+12-15 11:51 - Saved preprocessed data to checkpoints/preprocessed_data_20241215_112116.pkl
+12-15 11:51 - Applying SMOTEENN to training data.
+12-15 11:55 - Post-Resampling Memory Usage: 574.86 MB
+12-15 11:55 - Saved plot: Resampled_Training_Data_class_distribution__after_resampling.png
+12-15 11:55 - Post-Resampling Memory Usage: 931.03 MB
+12-15 11:55 - Saved resampled data to checkpoints/resampled_data_20241215_112116.pkl
+12-15 11:55 - Initializing new Optuna studies.
+12-15 11:55 - Saved Optuna studies to checkpoints/optuna_studies_20241215_112116.pkl
+12-15 11:55 - Starting Optuna hyperparameter tuning with 5 parallel jobs.
+12-15 11:55 - Optimizing Random Forest hyperparameters with Optuna.
+12-15 13:36 - Best Random Forest parameters: {'n_estimators': 199, 'max_depth': 28, 'min_samples_split': 3, 'min_samples_leaf': 1, 'max_features': 'log2'}
+12-15 13:36 - Random Forest - Total trials: 161
+12-15 13:36 - Random Forest - Completed trials: 141
+12-15 13:36 - Random Forest - Pruned trials: 0
+12-15 13:36 - Random Forest - Failed trials: 15
+12-15 13:36 - Training Random Forest (Tuned)...
+12-15 13:38 - Training completed for Random Forest (Tuned).
+12-15 13:38 - Predictions made for Random Forest (Tuned).
+12-15 13:38 - Extracted model for evaluation: <class 'sklearn.ensemble._forest.RandomForestClassifier'>
+12-15 13:38 - 
+Random Forest (Tuned) Evaluation:
+12-15 13:38 -   Accuracy                  : 0.9732
+12-15 13:38 -   Precision                 : 0.3133
+12-15 13:38 -   Recall                    : 0.5360
+12-15 13:38 -   F1 Score                  : 0.3954
+12-15 13:38 -   Mean Absolute Error       : 0.0268
+12-15 13:38 -   Root Mean Squared Error   : 0.1637
+12-15 13:38 -   AUC-ROC                   : 0.9497
+12-15 13:38 -   AUPRC                     : 0.3821
+12-15 13:38 -   Specificity               : 0.9805
+12-15 13:38 - Saved plot: Random Forest (Tuned)_confusion_matrix.png
+12-15 13:38 - Saved plot: Random Forest (Tuned)_confusion_matrix_normalized.png
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_roc_curve.png
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_precision_recall_curve.png
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_calibration.png
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_feature_importance.png
+12-15 13:38 - Random Forest (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-15 13:38 - Missing values heatmap saved to reports/evaluations/run_20241215_112116/Random Forest (Tuned)_missing_values_heatmap.png
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_temporal_patient_19434.png
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_temporal_patient_119867.png
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_temporal_patient_113388.png
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_temporal_patient_16905.png
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_temporal_patient_18504.png
+12-15 13:38 - Saved temporal progression plots for 5 patients
+12-15 13:38 - Saved plot: Random_Forest_(Tuned)_error_analysis.png
+12-15 13:38 - Saved error analysis plots to reports/evaluations/run_20241215_112116
+12-15 13:39 - Saved plot: Random Forest (Tuned)_interaction_Unit1_Unit2.png
+12-15 13:39 - Saved plot: Random Forest (Tuned)_interaction_Unnamed: 0_Hour.png
+12-15 13:39 - Saved plot: Random Forest (Tuned)_interaction_Unnamed: 0_ICULOS.png
+12-15 13:39 - Saved plot: Random Forest (Tuned)_interaction_Hour_ICULOS.png
+12-15 13:39 - Saved plot: Random Forest (Tuned)_interaction_Bilirubin_direct_Bilirubin_total.png
+12-15 13:39 - Saved feature interaction plots for top 5 pairs
+12-15 13:39 - No sepsis patients have predictions for timeline plots.
+12-15 13:39 - Saved evaluation metrics to reports/evaluations/run_20241215_112116/Random Forest (Tuned)_metrics.json
+
+12-15 13:39 - Evaluation completed for Random Forest (Tuned).
+12-15 13:39 - New best model: Random Forest (Tuned) with F1 Score: 0.3954
+12-15 13:39 - Saved hyperparameters to reports/evaluations/run_20241215_112116/random_forest_tuned_params.json
+12-15 13:39 - Optimizing Logistic Regression hyperparameters with Optuna.
+12-15 13:39 - Best Logistic Regression parameters: {'penalty': 'elasticnet', 'C': 0.14333491189702535, 'max_iter': 1010, 'tol': 1.4467518214030764e-05, 'l1_ratio': 0.009821290379741665}
+12-15 13:39 - Logistic Regression - Total trials: 26
+12-15 13:39 - Logistic Regression - Completed trials: 25
+12-15 13:39 - Logistic Regression - Pruned trials: 0
+12-15 13:39 - Logistic Regression - Failed trials: 0
+12-15 13:39 - Training Logistic Regression (Tuned)...
+12-15 13:42 - Training completed for Logistic Regression (Tuned).
+12-15 13:42 - Predictions made for Logistic Regression (Tuned).
+12-15 13:42 - Extracted model for evaluation: <class 'sklearn.linear_model._logistic.LogisticRegression'>
+12-15 13:42 - 
+Logistic Regression (Tuned) Evaluation:
+12-15 13:42 -   Accuracy                  : 0.9155
+12-15 13:42 -   Precision                 : 0.1425
+12-15 13:42 -   Recall                    : 0.8314
+12-15 13:42 -   F1 Score                  : 0.2434
+12-15 13:42 -   Mean Absolute Error       : 0.0845
+12-15 13:42 -   Root Mean Squared Error   : 0.2907
+12-15 13:42 -   AUC-ROC                   : 0.8910
+12-15 13:42 -   AUPRC                     : 0.1310
+12-15 13:42 -   Specificity               : 0.9169
+12-15 13:42 - Saved plot: Logistic Regression (Tuned)_confusion_matrix.png
+12-15 13:42 - Saved plot: Logistic Regression (Tuned)_confusion_matrix_normalized.png
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_roc_curve.png
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_precision_recall_curve.png
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_calibration.png
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_feature_importance.png
+12-15 13:42 - Logistic Regression (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-15 13:42 - Missing values heatmap saved to reports/evaluations/run_20241215_112116/Logistic Regression (Tuned)_missing_values_heatmap.png
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_13391.png
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_113787.png
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_4376.png
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_16421.png
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_temporal_patient_117871.png
+12-15 13:42 - Saved temporal progression plots for 5 patients
+12-15 13:42 - Saved plot: Logistic_Regression_(Tuned)_error_analysis.png
+12-15 13:42 - Saved error analysis plots to reports/evaluations/run_20241215_112116
+12-15 13:42 - Saved plot: Logistic Regression (Tuned)_interaction_Unit1_Unit2.png
+12-15 13:42 - Saved plot: Logistic Regression (Tuned)_interaction_Unnamed: 0_Hour.png
+12-15 13:42 - Saved plot: Logistic Regression (Tuned)_interaction_Unnamed: 0_ICULOS.png
+12-15 13:42 - Saved plot: Logistic Regression (Tuned)_interaction_Hour_ICULOS.png
+12-15 13:42 - Saved plot: Logistic Regression (Tuned)_interaction_Bilirubin_direct_Bilirubin_total.png
+12-15 13:42 - Saved feature interaction plots for top 5 pairs
+12-15 13:42 - No sepsis patients have predictions for timeline plots.
+12-15 13:42 - Saved evaluation metrics to reports/evaluations/run_20241215_112116/Logistic Regression (Tuned)_metrics.json
+
+12-15 13:42 - Evaluation completed for Logistic Regression (Tuned).
+12-15 13:42 - Saved hyperparameters to reports/evaluations/run_20241215_112116/logistic_regression_tuned_params.json
+12-15 13:42 - Optimizing XGBoost hyperparameters with Optuna.
+12-15 13:42 - Best XGBoost parameters: {'n_estimators': 457, 'max_depth': 9, 'learning_rate': 0.17255776234553302, 'subsample': 0.7574329529424287, 'colsample_bytree': 0.5433439671072606, 'gamma': 0.012455929246615097, 'reg_alpha': 0.07875095024685662, 'reg_lambda': 0.5035646682042978}
+12-15 13:42 - XGBoost - Total trials: 48
+12-15 13:42 - XGBoost - Completed trials: 48
+12-15 13:42 - XGBoost - Pruned trials: 0
+12-15 13:42 - XGBoost - Failed trials: 0
+12-15 13:42 - Training XGBoost (Tuned)...
+12-15 13:43 - Training completed for XGBoost (Tuned).
+12-15 13:43 - Predictions made for XGBoost (Tuned).
+12-15 13:43 - Extracted model for evaluation: <class 'xgboost.sklearn.XGBClassifier'>
+12-15 13:43 - 
+XGBoost (Tuned) Evaluation:
+12-15 13:43 -   Accuracy                  : 0.9668
+12-15 13:43 -   Precision                 : 0.2878
+12-15 13:43 -   Recall                    : 0.6977
+12-15 13:43 -   F1 Score                  : 0.4075
+12-15 13:43 -   Mean Absolute Error       : 0.0332
+12-15 13:43 -   Root Mean Squared Error   : 0.1821
+12-15 13:43 -   AUC-ROC                   : 0.9485
+12-15 13:43 -   AUPRC                     : 0.4481
+12-15 13:43 -   Specificity               : 0.9713
+12-15 13:43 - Saved plot: XGBoost (Tuned)_confusion_matrix.png
+12-15 13:43 - Saved plot: XGBoost (Tuned)_confusion_matrix_normalized.png
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_roc_curve.png
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_precision_recall_curve.png
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_calibration.png
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_feature_importance.png
+12-15 13:43 - XGBoost (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-15 13:43 - Missing values heatmap saved to reports/evaluations/run_20241215_112116/XGBoost (Tuned)_missing_values_heatmap.png
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_temporal_patient_110729.png
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_temporal_patient_1698.png
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_temporal_patient_12208.png
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_temporal_patient_102089.png
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_temporal_patient_13569.png
+12-15 13:43 - Saved temporal progression plots for 5 patients
+12-15 13:43 - Saved plot: XGBoost_(Tuned)_error_analysis.png
+12-15 13:43 - Saved error analysis plots to reports/evaluations/run_20241215_112116
+12-15 13:43 - Saved plot: XGBoost (Tuned)_interaction_Unit1_Unit2.png
+12-15 13:43 - Saved plot: XGBoost (Tuned)_interaction_Unnamed: 0_Hour.png
+12-15 13:43 - Saved plot: XGBoost (Tuned)_interaction_Unnamed: 0_ICULOS.png
+12-15 13:43 - Saved plot: XGBoost (Tuned)_interaction_Hour_ICULOS.png
+12-15 13:43 - Saved plot: XGBoost (Tuned)_interaction_Bilirubin_direct_Bilirubin_total.png
+12-15 13:43 - Saved feature interaction plots for top 5 pairs
+12-15 13:43 - No sepsis patients have predictions for timeline plots.
+12-15 13:43 - Saved evaluation metrics to reports/evaluations/run_20241215_112116/XGBoost (Tuned)_metrics.json
+
+12-15 13:43 - Evaluation completed for XGBoost (Tuned).
+12-15 13:43 - New best model: XGBoost (Tuned) with F1 Score: 0.4075
+12-15 13:43 - Saved hyperparameters to reports/evaluations/run_20241215_112116/xgboost_tuned_params.json
+12-15 13:43 - Saved trained models to checkpoints/trained_models_20241215_112116.pkl
+12-15 13:43 - Saved updated Optuna studies to checkpoints/optuna_studies_20241215_112116.pkl
+12-15 13:43 - Saved trial data to reports/evaluations/run_20241215_112116/random_forest_optimization_optimization_trials.csv
+12-15 13:43 - Saved trial data to reports/evaluations/run_20241215_112116/logistic_regression_optimization_optimization_trials.csv
+12-15 13:43 - Saved trial data to reports/evaluations/run_20241215_112116/xgboost_optimization_optimization_trials.csv
+12-15 13:43 - 
+Performing final evaluation with best model: XGBoost (Tuned)
+12-15 13:43 - Predictions made with XGBoost (Tuned) on test set.
+12-15 13:43 - 
+Test Data with Predictions Information:
+12-15 13:43 - Shape: (231564, 46)
+12-15 13:43 - Memory usage: 82.15 MB
+12-15 13:43 - Columns: ['Unnamed: 0', 'Hour', 'HR', 'O2Sat', 'Temp', 'SBP', 'MAP', 'DBP', 'Resp', 'EtCO2', 'BaseExcess', 'HCO3', 'FiO2', 'pH', 'PaCO2', 'SaO2', 'AST', 'BUN', 'Alkalinephos', 'Calcium', 'Chloride', 'Creatinine', 'Bilirubin_direct', 'Glucose', 'Lactate', 'Magnesium', 'Phosphate', 'Potassium', 'Bilirubin_total', 'TroponinI', 'Hct', 'Hgb', 'PTT', 'WBC', 'Fibrinogen', 'Platelets', 'Age', 'Gender', 'Unit1', 'Unit2', 'HospAdmTime', 'ICULOS', 'SepsisLabel', 'Patient_ID', 'Predicted', 'Predicted_Prob']
+12-15 13:43 - 
+Columns with missing values:
+12-15 13:43 - HR: 23238 missing values (10.04%)
+12-15 13:43 - O2Sat: 30505 missing values (13.17%)
+12-15 13:43 - Temp: 153908 missing values (66.46%)
+12-15 13:43 - SBP: 33801 missing values (14.60%)
+12-15 13:43 - MAP: 29215 missing values (12.62%)
+12-15 13:43 - DBP: 73440 missing values (31.71%)
+12-15 13:43 - Resp: 35682 missing values (15.41%)
+12-15 13:43 - EtCO2: 223495 missing values (96.52%)
+12-15 13:43 - BaseExcess: 219066 missing values (94.60%)
+12-15 13:43 - HCO3: 221952 missing values (95.85%)
+12-15 13:43 - FiO2: 212427 missing values (91.74%)
+12-15 13:43 - pH: 215588 missing values (93.10%)
+12-15 13:43 - PaCO2: 218826 missing values (94.50%)
+12-15 13:43 - SaO2: 223674 missing values (96.59%)
+12-15 13:43 - AST: 227770 missing values (98.36%)
+12-15 13:43 - BUN: 215682 missing values (93.14%)
+12-15 13:43 - Alkalinephos: 227820 missing values (98.38%)
+12-15 13:43 - Calcium: 218005 missing values (94.14%)
+12-15 13:43 - Chloride: 221130 missing values (95.49%)
+12-15 13:43 - Creatinine: 217516 missing values (93.93%)
+12-15 13:43 - Bilirubin_direct: 231116 missing values (99.81%)
+12-15 13:43 - Glucose: 191908 missing values (82.87%)
+12-15 13:43 - Lactate: 225462 missing values (97.36%)
+12-15 13:43 - Magnesium: 216944 missing values (93.69%)
+12-15 13:43 - Phosphate: 222323 missing values (96.01%)
+12-15 13:43 - Potassium: 210138 missing values (90.75%)
+12-15 13:43 - Bilirubin_total: 228141 missing values (98.52%)
+12-15 13:43 - TroponinI: 229287 missing values (99.02%)
+12-15 13:43 - Hct: 210814 missing values (91.04%)
+12-15 13:43 - Hgb: 214394 missing values (92.59%)
+12-15 13:43 - PTT: 224719 missing values (97.04%)
+12-15 13:43 - WBC: 216618 missing values (93.55%)
+12-15 13:43 - Fibrinogen: 230003 missing values (99.33%)
+12-15 13:43 - Platelets: 217708 missing values (94.02%)
+12-15 13:43 - Unit1: 92935 missing values (40.13%)
+12-15 13:43 - Unit2: 92935 missing values (40.13%)
+12-15 13:43 - HospAdmTime: 8 missing values (0.00%)
+12-15 13:43 - Predicted: 92935 missing values (40.13%)
+12-15 13:43 - Predicted_Prob: 92935 missing values (40.13%)
+12-15 13:43 - Class distribution: {0: 227392, 1: 4172}
+12-15 13:43 - 
+Final_xgboost_(tuned) Evaluation:
+12-15 13:43 -   Accuracy                  : 0.9196
+12-15 13:43 -   Precision                 : 0.1522
+12-15 13:43 -   Recall                    : 0.8721
+12-15 13:43 -   F1 Score                  : 0.2592
+12-15 13:43 -   Mean Absolute Error       : 0.0804
+12-15 13:43 -   Root Mean Squared Error   : 0.2836
+12-15 13:43 -   AUC-ROC                   : 0.9583
+12-15 13:43 -   AUPRC                     : 0.6508
+12-15 13:43 -   Specificity               : 0.9204
+12-15 13:43 - Saved plot: Final_xgboost_(tuned)_confusion_matrix.png
+12-15 13:43 - Saved plot: Final_xgboost_(tuned)_confusion_matrix_normalized.png
+12-15 13:43 - Saved plot: Final_xgboost_(tuned)_roc_curve.png
+12-15 13:43 - Saved plot: Final_xgboost_(tuned)_precision_recall_curve.png
+12-15 13:43 - Saved plot: Final_xgboost_(tuned)_calibration.png
+12-15 13:43 - Model type <class 'imblearn.pipeline.Pipeline'> does not support feature importance plotting.
+12-15 13:43 - Final_xgboost_(tuned) - Dataset too large for missing values annotation on heatmap.
+12-15 13:44 - Missing values heatmap saved to reports/evaluations/run_20241215_112116/Final_xgboost_(tuned)_missing_values_heatmap.png
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_temporal_patient_108897.png
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_temporal_patient_1849.png
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_temporal_patient_15449.png
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_temporal_patient_19636.png
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_temporal_patient_2114.png
+12-15 13:44 - Saved temporal progression plots for 5 patients
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_error_analysis.png
+12-15 13:44 - Saved error analysis plots to reports/evaluations/run_20241215_112116
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_interaction_Unnamed: 0_Hour.png
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_interaction_Unit1_Unit2.png
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_interaction_Unnamed: 0_ICULOS.png
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_interaction_Hour_ICULOS.png
+12-15 13:44 - Saved plot: Final_xgboost_(tuned)_interaction_Bilirubin_direct_Bilirubin_total.png
+12-15 13:44 - Saved feature interaction plots for top 5 pairs
+12-15 13:44 - No sepsis patients have predictions for timeline plots.
+12-15 13:44 - Saved evaluation metrics to reports/evaluations/run_20241215_112116/Final_xgboost_(tuned)_metrics.json
+
+12-15 13:44 - Final evaluation completed for XGBoost (Tuned).
+12-15 13:44 - Saved plot: XGBoost (Tuned)_confusion_matrix.png
+12-15 13:44 - Saved plot: XGBoost (Tuned)_confusion_matrix_normalized.png
+12-15 13:44 - Saved plot: XGBoost_(Tuned)_roc_curve.png
+12-15 13:44 - Saved plot: XGBoost_(Tuned)_precision_recall_curve.png
+12-15 13:44 - Saved plot: XGBoost_(Tuned)_calibration.png
+12-15 13:44 - Model type <class 'imblearn.pipeline.Pipeline'> does not support feature importance plotting.
+12-15 13:44 - XGBoost (Tuned) - Dataset too large for missing values annotation on heatmap.
+12-15 13:44 - Missing values heatmap saved to reports/evaluations/run_20241215_112116/XGBoost (Tuned)_missing_values_heatmap.png
+12-15 13:44 - Saved plot: XGBoost_(Tuned)_temporal_patient_13491.png
+12-15 13:44 - Saved plot: XGBoost_(Tuned)_temporal_patient_109380.png
+12-15 13:44 - Saved plot: XGBoost_(Tuned)_temporal_patient_15235.png
+12-15 13:44 - Saved plot: XGBoost_(Tuned)_temporal_patient_100016.png
+12-15 13:44 - Saved plot: XGBoost_(Tuned)_temporal_patient_9513.png
+12-15 13:44 - Saved temporal progression plots for 5 patients
+12-15 13:44 - Saved plot: XGBoost_(Tuned)_error_analysis.png
+12-15 13:44 - Saved error analysis plots to reports/evaluations/run_20241215_112116
+12-15 13:44 - Saved plot: XGBoost (Tuned)_interaction_Unit1_Unit2.png
+12-15 13:44 - Saved plot: XGBoost (Tuned)_interaction_Hour_ICULOS.png
+12-15 13:44 - Saved plot: XGBoost (Tuned)_interaction_Hct_Hgb.png
+12-15 13:45 - Saved plot: XGBoost (Tuned)_interaction_BUN_Creatinine.png
+12-15 13:45 - Saved plot: XGBoost (Tuned)_interaction_BUN_Age.png
+12-15 13:45 - Saved feature interaction plots for top 5 pairs
+12-15 13:45 - No sepsis patients have predictions for timeline plots.
+12-15 13:45 - Model card saved to reports/evaluations/run_20241215_112116/XGBoost (Tuned)_model_card.md
+12-15 13:45 - Saving the best model (XGBoost (Tuned))
+12-15 13:45 - Saved model 'XGBoost (Tuned)' version 'v3' to 'models/XGBoost (Tuned)_20241215_134511_f3fd28'
+12-15 13:45 - Model (XGBoost (Tuned)) saved successfully.
+12-15 13:45 - Sepsis Prediction Pipeline completed successfully.
+12-15 13:45 - --------------------------------------------------------------------------------
+12-15 13:45 - Phase Complete: Main
+12-15 13:45 - Duration: 8635.97 seconds
+12-15 13:45 - Final Memory Usage: 1533.36 MB
+12-15 13:45 - Memory Change: +1321.14 MB
+12-15 13:45 - ================================================================================

@@ -263,15 +263,11 @@ def generate_evaluation_plots(
         plot_missing_values(data, report_dir, model_name=model_name, logger=logger)
 
         # 5. Temporal analysis plots
-        # vital_features = ["HR", "O2Sat", "Temp", "MAP", "Resp"]
-
-        # # Extract Patient_IDs, assuming same index as y_true
-        # patient_ids = data["Patient_ID"]
 
         plot_temporal_progression(
             data=data,  # Contains 'SepsisLabel'
-            patient_ids=data["Patient_ID"],  # Assuming 'Patient_ID' exists
-            features=["HR", "O2Sat", "Temp", "MAP", "Resp"],  # Example features
+            patient_ids=data["Patient_ID"],
+            features=["HR", "O2Sat", "Temp", "MAP", "Resp"],
             report_dir=report_dir,
             model_name=model_name,
             max_patients=5,

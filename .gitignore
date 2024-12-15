@@ -41,3 +41,5 @@ docs/Overview.md
 sepsis_prediction_optimization_20241213_210538.db
 
 checkpoints
+models/XGBoost (Tuned)_20241215_134511_f3fd28/model.pkl
+models/XGBoost (Tuned)_20241215_110337_ec8b81/model.pkl
