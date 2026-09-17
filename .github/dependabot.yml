@@ -1,0 +1,26 @@
+# Weekly maintenance; security fixes are raised as advisories become available.
+# Cooldown and the PR limit apply only to routine version updates.
+# Major upgrades and workflow/infrastructure changes require review.
+version: 2
+updates:
+- package-ecosystem: conda
+  directory: /
+  schedule:
+    interval: weekly
+    day: monday
+    time: 06:00
+    timezone: America/Detroit
+  open-pull-requests-limit: 5
+  cooldown:
+    default-days: 3
+  commit-message:
+    prefix: chore(deps)
+  groups:
+    security-updates:
+      applies-to: security-updates
+      patterns:
+      - '*'
+    routine-updates:
+      applies-to: version-updates
+      patterns:
+      - '*'
